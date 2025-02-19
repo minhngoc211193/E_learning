@@ -17,4 +17,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
+var mongoose = require('mongoose');
+var database = "mongodb+srv://group5:Ngoc2003@elearning.swlhy.mongodb.net/";
+mongoose.connect(database)
+    .then(() => console.log('✅ Connected to MongoDB successfully!'))
+    .catch((err) => console.error('❌ Connection to DB failed. Error:', err));  
+
 module.exports = app;
