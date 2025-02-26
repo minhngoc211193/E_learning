@@ -1,23 +1,28 @@
 var express = require('express');
 var path = require('path');
-var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+const dotenv = require('dotenv');
+var mongoose = require('mongoose');
+const cookieParser = require('cookie-parser');  
+const cors = require('cors');
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
 
-var app = express();
+dotenv.config();
+const app = express();
 
+
+var authRouter = require('./routes/auth');
+
+
+app.use(cors());
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
+app.use('/auth', authRouter);
 
-var mongoose = require('mongoose');
 var database = "mongodb+srv://group5:group5@elearning.swlhy.mongodb.net/E_Learning";
 mongoose.connect(database)
     .then(() => console.log('✅ Connected to MongoDB successfully!'))
