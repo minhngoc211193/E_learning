@@ -7,7 +7,7 @@ const CreateUser = ()=>{
     useEffect(() => {
         const majors = async() =>{
             try {
-                const response = await axios.get("http://localhost:8000/majors");
+                const response = await axios.get("http://localhost:8000/major/majors");
                 setMajors(response.data); 
             }catch(err){
                 console.log(err);
@@ -31,10 +31,28 @@ const CreateUser = ()=>{
         setUserData({userData, [e.target.name]: e.target.value});
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         //call API
         e.preventDefault();
-        console.log("New user was created", userData, setUserData);
+        try{
+          const response =  await axios.post("http://localhost:8000/register", userData);
+          console.log("Create new user", response.data);
+          setUserData({
+            Fullname: "",  
+            Username: "",  
+            Password: "",  
+            Email: "",     
+            PhoneNumber: "", 
+            Role: "",   
+            Gender: "",   
+            DateOfBirth: "", 
+            Major: ""
+          });
+
+        }catch(e) {
+          console.error("Error registering user:", e);
+
+        }
     };
     return(
         <div className={styles.createPage}>
