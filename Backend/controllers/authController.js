@@ -5,8 +5,8 @@ const jwt = require('jsonwebtoken');
 const authController = {
     registerUser: async (req, res) => {
         try {
-            const { Fullname, Username, Password, Gender, Role, Email } = req.body;
-            // Kiểm tra xem username hoặc email đã tồn tại chưa
+            const { Fullname, Username, Password, DateOfBirth, Gender, Role, Major, Email } = req.body;
+            // Check if username or email exists
             const existingUser = await User.findOne({ $or: [{ Username }, { Email }] });
             if (existingUser) {
                 return res.status(400).json({ message: "Username or email already exists" });
@@ -18,8 +18,10 @@ const authController = {
                 Fullname,
                 Username,
                 Password: hashedPassword,
+                DateOfBirth,
                 Gender,
                 Role: Role || "student",
+                Major,
                 Email
             });
             // Save to database
