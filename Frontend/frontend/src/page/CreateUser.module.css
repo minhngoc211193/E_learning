@@ -14,15 +14,7 @@
     width: 24rem;
 }
 .formGrid{
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
     display: grid;
-=======
-display: grid;
->>>>>>> Stashed changes
-=======
-display: grid;
->>>>>>> Stashed changes
     grid-template-columns: 1fr 1fr;
     gap: 16px;
 }
