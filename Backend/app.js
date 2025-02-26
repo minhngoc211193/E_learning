@@ -11,7 +11,8 @@ dotenv.config();
 const app = express();
 
 
-var authRouter = require('./routes/auth');
+const authRouter = require('./routes/auth');
+const majorRouter = require('./routes/major');
 
 
 app.use(cors());
@@ -21,7 +22,10 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+//Router
 app.use('/auth', authRouter);
+app.use('/major', majorRouter);
+
 
 var database = "mongodb+srv://group5:group5@elearning.swlhy.mongodb.net/E_Learning";
 mongoose.connect(database)
