@@ -7,13 +7,13 @@ const CreateUser = ()=>{
     const [majors, setMajors] = useState([]);
     const navigate = useNavigate();
     useEffect(() => {
-      const token = localStorage.getItem("Token");
+      const token = localStorage.getItem("accessToken");
       if (token) {
           try {
               const decodedToken = JSON.parse(atob(token.split(".")[1])); // Giải mã token
               if (decodedToken.Role !== "admin") {
                   alert("You have to login!");
-                  navigate("/login"); // Chuyển hướng về trang chủ
+                  navigate("/home"); // Chuyển hướng về trang chủ
               }
           } catch (err) {
               console.error("Token không hợp lệ", err);
@@ -21,7 +21,7 @@ const CreateUser = ()=>{
           }
       } else {
           alert("Bạn cần đăng nhập trước!");
-          navigate("/login"); // Chuyển hướng đến trang login nếu chưa có token
+          navigate("/home"); // Chuyển hướng đến trang login nếu chưa có token
       }
   }, [navigate]);
     useEffect(() => {
