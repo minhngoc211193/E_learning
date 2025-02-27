@@ -27,7 +27,7 @@ const CreateUser = ()=>{
             Gender: "",   
             DateOfBirth: "",
             Major: "",   
-            SchoolYear:""  
+
     });
 
     const handleChange = (e) => {
@@ -59,7 +59,7 @@ const CreateUser = ()=>{
             Gender: "",   
             DateOfBirth: "",
             Major: "",
-            Schoolyear: ""
+
           });
 
         }catch(e) {
@@ -160,11 +160,6 @@ const CreateUser = ()=>{
                 ))}
               </select>
             ) : null}
-        <br/>
-        <br/>
-        {userData.Role === "student"?(
-            <input name = "SchoolYear" value = {userData.SchoolYear} onChange = {handleChange} className = {styles.input} />
-        ): null }
         <br/>
         <br/>
         <select

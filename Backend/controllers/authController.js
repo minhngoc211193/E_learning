@@ -5,7 +5,9 @@ const jwt = require('jsonwebtoken');
 const authController = {
     registerUser: async (req, res) => {
         try {
+
             const { Fullname, Username, Password, DateOfBirth, Gender, Role, Major, Email, PhoneNumber } = req.body;
+
             // Check if username or email exists
             const existingUser = await User.findOne({ $or: [{ Username }, { Email }] });
             if (existingUser) {
@@ -27,6 +29,7 @@ const authController = {
                 Major: (Role === 'student' || Role === 'teacher') ? Major : null,
                 Email,
                 PhoneNumber
+
             };
 
             // Gán SchoolYear mặc định là 1 nếu Role là 'student'
