@@ -15,7 +15,7 @@ function Menu() {
         console.log(isOpenMenu)
     };
     const handleLogout = () => {
-        localStorage.removeItem("token");
+        localStorage.removeItem("accessToken");
         window.location.href = "/";
     };
     return (

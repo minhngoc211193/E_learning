@@ -13,6 +13,7 @@ const app = express();
 
 const authRouter = require('./routes/auth');
 const majorRouter = require('./routes/major');
+const blogRouter = require('./routes/blog');
 
 
 app.use(cors());
@@ -25,12 +26,14 @@ app.use(express.static(path.join(__dirname, 'public')));
 //Router
 app.use('/auth', authRouter);
 app.use('/major', majorRouter);
+app.use('/blog', blogRouter);
 
-
-var database = "mongodb+srv://group5:group5@elearning.swlhy.mongodb.net/E_Learning";
-mongoose.connect(database)
-    .then(() => console.log('✅ Connected to MongoDB successfully!'))
-    .catch((err) => console.error('❌ Connection to DB failed. Error:', err));  
+// connect to mongodb
+const connectToMongo = async () => {
+    await mongoose.connect(process.env.MONGODB_URL);
+    console.log("Connected to MongoDB");
+};
+connectToMongo();
 
     
 module.exports = app;

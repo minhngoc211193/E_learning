@@ -1,20 +1,22 @@
 import React from 'react';
 import styles from './CreateUser.module.css';
-import {useState, Navigate, useEffect} from 'react';
+import {useState, useEffect} from 'react';
 import axios from 'axios';
 const CreateUser = ()=>{
     const [majors, setMajors] = useState([]);
+
     useEffect(() => {
         const majors = async() =>{
             try {
-                const response = await axios.get("http://localhost:8000/majors");
+                const response = await axios.get("http://localhost:8000/major/majors");
                 setMajors(response.data); 
             }catch(err){
                 console.log(err);
             }
         };
         majors();
-    })
+    },[] )
+    const [message, setMessage] = useState([]);
     const[userData, setUserData] = useState({
             Fullname: "",  
             Username: "",  
@@ -23,19 +25,52 @@ const CreateUser = ()=>{
             PhoneNumber: "", 
             Role: "",   
             Gender: "",   
-            DateOfBirth: "", 
-            Major: "",     
+            DateOfBirth: "",
+            Major: "",   
+
     });
 
     const handleChange = (e) => {
-        setUserData({userData, [e.target.name]: e.target.value});
+      setUserData((prevState) => ({
+        ...prevState,  // Giữ nguyên dữ liệu cũ
+        [e.target.name]: e.target.value
+    }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         //call API
         e.preventDefault();
-        console.log("New user was created", userData, setUserData);
+        console.log("Sending Data:", userData);
+        try{
+          const response =  await axios.post("http://localhost:8000/auth/register", userData, {
+            headers: {
+              "Content-Type": "application/json"
+            },
+          });
+
+          console.log("Create new user", response.data);
+          setUserData({
+            Fullname: "",  
+            Username: "",  
+            Password: "",  
+            Email: "",     
+            PhoneNumber: "", 
+            Role: "",   
+            Gender: "",   
+            DateOfBirth: "",
+            Major: "",
+
+          });
+
+        }catch(e) {
+          if(e.response && e.response.data.errors){
+            setMessage(e.response.data.errors[0].msg);
+          }
+          console.error("Error registering user:", e);
+
+        }
     };
+    // console.log(userData);
     return(
         <div className={styles.createPage}>
         <form onSubmit={handleSubmit} className={styles.form}>
@@ -47,9 +82,9 @@ const CreateUser = ()=>{
         <div className={styles.formGrid}>
         <input
           type="text"
-          name="fullName"
+          name="Fullname"
           placeholder="Full Name"
-          value={userData.FullName}
+          value={userData.Fullname}
           onChange={handleChange}
           className={styles.input}
           required
@@ -58,7 +93,7 @@ const CreateUser = ()=>{
         <br/>
         <input
           type="text"
-          name="username"
+          name="Username"
           placeholder="Username"
           value={userData.Username}
           onChange={handleChange}
@@ -69,7 +104,7 @@ const CreateUser = ()=>{
         <br/>
         <input
           type="password"
-          name="password"
+          name="Password"
           placeholder="Password"
           value={userData.Password}
           onChange={handleChange}
@@ -80,7 +115,7 @@ const CreateUser = ()=>{
          <br/>       
         <input
           type="email"
-          name="email"
+          name="Email"
           placeholder="Email"
           value={userData.Email}
           onChange={handleChange}
@@ -91,7 +126,7 @@ const CreateUser = ()=>{
          <br/>       
         <input
           type="tel"
-          name="phoneNumber"
+          name="PhoneNumber"
           placeholder="Phone Number"
           value={userData.PhoneNumber}
           onChange={handleChange}
@@ -101,8 +136,8 @@ const CreateUser = ()=>{
         <br/>
         <br/>
         <select
-          name="role"
-          value={userData.role}
+          name="Role"
+          value={userData.Role}
           onChange={handleChange}
           className={styles.Select}
           required
@@ -113,20 +148,22 @@ const CreateUser = ()=>{
           <option value="teacher">Teacher</option>
         </select>
         
-        {userData.role === "student" || userData.role === "teacher" ? (
-          <input
-            type="text"
-            name="major"
-            placeholder="Major"
-            value={userData.Major}
-            onChange={handleChange}
-            className={styles.input}
-          />
-        ) : null}
+        {userData.Role === "student" || userData.Role === "teacher" ? (
+              <select
+                name="Major"
+                value={userData.Major}
+                onChange={handleChange}
+                className="Select"
+              >
+                {majors.map((major) => (
+                  <option key={major._id} value={major._id}>{major.Name}</option>
+                ))}
+              </select>
+            ) : null}
         <br/>
         <br/>
         <select
-          name="gender"
+          name="Gender"
           value={userData.Gender}
           onChange={handleChange}
           className={styles.Select}
@@ -140,10 +177,10 @@ const CreateUser = ()=>{
         <br/>
         <input
           type="date"
-          name="dateOfBirth"
+          name="DateOfBirth"
           value={userData.DateOfBirth}
           onChange={handleChange}
-          className=""
+          className="Select"
           required
         />
         <br/>
@@ -156,6 +193,7 @@ const CreateUser = ()=>{
         </button>
         </div>
       </form>
+      {message &&<p>{message}</p>}
     </div>
     );
 };
