@@ -5,7 +5,7 @@ const { verifyToken, verifyAdmin } = require('../middlewares/authMiddleware');
 
 const router = express.Router();
 
-router.post('/register', validateRegister, authController.registerUser);
+router.post('/register',verifyAdmin, validateRegister, authController.registerUser);
 router.post('/login', validateLogin, authController.loginUser);
 
 module.exports = router;
