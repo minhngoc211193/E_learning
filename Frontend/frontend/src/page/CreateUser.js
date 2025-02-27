@@ -1,6 +1,6 @@
 import React from 'react';
 import styles from './CreateUser.module.css';
-import {useState} from 'react';
+import {useState, useEffect} from 'react';
 import axios from 'axios';
 const CreateUser = ()=>{
     const [majors, setMajors] = useState([]);
@@ -10,7 +10,7 @@ const CreateUser = ()=>{
             try {
                 const response = await axios.get("http://localhost:8000/major/majors");
                 setMajors(response.data); 
-            }catch(err){f
+            }catch(err){
                 console.log(err);
             }
         };
@@ -162,15 +162,6 @@ const CreateUser = ()=>{
             ) : null}
         <br/>
         <br/>
-<<<<<<< Updated upstream
-        {userData.Role == "student"?(
-            <input name = "SchoolYear" value = {userData.SchoolYear} onChange = {handleChange} className = {styles.input} />
-        ): null }
-        <br/>
-        <br/>
-=======
-
->>>>>>> Stashed changes
         <select
           name="Gender"
           value={userData.Gender}
