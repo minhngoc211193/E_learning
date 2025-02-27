@@ -1,0 +1,39 @@
+.footer{
+    background-color: #00033d;
+    color: white;
+    padding: 50px 100px 10px 100px;
+}
+
+.footerContent{
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 30px;
+}
+
+.footerContent h2{
+    padding-bottom: 10px;
+    border-bottom: 2px solid rgb(221, 62, 9);
+    margin-bottom: 30px;
+}
+
+.aboutUs{
+    grid-column: span 1;
+}
+
+.system1{
+    grid-column: span 1;
+}
+
+.system2{
+    grid-column: span 1;
+    margin-top: 68px;
+}
+
+.contact{
+    grid-column: span 1;
+}
+
+.footerBottom{
+    text-align: center;
+    margin-top: 50px;
+}
