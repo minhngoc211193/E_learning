@@ -1,11 +1,31 @@
 import React from 'react';
-import styles from './CreateUser.module.css';
+import styles from '../CreateUser.module.css';
 import {useState, useEffect} from 'react';
+import { useNavigate } from "react-router-dom";
 import axios from 'axios';
 const CreateUser = ()=>{
     const [majors, setMajors] = useState([]);
-
+    const navigate = useNavigate();
     useEffect(() => {
+      const token = localStorage.getItem("Token");
+      if (token) {
+          try {
+              const decodedToken = JSON.parse(atob(token.split(".")[1])); // Giải mã token
+              if (decodedToken.Role !== "admin") {
+                  alert("You have to login!");
+                  navigate("/login"); // Chuyển hướng về trang chủ
+              }
+          } catch (err) {
+              console.error("Token không hợp lệ", err);
+              navigate("/"); // Chuyển hướng nếu token lỗi
+          }
+      } else {
+          alert("Bạn cần đăng nhập trước!");
+          navigate("/login"); // Chuyển hướng đến trang login nếu chưa có token
+      }
+  }, [navigate]);
+    useEffect(() => {
+        
         const majors = async() =>{
             try {
                 const response = await axios.get("http://localhost:8000/major/majors");

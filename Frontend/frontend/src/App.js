@@ -1,9 +1,10 @@
 import React, {useState, Navigate} from 'react';
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import CreateUser from "./page/CreateUser";
+import CreateUser from "./page/User/CreateUser";
 import Login from "./page/Login";
 import Home from "./page/Home";
 import BlogDetail from "./page/BlogDetail";
+
 import './App.css';
 
 function App() {
