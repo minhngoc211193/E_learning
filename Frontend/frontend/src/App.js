@@ -1,6 +1,6 @@
 import React, {useState, Navigate} from 'react';
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import CreateUser from "./page/CreateUser";
+import CreateUser from "./page/User/CreateUser";
 
 import './App.css';
 
