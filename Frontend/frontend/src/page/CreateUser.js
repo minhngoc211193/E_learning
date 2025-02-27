@@ -27,7 +27,7 @@ const CreateUser = ()=>{
             Gender: "",   
             DateOfBirth: "",
             Major: "",   
-            SchoolYear:""  
+
     });
 
     const handleChange = (e) => {
@@ -59,7 +59,7 @@ const CreateUser = ()=>{
             Gender: "",   
             DateOfBirth: "",
             Major: "",
-            Schoolyear: ""
+
           });
 
         }catch(e) {
@@ -162,11 +162,15 @@ const CreateUser = ()=>{
             ) : null}
         <br/>
         <br/>
+<<<<<<< Updated upstream
         {userData.Role == "student"?(
             <input name = "SchoolYear" value = {userData.SchoolYear} onChange = {handleChange} className = {styles.input} />
         ): null }
         <br/>
         <br/>
+=======
+
+>>>>>>> Stashed changes
         <select
           name="Gender"
           value={userData.Gender}
