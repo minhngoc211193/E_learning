@@ -30,5 +30,24 @@ const verifyAdmin = (req, res, next) => {
     });
 };
 
+// Middleware kiểm tra quyền truy cập dựa trên vai trò
+const verifyRole = (allowedRoles) => {
+    return (req, res, next) => {
+        const { Role } = req.user; // Lấy vai trò từ user (được xác thực từ verifyToken)
+        
+        // Kiểm tra xem nếu không có allowedRoles thì trả về lỗi
+        if (!allowedRoles || allowedRoles.length === 0) {
+            return res.status(500).json({ message: "Không có role" });
+        }
 
-module.exports = { verifyToken, verifyAdmin };
+        // Kiểm tra nếu vai trò của người dùng nằm trong mảng allowedRoles
+        if (allowedRoles.includes(Role)) {
+            return next(); // Cho phép truy cập nếu vai trò hợp lệ
+        } else {
+            return res.status(403).json({ message: "Bạn không có quyền truy cập" });
+        }
+    };
+};
+
+
+module.exports = { verifyToken, verifyAdmin, verifyRole };
