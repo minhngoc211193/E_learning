@@ -1,0 +1,128 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.headerPicture{
+    width: 100%;
+    height: 500px;
+}
+
+.headerPicture img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.containerContent{
+    background-color: rgb(231, 231, 231);
+    padding: 80px 300px 30px 300px;
+}
+
+.containerContent h1{
+    margin: 0;
+    font-size: 50px;
+    padding: 20px 0 40px 20px;
+}
+
+.containerContent p{
+    padding: 0 40px;
+    margin-top: -20px;
+    font-size: 20px;
+    padding-bottom: 30px;
+}
+
+.mainContent{
+    background-color: white;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+}
+
+.authorProfile{
+    padding: 0 300px;
+    background-color: white;
+    
+}
+
+.authorInfo{
+    display: flex;
+}
+
+.authorInfo span{
+    display: flex;
+    align-items: center;
+    padding: 0 70px;
+    font-size: 50px;
+}
+
+.authorAvar h2{
+    margin-bottom: 0px;
+}
+
+.authorAvar h4{
+    margin-top: 5px;
+    padding-left: 10px;
+}
+
+.date{
+    text-align: end;
+    font-size: 14px;
+    margin-top: -30px;
+    border-bottom: 1px solid rgb(211, 211, 211);
+    padding-bottom: 30px;
+}
+
+.commentContainer{
+    padding: 0 300px;
+}
+
+.mainComment{
+    padding: 0 40px;
+}
+
+.userComment{
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+}
+
+.userComment span{
+    font-size: 18px;
+    padding: 0 10px;
+}
+
+.commentContent{
+    padding: 0 30px;
+}
+
+.commentContent p{
+    margin: 0;
+}
+
+.dateComment{
+    border-bottom: 1px solid rgb(211, 211, 211);
+}
+
+.dateComment p{
+    margin-top: 0;
+    font-size: 12px;
+    text-align: end;
+}
+
+.yourComment{
+    padding: 30px 300px 80px 300px;
+    display: flex;
+    align-items: center;
+}
+
+.yourComment button{
+    margin: 0;
+    width: 70px;
+}
+
+.yourComment input{
+    margin: 0 20px 0 30px;
+}
+

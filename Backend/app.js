@@ -1,38 +1,39 @@
 var express = require('express');
 var path = require('path');
-var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+const dotenv = require('dotenv');
+var mongoose = require('mongoose');
+const cookieParser = require('cookie-parser');  
+const cors = require('cors');
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
 
-var app = express();
+dotenv.config();
+const app = express();
 
-<<<<<<< Updated upstream
-=======
 
 const authRouter = require('./routes/auth');
 const majorRouter = require('./routes/major');
 const blogRouter = require('./routes/blog');
 
+var app = express();
 
-
-app.use(cors());
->>>>>>> Stashed changes
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
+//Router
+app.use('/auth', authRouter);
+app.use('/major', majorRouter);
+app.use('/blog', blogRouter);
 
-var mongoose = require('mongoose');
-var database = "mongodb+srv://group5:group5@elearning.swlhy.mongodb.net/E_Learning";
-mongoose.connect(database)
-    .then(() => console.log('✅ Connected to MongoDB successfully!'))
-    .catch((err) => console.error('❌ Connection to DB failed. Error:', err));  
+// connect to mongodb
+const connectToMongo = async () => {
+    await mongoose.connect(process.env.MONGODB_URL);
+    console.log("Connected to MongoDB");
+};
+connectToMongo();
 
     
 module.exports = app;
