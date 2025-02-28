@@ -14,9 +14,6 @@ const app = express();
 const authRouter = require('./routes/auth');
 const majorRouter = require('./routes/major');
 const blogRouter = require('./routes/blog');
-
-var app = express();
-
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
