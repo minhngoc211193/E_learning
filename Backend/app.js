@@ -8,6 +8,17 @@ var usersRouter = require('./routes/users');
 
 var app = express();
 
+<<<<<<< Updated upstream
+=======
+
+const authRouter = require('./routes/auth');
+const majorRouter = require('./routes/major');
+const blogRouter = require('./routes/blog');
+
+
+
+app.use(cors());
+>>>>>>> Stashed changes
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
