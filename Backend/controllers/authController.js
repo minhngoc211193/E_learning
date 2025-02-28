@@ -21,15 +21,8 @@ const transporter = nodemailer.createTransport({
 const authController = {
     registerUser: async (req, res) => {
         try {
-<<<<<<< Updated upstream
-
-            const { Fullname, Username, Password, DateOfBirth, Gender, Role, Major, Email, PhoneNumber } = req.body;
-
-            // Check if username or email exists
-=======
             const { Fullname, Username, DateOfBirth, Gender, Role, Major, Email, PhoneNumber } = req.body;
 
->>>>>>> Stashed changes
             const existingUser = await User.findOne({ $or: [{ Username }, { Email }] });
             if (existingUser) {
                 return res.status(400).json({ message: "Username or email already exists" });
@@ -53,15 +46,11 @@ const authController = {
                 Role: Role || "student",
                 Major: (Role === 'student' || Role === 'teacher') ? Major : null,
                 Email,
-<<<<<<< Updated upstream
-                PhoneNumber
 
-            };
-=======
                 PhoneNumber,
                 firstLogin: true // Đánh dấu chưa đổi mật khẩu
             });
->>>>>>> Stashed changes
+
 
             // ✅ Fix lỗi: Gán SchoolYear mặc định nếu Role là "student"
             if (newUser.Role === "student") {
