@@ -14,7 +14,6 @@ const userSchema = new mongoose.Schema({
     Subjects: [{type: mongoose.Schema.Types.ObjectId, ref:"Subject"}],
     Blogs: [{type: mongoose.Schema.Types.ObjectId, ref:"Blog"}],
     Comments: [{type: mongoose.Schema.Types.ObjectId, ref: "Comment"}],
-    Documents: [{type: mongoose.Schema.Types.ObjectId, ref: "Document"}],
     Meeting: [{type: mongoose.Schema.Types.ObjectId, ref:"Meeting"}],
     Notifications: [{type: mongoose.Schema.Types.ObjectId, ref:"Notification"}],
 

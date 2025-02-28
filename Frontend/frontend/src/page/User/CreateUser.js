@@ -40,7 +40,7 @@ const CreateUser = ()=>{
     const[userData, setUserData] = useState({
             Fullname: "",  
             Username: "",  
-            Password: "",  
+            // Password: "",  
             Email: "",     
             PhoneNumber: "", 
             Role: "",   
@@ -72,7 +72,7 @@ const CreateUser = ()=>{
           setUserData({
             Fullname: "",  
             Username: "",  
-            Password: "",  
+            // Password: "",  
             Email: "",     
             PhoneNumber: "", 
             Role: "",   
