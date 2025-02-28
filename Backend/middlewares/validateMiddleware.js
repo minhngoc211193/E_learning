@@ -32,11 +32,11 @@ const validateRegister = [
             }
         }),
 
-    body('Password')
-        .notEmpty().withMessage('Mật khẩu không được để trống')
-        .isLength({ min: 6 }).withMessage('Mật khẩu phải có ít nhất 6 ký tự')
-        .matches(/^[a-zA-Z0-9]+$/).withMessage('Mật khẩu không được chứa ký tự đặc biệt')
-        .not().matches(/\s/).withMessage('Mật khẩu không được chứa khoảng trắng'),
+    // body('Password')
+    //     .notEmpty().withMessage('Mật khẩu không được để trống')
+    //     .isLength({ min: 6 }).withMessage('Mật khẩu phải có ít nhất 6 ký tự')
+    //     .matches(/^[a-zA-Z0-9]+$/).withMessage('Mật khẩu không được chứa ký tự đặc biệt')
+    //     .not().matches(/\s/).withMessage('Mật khẩu không được chứa khoảng trắng'),
 
     body('Role')
         .notEmpty().withMessage('Role không được để trống')

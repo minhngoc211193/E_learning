@@ -16,6 +16,7 @@ const majorRouter = require('./routes/major');
 const blogRouter = require('./routes/blog');
 
 
+
 app.use(cors());
 app.use(logger('dev'));
 app.use(express.json());
