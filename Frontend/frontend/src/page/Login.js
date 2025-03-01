@@ -11,24 +11,44 @@ function Login() {
     const handleLogin = async (e) => {
         e.preventDefault();
         setError("");
+    
         try {
             const res = await axios.post("http://localhost:8000/auth/login", { Email: email, Password: password });
+    
+            // Lưu token & chuyển hướng
             localStorage.setItem("accessToken", res.data.accessToken);
             window.location.href = "/home";
+    
         } catch (err) {
-            setError(err.response?.data?.message || "Đăng nhập thất bại");
+            if (err.response) {
+                // 🟢 Xử lý lỗi từ validateLogin (lỗi nhập liệu)
+                if (err.response.data.errors) {
+                    setError(err.response.data.errors[0].msg);
+                }
+                // 🟡 Xử lý lỗi từ authController
+                else if (err.response.data.message) {
+                    setError(err.response.data.message);
+    
+                    // 🔴 Nếu là lần đầu đăng nhập, chuyển hướng sang trang đổi mật khẩu
+                    if (err.response.data.firstLogin) {
+                        setTimeout(() => {
+                            window.location.href = "/";
+                        }, 2000);
+                    }
+                }
+            } else {
+                setError("Đăng nhập thất bại. Vui lòng thử lại!");
+            }
         }
     };
-
     return (
         <div className={styles.form}>
             <div className={styles.content}>
                 <form onSubmit={handleLogin}>
                     <h1>Sign in</h1>
-                    <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)}
-                        required/>
-                    <input type="password" value={password} placeholder="Password" onChange={(e) => setPassword(e.target.value)}
-                        required/>
+                    <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)}/>
+                    <input type="password" value={password} placeholder="Password" onChange={(e) => setPassword(e.target.value)}/>
+                    {error && <p className={styles.errorMessage} style={{ visibility: error ? "visible" : "hidden" }}>{error}</p>}
                     <a href="#">Forgot your password?</a>
                     <button type="submit">Sign In</button>
                 </form>
