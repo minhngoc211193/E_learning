@@ -37,7 +37,7 @@ function Home() {
                     {blogs.map((blog, index) => (
                         <div 
                             key={blog._id} 
-                            onClick={() => navigate(`/blogdetail/${blog._id}`)} 
+                            onClick={() => navigate(`/blogdetail/${blog._id}`, { state: blog })} 
                             className={`${styles.blogCard} ${index < 2 ? styles.large : styles.small}`} >
                             <img src={blog.Image || backgroundImg} alt="blog" className={styles.blogImage} />
                             <div className={styles.blogContent}>

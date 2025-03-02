@@ -7,6 +7,7 @@ import Major from "./page/Major";
 import CreateBLog from './page/CreateBlog';
 import EditBlog from './page/EditBlog';
 import BlogDetail from "./page/BlogDetail";
+import ManageBlog from './page/ManageBlog';
 import './App.css';
 
 function checkToken() {
@@ -24,8 +25,9 @@ function App() {
           <Route path = "/major" element ={<Major/> }/>
           <Route path = "/home" element ={checkToken() ? <Home/> : <Navigate to="/"/>}/>
           <Route path="/createblog" element={checkToken() ? <CreateBLog /> : <Navigate to="/"/>} />
-          <Route path="/editblog" element={checkToken() ? <EditBlog /> : <Navigate to="/"/>} />
-          <Route path="/blogdetail" element={checkToken() ? <BlogDetail /> : <Navigate to="/"/>} />
+          <Route path="/editblog/:id" element={checkToken() ? <EditBlog /> : <Navigate to="/"/>} />
+          <Route path="/blogdetail/:id" element={checkToken() ? <BlogDetail /> : <Navigate to="/"/>} />
+          <Route path="/manageblog" element={checkToken() ? <ManageBlog /> : <Navigate to="/"/>} />
         </Routes>
       </div>
     </Router>
