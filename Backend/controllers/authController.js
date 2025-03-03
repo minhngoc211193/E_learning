@@ -21,7 +21,7 @@ const transporter = nodemailer.createTransport({
 const authController = {
     registerUser: async (req, res) => {
         try {
-            const { Fullname, Username, DateOfBirth, Gender, Role, Major, Email, PhoneNumber } = req.body;
+            const { Fullname, Username, DateOfBirth, Gender, Role, Major, Email, PhoneNumber, SchoolYear } = req.body;
 
             const existingUser = await User.findOne({ $or: [{ Username }, { Email }] });
             if (existingUser) {
@@ -46,16 +46,10 @@ const authController = {
                 Role: Role || "student",
                 Major: (Role === 'student' || Role === 'teacher') ? Major : null,
                 Email,
-
+                SchoolYear: (Role === 'student') ? SchoolYear : null,
                 PhoneNumber,
                 firstLogin: true // Đánh dấu chưa đổi mật khẩu
             });
-
-
-            // ✅ Fix lỗi: Gán SchoolYear mặc định nếu Role là "student"
-            if (newUser.Role === "student") {
-                newUser.SchoolYear = 1;  
-            }
 
             await newUser.save();
 
@@ -119,7 +113,7 @@ const authController = {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
                 sameSite: "strict"
-            }).status(200).json(others);
+            }).status(200).json({...others, accessToken});
             
         } catch (err) {
             console.error("❌ Login Error:", err);
