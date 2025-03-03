@@ -1,6 +1,6 @@
 var express = require('express');
 const userController = require('../controllers/userController');
-const {verifyAdmin, verifyToken} = require('../middleware/authMiddleware');
+const {verifyAdmin, verifyToken} = require('../middlewares/authMiddleware');
 
 var router = express.Router();
 /* GET users listing. */
