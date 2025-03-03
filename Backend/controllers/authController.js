@@ -18,6 +18,8 @@ const transporter = nodemailer.createTransport({
     }
 });
 
+const otpStorage = {};
+
 const authController = {
     registerUser: async (req, res) => {
         try {
@@ -49,6 +51,7 @@ const authController = {
                 PhoneNumber,
                 firstLogin: true // Đánh dấu chưa đổi mật khẩu
             });
+
 
             // ✅ Fix lỗi: Gán SchoolYear mặc định nếu Role là "student"
             if (newUser.Role === "student") {
@@ -117,7 +120,7 @@ const authController = {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
                 sameSite: "strict"
-            }).status(200).json(others);
+            }).status(200).json({user: others, accessToken});
             
         } catch (err) {
             console.error("❌ Login Error:", err);
@@ -148,6 +151,128 @@ const authController = {
         } catch (err) {
             console.error("❌ Change Password Error:", err);
             res.status(500).json({ message: "Error changing password", error: err.message });
+        }
+    },
+
+    resetPasswordWithOldPassword: async (req, res) => {
+        try {
+            const { userId, oldPassword, newPassword } = req.body;
+    
+            // 1. Kiểm tra user có tồn tại không
+            const user = await User.findById(userId);
+            if (!user) {
+                return res.status(400).json({ message: "User not found" });
+            }
+    
+            // 2. Kiểm tra mật khẩu cũ có đúng không
+            const validPassword = await bcrypt.compare(oldPassword, user.Password);
+            if (!validPassword) {
+                return res.status(400).json({ message: "Incorrect old password" });
+            }
+    
+            // 3. Kiểm tra độ mạnh của mật khẩu mới
+            const isStrongPassword = (password) => {
+                return password.length >= 8 && /\d/.test(password) && /[A-Z]/.test(password);
+            };
+    
+            if (!isStrongPassword(newPassword)) {
+                return res.status(400).json({ message: "Mật khẩu mới phải có ít nhất 8 ký tự, bao gồm số và chữ hoa" });
+            }
+    
+            // 4. Hash mật khẩu mới và lưu vào database
+            const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+            user.Password = hashedNewPassword;
+            await user.save();
+    
+            res.status(200).json({ message: "Password updated successfully" });
+        } catch (err) {
+            console.error("❌ Reset Password Error:", err);
+            res.status(500).json({ message: "Error resetting password" });
+        }
+    },
+
+    sendResetPasswordOTP: async (req, res) => {
+        try {
+            const { Email } = req.body;
+    
+            // 1. Kiểm tra user có tồn tại không
+            const user = await User.findOne({ Email });
+            if (!user) {
+                return res.status(400).json({ message: "Email không tồn tại" });
+            }
+    
+            // 2. Tạo mã OTP (6 số ngẫu nhiên)
+            const otpCode = Math.floor(100000 + Math.random() * 900000);
+            otpStorage[Email] = { otp: otpCode, expiresAt: Date.now() + 5 * 60 * 1000 }; // OTP có hiệu lực 5 phút
+    
+            // 3. Gửi email OTP
+            const mailOptions = {
+                from: process.env.EMAIL_USER,
+                to: Email,
+                subject: "🔐 Yêu cầu đặt lại mật khẩu",
+                text: `Mã OTP của bạn là: ${otpCode}. Mã này có hiệu lực trong 5 phút.`
+            };
+    
+            await transporter.sendMail(mailOptions);
+    
+            res.status(200).json({ message: "OTP đã được gửi đến email của bạn" });
+        } catch (err) {
+            console.error("❌ Send OTP Error:", err);
+            res.status(500).json({ message: "Error sending OTP" });
+        }
+    },
+
+    verifyOTP: async (req, res) => {
+        try {
+            const { Email, otp } = req.body;
+    
+            // 1. Kiểm tra OTP có hợp lệ không
+            if (!otpStorage[Email] || otpStorage[Email].expiresAt < Date.now()) {
+                return res.status(400).json({ message: "OTP không hợp lệ hoặc đã hết hạn" });
+            }
+    
+            if (otpStorage[Email].otp !== parseInt(otp)) {
+                return res.status(400).json({ message: "OTP không đúng" });
+            }
+    
+            // Xóa OTP khỏi bộ nhớ tạm
+            delete otpStorage[Email];
+    
+            res.status(200).json({ message: "OTP hợp lệ, bạn có thể đặt lại mật khẩu" });
+        } catch (err) {
+            console.error("❌ Verify OTP Error:", err);
+            res.status(500).json({ message: "Error verifying OTP" });
+        }
+    },
+    
+    resetPasswordWithOTP: async (req, res) => {
+        try {
+            const { Email, newPassword } = req.body;
+    
+            // 1. Kiểm tra user có tồn tại không
+            const user = await User.findOne({ Email });
+            if (!user) {
+                return res.status(400).json({ message: "User not found" });
+            }
+    
+            // 2. Kiểm tra độ mạnh của mật khẩu mới
+            const isStrongPassword = (password) => {
+                return password.length >= 8 && /\d/.test(password) && /[A-Z]/.test(password);
+            };
+    
+            if (!isStrongPassword(newPassword)) {
+                return res.status(400).json({ message: "Mật khẩu mới phải có ít nhất 8 ký tự, bao gồm số và chữ hoa" });
+            }
+    
+            // 3. Hash mật khẩu mới và lưu vào database
+            const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+            user.Password = hashedNewPassword;
+            await user.save();
+    
+            res.status(200).json({ message: "Mật khẩu đã được cập nhật thành công" });
+        } catch (err) {
+            console.error("❌ Reset Password Error:", err);
+            res.status(500).json({ message: "Error resetting password" });
         }
     }
 };
