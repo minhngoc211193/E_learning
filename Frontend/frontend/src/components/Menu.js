@@ -35,11 +35,11 @@ function Menu() {
             <div className={isOpenMenu ? styles.hiddenBackground : styles.hiddenMenu}>
                 <div className={styles.hiddenMain}>
                     <div className={styles.button}>
-                        <button onClick={handleCloseMenu} className={styles.buttonCloseMenu}><i class="fa-solid fa-caret-right"></i></button>
+                        <button onClick={handleCloseMenu} className={styles.buttonCloseMenu}><i className="fa-solid fa-caret-right"></i></button>
                     </div>
                     <div className={styles.menu}>
                         <div className={styles.menuTop}>
-                            <span><i class="fa-solid fa-user"></i></span>
+                            <span><i className="fa-solid fa-user"></i></span>
                             <h2>User Name</h2>
                             <p>Role</p>
                         </div>
@@ -59,20 +59,21 @@ function Menu() {
                             {userRole === "admin" && (
                             <>
                             <div onClick={() => navigate('/managedashboard')} className={styles.option}><span>Manage dashboard</span></div>
-                            <div onClick={() => navigate('/manageclass')} className={styles.option}><span>Manage class</span></div>
+                            <div onClick={() => navigate('/manageclass')} className={styles.option}><span>Manage class </span></div>
                             <div onClick={() => navigate('/manageschedule')} className={styles.option}><span>Manage schedule</span></div>
                             <div onClick={() => navigate('/manageblog')} className={styles.option}><span>Manage blog</span></div>
                             <div onClick={() => navigate('/manageaccount')} className={styles.option}><span>Manage account</span></div>
+                            <div onClick={() => navigate('/createuser')} className={styles.option}><span>Create user</span></div>
                             </>
                             )}
                         </div>
                         <div className={styles.logout}>
-                            <span onClick={handleLogout}><i class="fa-solid fa-right-from-bracket"></i></span>
+                            <span onClick={handleLogout}><i className="fa-solid fa-right-from-bracket"></i></span>
                         </div>
                     </div>
                 </div>
             </div>
-            <button onClick={handleOpenMenu} className={isOpenMenu ? styles.hiddenFixedButtonMenu : styles.fixedButtonMenu}><i class="fa-solid fa-caret-left"></i></button>
+            <button onClick={handleOpenMenu} className={isOpenMenu ? styles.hiddenFixedButtonMenu : styles.fixedButtonMenu}><i className="fa-solid fa-caret-left"></i></button>
         </div>
     )
 }
