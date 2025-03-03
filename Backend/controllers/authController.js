@@ -113,7 +113,11 @@ const authController = {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
                 sameSite: "strict"
-            }).status(200).json({...others, accessToken});
+
+
+
+            }).status(200).json({user: others, accessToken});
+
             
         } catch (err) {
             console.error("❌ Login Error:", err);

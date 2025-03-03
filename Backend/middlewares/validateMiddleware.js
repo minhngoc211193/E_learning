@@ -40,7 +40,7 @@ const validateRegister = [
 
     body('Role')
         .notEmpty().withMessage('Role không được để trống')
-        .isIn(['admin', 'teacher', 'student']).withMessage('Role phải là admin, tutor hoặc student'),
+        .isIn(['admin', 'teacher', 'student']).withMessage('Role phải là admin, teacher hoặc student'),
 
     body('PhoneNumber')
         .notEmpty().withMessage('Số điện thoại không được để trống')

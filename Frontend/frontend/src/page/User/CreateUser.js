@@ -3,7 +3,7 @@ import styles from '../CreateUser.module.css';
 import {useState, useEffect} from 'react';
 import { useNavigate } from "react-router-dom";
 import axios from 'axios';
-const CreateUser = ()=>{
+function CreateUser(){
     const [majors, setMajors] = useState([]);
     const navigate = useNavigate();
     useEffect(() => {
@@ -61,10 +61,12 @@ const CreateUser = ()=>{
         //call API
         e.preventDefault();
         console.log("Sending Data:", userData);
+        const token = localStorage.getItem("accessToken");
         try{
           const response =  await axios.post("http://localhost:8000/auth/register", userData, {
             headers: {
-              "Content-Type": "application/json"
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${token}`
             },
           });
 
@@ -122,7 +124,7 @@ const CreateUser = ()=>{
         />
         <br/>
         <br/>
-        <input
+        {/* <input
           type="password"
           name="Password"
           placeholder="Password"
@@ -132,7 +134,7 @@ const CreateUser = ()=>{
           required
         />
          <br/>
-         <br/>       
+         <br/>        */}
         <input
           type="email"
           name="Email"

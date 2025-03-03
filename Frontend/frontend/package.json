@@ -8,6 +8,7 @@
     "bootstrap-icons": "^1.11.3",
     "cra-template": "1.2.0",
     "formik": "^2.4.6",
+    "jwt-decode": "^4.0.0",
     "react": "^19.0.0",
     "react-bootstrap": "^2.10.9",
     "react-dom": "^19.0.0",
@@ -44,6 +45,6 @@
     "crypto-browserify": "^3.12.1"
   },
   "browser": {
-  "crypto": "crypto-browserify"
+    "crypto": "crypto-browserify"
   }
 }
