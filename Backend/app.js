@@ -14,6 +14,7 @@ const app = express();
 const authRouter = require('./routes/auth');
 const majorRouter = require('./routes/major');
 const blogRouter = require('./routes/blog');
+
 const commentRouter = require('./routes/comment');
 const subjectRouter = require('./routes/subject');
 const classRouter = require('./routes/class');
