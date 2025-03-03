@@ -1,18 +1,30 @@
-import React, {useState} from 'react'
-import styles from './Menu.module.css'
+import React, {useState, useEffect} from 'react';
+import styles from './Menu.module.css';
+import {jwtDecode} from "jwt-decode";
 import { useNavigate } from 'react-router-dom';
 
 function Menu() {
     const [isOpenMenu, setisOpenMenu] = useState(false);
     const navigate = useNavigate();
+    const [userRole, setUserRole] = useState("");
+
+    useEffect(() => {
+        const token = localStorage.getItem("accessToken");
+        if (token) {
+          try {
+            const decoded = jwtDecode(token);
+            setUserRole(decoded.Role);
+          } catch (error) {
+            console.error("Lỗi giải mã token", error);
+          }
+        }
+      }, []);
 
     const handleOpenMenu = () => {
         setisOpenMenu(true);
-        console.log(isOpenMenu)
     };
     const handleCloseMenu = () => {
         setisOpenMenu(false);
-        console.log(isOpenMenu)
     };
     const handleLogout = () => {
         localStorage.removeItem("accessToken");
@@ -32,11 +44,27 @@ function Menu() {
                             <p>Role</p>
                         </div>
                         <div className={styles.menuBottom}>
+                            {/* Các option chung */}
                             <div onClick={() => navigate('/profile')} className={styles.option}><span>Profile</span></div>
+                            {/* Các option cho student và teacher */}
+                            {(userRole === "student" || userRole === "teacher") && (
+                            <>
                             <div onClick={() => navigate('/dashboard')} className={styles.option}><span>Dashboard</span></div>
-                            <div onClick={() => navigate('/myClass')} className={styles.option}><span>My class</span></div>
+                            <div onClick={() => navigate('/myclass')} className={styles.option}><span>My class</span></div>
                             <div onClick={() => navigate('/myschedule')} className={styles.option}><span>My schedule</span></div>
-                            <div onClick={() => navigate('/createBlog')} className={styles.option}><span>Create blog</span></div>
+                            <div onClick={() => navigate('/createblog')} className={styles.option}><span>Create blog</span></div>
+                            </>
+                            )}
+                            {/* Các option cho admin */}
+                            {userRole === "admin" && (
+                            <>
+                            <div onClick={() => navigate('/managedashboard')} className={styles.option}><span>Manage dashboard</span></div>
+                            <div onClick={() => navigate('/manageclass')} className={styles.option}><span>Manage class</span></div>
+                            <div onClick={() => navigate('/manageschedule')} className={styles.option}><span>Manage schedule</span></div>
+                            <div onClick={() => navigate('/manageblog')} className={styles.option}><span>Manage blog</span></div>
+                            <div onClick={() => navigate('/manageaccount')} className={styles.option}><span>Manage account</span></div>
+                            </>
+                            )}
                         </div>
                         <div className={styles.logout}>
                             <span onClick={handleLogout}><i class="fa-solid fa-right-from-bracket"></i></span>
