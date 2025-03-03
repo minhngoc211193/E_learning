@@ -13,7 +13,6 @@ html, body {
 .headerPicture img{
     width: 100%;
     height: 100%;
-    object-fit: cover;
 }
 
 .containerContent{
@@ -32,6 +31,8 @@ html, body {
     margin-top: -20px;
     font-size: 20px;
     padding-bottom: 30px;
+    white-space: pre-line;
+    text-indent: 2em;
 }
 
 .mainContent{

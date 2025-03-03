@@ -83,3 +83,10 @@ button:hover {
 .image{
     border-radius: 0 10px 10px 0;
 }
+
+.errorMessage{
+    margin-top: -15px;
+    margin-bottom: 0;
+    color: red;
+    font-size: 11px;
+}
