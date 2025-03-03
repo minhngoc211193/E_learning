@@ -1,5 +1,5 @@
 import React from 'react';
-import styles from '../CreateUser.module.css';
+import styles from '../User/CreateUser.module.css';
 import {useState, useEffect} from 'react';
 import { useNavigate } from "react-router-dom";
 import axios from 'axios';
@@ -40,7 +40,7 @@ function CreateUser(){
     const[userData, setUserData] = useState({
             Fullname: "",  
             Username: "",  
-            // Password: "",  
+            SchoolYear:" ",  
             Email: "",     
             PhoneNumber: "", 
             Role: "",   
@@ -74,7 +74,7 @@ function CreateUser(){
           setUserData({
             Fullname: "",  
             Username: "",  
-            // Password: "",  
+            SchoolYear:"",  
             Email: "",     
             PhoneNumber: "", 
             Role: "",   
@@ -124,17 +124,6 @@ function CreateUser(){
         />
         <br/>
         <br/>
-        {/* <input
-          type="password"
-          name="Password"
-          placeholder="Password"
-          value={userData.Password}
-          onChange={handleChange}
-          className={styles.input}
-          required
-        />
-         <br/>
-         <br/>        */}
         <input
           type="email"
           name="Email"
@@ -184,6 +173,16 @@ function CreateUser(){
             ) : null}
         <br/>
         <br/>
+        {userData.Role === "student" ? (
+              <input
+                type = "number"
+                name="SchoolYear"
+                value={userData.SchoolYear}
+                onChange={handleChange}
+                className={styles.input}
+              >
+              </input>
+            ) : null}
         <select
           name="Gender"
           value={userData.Gender}
