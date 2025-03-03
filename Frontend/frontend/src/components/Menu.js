@@ -37,6 +37,7 @@ function Menu() {
                             <div onClick={() => navigate('/myClass')} className={styles.option}><span>My class</span></div>
                             <div onClick={() => navigate('/myschedule')} className={styles.option}><span>My schedule</span></div>
                             <div onClick={() => navigate('/createBlog')} className={styles.option}><span>Create blog</span></div>
+                            <div onClick={() => navigate('/createuser')} className={styles.option}><span>Create user</span></div>
                         </div>
                         <div className={styles.logout}>
                             <span onClick={handleLogout}><i class="fa-solid fa-right-from-bracket"></i></span>

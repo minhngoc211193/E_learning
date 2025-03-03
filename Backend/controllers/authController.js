@@ -46,7 +46,6 @@ const authController = {
                 Role: Role || "student",
                 Major: (Role === 'student' || Role === 'teacher') ? Major : null,
                 Email,
-
                 PhoneNumber,
                 firstLogin: true // Đánh dấu chưa đổi mật khẩu
             });
@@ -119,7 +118,7 @@ const authController = {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
                 sameSite: "strict"
-            }).status(200).json(others);
+            }).status(200).json({user: others, accessToken});
             
         } catch (err) {
             console.error("❌ Login Error:", err);
