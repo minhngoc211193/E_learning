@@ -14,6 +14,14 @@ const app = express();
 const authRouter = require('./routes/auth');
 const majorRouter = require('./routes/major');
 const blogRouter = require('./routes/blog');
+
+const commentRouter = require('./routes/comment');
+const subjectRouter = require('./routes/subject');
+const classRouter = require('./routes/class');
+const userRouter = require('./routes/users');
+
+
+app.use(cors());
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -24,6 +32,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/auth', authRouter);
 app.use('/major', majorRouter);
 app.use('/blog', blogRouter);
+app.use('/comment', commentRouter);
+app.use('/subject', subjectRouter);
+app.use('/class', classRouter);
+app.use('/user', userRouter);
 
 // connect to mongodb
 const connectToMongo = async () => {

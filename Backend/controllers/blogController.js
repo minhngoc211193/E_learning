@@ -23,7 +23,7 @@ const blogController = {
 
     getBlogById: async (req, res) => {
         try {
-            const blog = await Blog.findById(req.params.id).populate("User").populate("Comments");
+            const blog = await Blog.findById(req.params.id).populate("User").populate("Comment");
             if (!blog) return res.status(404).json({ message: "Blog not found" });
             res.status(200).json(blog);
         } catch (err) {

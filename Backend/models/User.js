@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const userSchema = new mongoose.Schema({
     Fullname: {type:String, required:true},
     Username: {type:String, required:true, unique:true},
+    Image:{type:String},
     Password: {type:String, required:true},
     Email:{type:String, required:true, unique:true},
     PhoneNumber:{type:Number, unique:true},
@@ -14,12 +15,11 @@ const userSchema = new mongoose.Schema({
     Subjects: [{type: mongoose.Schema.Types.ObjectId, ref:"Subject"}],
     Blogs: [{type: mongoose.Schema.Types.ObjectId, ref:"Blog"}],
     Comments: [{type: mongoose.Schema.Types.ObjectId, ref: "Comment"}],
-    Documents: [{type: mongoose.Schema.Types.ObjectId, ref: "Document"}],
     Meeting: [{type: mongoose.Schema.Types.ObjectId, ref:"Meeting"}],
     Notifications: [{type: mongoose.Schema.Types.ObjectId, ref:"Notification"}],
-
+    Conversations: [{type: mongoose.Schema.Types.ObjectId,ref: "Conversation"}],
     firstLogin: { type: Boolean, default: true }
-});
+}, {timestamps: true});
 
 const User = mongoose.model("User", userSchema, "users");
 
