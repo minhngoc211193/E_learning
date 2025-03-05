@@ -1,4 +1,8 @@
+const Class = require('../models/Class');
 const Subject = require('../models/Subject');
+const Schedule = require('../models/Schedule');
+const Assignment = require('../models/Assignment');
+const Document = require('../models/Document');
 
 const subjectController = {
     //lấy toàn bộ subject
@@ -26,7 +30,9 @@ const subjectController = {
     //lấy chi tiết subject
     detailSubject: async (req, res) => {
         try {
-            const subject = await Subject.findById(req.params.id).populate("Major").populate("Classes");
+            const subject = await Subject.findById(req.params.id).populate("Major", "Name Description")
+                .populate({path: "Classes", populate: ({path:"Teacher", select: "Fullname"})});
+
             if (!subject) return res.status(404).json({ message: "Subject not found" });
             res.status(200).json(subject);
         } catch (err) {
@@ -65,8 +71,19 @@ const subjectController = {
     deleteSubject: async (req, res) => {
         try {
             const deletedSubject = await Subject.findByIdAndDelete(req.params.id);
-            if (!deletedSubject) return res.status(404).json({ message: "Subject not found" });
-            res.status(200).json({ message: "Subject deleted successfully" });
+
+            if(!deletedSubject){
+                return res.status(404).json({message: "Subject không tồn tại"});
+            }
+
+            await Class.deleteMany({Subject: deletedSubject._id});
+
+            // xóa cả những thứ liên quan đến các class bị xóa cùng subject
+            await Schedule.deleteMany({ Class: { $in: deletedSubject.Classes } });
+            await Assignment.deleteMany({ Class: { $in: deletedSubject.Classes } });
+            await Document.deleteMany({ Class: { $in: deletedSubject.Classes } });
+
+            res.status(200).json({ message: "Xóa lớp và các đối tượng liên quan thành công" });
         } catch (err) {
             res.status(500).json({ message: "Failed to delete subject", error: err.message });
         }
