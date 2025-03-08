@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import CreateUser from "./page/User/CreateUser";
+import ManageUser from "./page/User/ManageUser";
 import Login from "./page/Login";
 import Home from "./page/Home";
 import Major from "./page/Major";
@@ -9,6 +10,7 @@ import CreateBLog from './page/CreateBlog';
 import EditBlog from './page/EditBlog';
 import BlogDetail from "./page/BlogDetail";
 import ManageBlog from './page/ManageBlog';
+
 import './App.css';
 
 function checkToken() {
@@ -23,6 +25,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Login />} />
           <Route path = "/createuser" element ={checkToken() ? <CreateUser/>: <Navigate to="/"/>  }/>
+          <Route path = "/manageuser" element ={checkToken() ? <ManageUser/>: <Navigate to="/"/>  }/>
           <Route path = "/major" element ={ checkToken() ? <Major/>: <Navigate to="/"/> }/>
           <Route path = "/home" element ={checkToken() ? <Home/> : <Navigate to="/"/>}/>
           <Route path="/createblog" element={checkToken() ? <CreateBLog /> : <Navigate to="/"/>} />
