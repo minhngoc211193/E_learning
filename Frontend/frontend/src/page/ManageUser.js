@@ -1,16 +1,21 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import styles from '../page/ManageUser.module.css';
-import {useState} from 'react-router-dom';
 import axios from 'axios';
 function ManageUser (){
     const [users, setUsers] = useState([]);
     useEffect(() => {
+
         fetchUsers();
     }, []);
 
     const fetchUsers = async () => {
+        
         try {
-            const response = await axios.get('http://localhost:8000/user/users', { withCredentials: true });
+            const response = await axios.get('http://localhost:8000/user/users', {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+                }
+             });
             setUsers(response.data);
         } catch (error) {
             console.error("Error fetching users", error);
@@ -19,7 +24,11 @@ function ManageUser (){
     const handleDelete = async (id) => {
         if (window.confirm('Are you sure you want to delete this user?')) {
             try {
-                await axios.delete(`http://localhost:8000/user/delete-user${id}`, { withCredentials: true });
+                await axios.delete(`http://localhost:8000/user/delete-user/${id}`, { 
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+                    }
+                 });
                 setUsers(users.filter(user => user._id !== id));
             } catch (error) {
                 console.error('Error deleting user:', error);
@@ -48,9 +57,9 @@ function ManageUser (){
                     <tbody>
                         {users.map(user => (
                             <tr key={user._id} className="border-t">
-                                <td className="p-3">{user.name}</td>
-                                <td className="p-3">{user.role}</td>
-                                <td className="p-3">{user.username}</td>
+                                <td className="p-3">{user.Fullname}</td>
+                                <td className="p-3">{user.Role}</td>
+                                <td className="p-3">{user.Username}</td>
                                 <td className="p-3">
                                     <button className="text-blue-500 mr-3">View</button>
                                     <button onClick={() => handleDelete(user._id)} className="text-red-500">Delete</button>

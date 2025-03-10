@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import CreateUser from "./page/User/CreateUser";
-import ManageUser from "./page/User/ManageUser";
+import ManageUser from "./page/ManageUser";
 import Login from "./page/Login";
 import Home from "./page/Home";
 import Major from "./page/Major";
@@ -10,6 +10,7 @@ import CreateBLog from './page/CreateBlog';
 import EditBlog from './page/EditBlog';
 import BlogDetail from "./page/BlogDetail";
 import ManageBlog from './page/ManageBlog';
+import ManageClass from './page/ManageClass';
 
 import './App.css';
 
@@ -33,6 +34,7 @@ function App() {
           <Route path="/blogdetail/:id" element={checkToken() ? <BlogDetail /> : <Navigate to="/"/>} />
           <Route path="/manageblog" element={checkToken() ? <ManageBlog /> : <Navigate to="/"/>} />
           <Route path="/subject" element={checkToken() ? <Subject /> : <Navigate to="/"/>} />
+          <Route path="/manageclass" element={checkToken() ? <ManageClass /> : <Navigate to="/"/>} />
         </Routes>
       </div>
     </Router>
