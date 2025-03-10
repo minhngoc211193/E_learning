@@ -8,6 +8,7 @@ function ManageBlog() {
   const [blogs, setBlogs] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
+  const token = localStorage.getItem("accessToken");
 
   useEffect(() => {
     fetchBlogs();
@@ -15,7 +16,9 @@ function ManageBlog() {
 
   const fetchBlogs = async () => {
     try {
-      const res = await axios.get('http://localhost:8000/blog/blogs');
+      const res = await axios.get('http://localhost:8000/blog/blogs',{
+        headers: { Authorization: `Bearer ${token}` }
+    });
       setBlogs(res.data);
     } catch (error) {
       console.error("Error fetching blogs", error);
@@ -25,15 +28,16 @@ function ManageBlog() {
   // Xử lý xóa blog
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:8000/blog/delete-blog/${id}`);
+      await axios.delete(`http://localhost:8000/blog/delete-blog/${id}`,{
+        headers: { Authorization: `Bearer ${token}` }});
       setBlogs(blogs.filter((blog) => blog._id !== id));
     } catch (error) {
       console.error("Error deleting blog", error);
     }
   };
 
-  const handleEdit = (blog) => {
-    navigate(`/editblog/${blog._id}`, { state: blog });
+  const handleEdit = (id) => {
+    navigate(`/editblog/${id}`);
   };
 
   // Xử lý tìm kiếm blog theo tiêu đề
@@ -71,7 +75,7 @@ function ManageBlog() {
               <thead>
                 <tr>
                   <th>Title</th>
-                  <th>User name</th>
+                  <th>Full name</th>
                   <th>Role</th>
                   <th>Email</th>
                   <th>Create At</th>
@@ -83,7 +87,7 @@ function ManageBlog() {
                 {filteredBlogs.map((blog) => (
                   <tr key={blog._id}>
                     <td className={styles.titleColumn}>{blog.Title}</td>
-                    <td>{blog.User?.Username || "N/A"}</td>
+                    <td>{blog.User?.Fullname || "N/A"}</td>
                     <td>{blog.User?.Role || "N/A"}</td>
                     <td>{blog.User?.Email || "N/A"}</td>
                     <td>{new Date(blog.createdAt).toLocaleDateString()}</td>
@@ -96,7 +100,7 @@ function ManageBlog() {
                       </button>
                       <button 
                         className={styles.btnEdit}
-                        onClick={() => handleEdit(blog)}>
+                        onClick={() => handleEdit(blog._id)}>
                         <i className="fa-solid fa-pen"></i>
                       </button>
                     </td>

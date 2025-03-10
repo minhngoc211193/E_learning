@@ -12,9 +12,12 @@ function Home() {
 
     // Gọi API lấy danh sách blog
     useEffect(() => {
-        axios.get('http://localhost:8000/blog/blogs')
-            .then(response => setBlogs(response.data))
-            .catch(error => console.error("Error fetching blogs:", error));
+        const token = localStorage.getItem("accessToken"); // Lấy token từ localStorage
+        axios.get('http://localhost:8000/blog/blogs', {
+            headers: { Authorization: `Bearer ${token}` }
+        })
+        .then(response => setBlogs(response.data))
+        .catch(error => console.error("Error fetching blogs:", error));
     }, []);
 
     return (

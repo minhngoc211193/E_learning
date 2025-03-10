@@ -54,12 +54,13 @@ html, body {
 .authorInfo span{
     display: flex;
     align-items: center;
-    padding: 0 70px;
+    padding: 0 40px 0 70px;
     font-size: 50px;
 }
 
 .authorAvar h2{
-    margin-bottom: 0px;
+    padding-top: 5px;
+    margin: 0;
 }
 
 .authorAvar h4{
@@ -86,7 +87,33 @@ html, body {
 .userComment{
     display: flex;
     align-items: center;
+    justify-content: space-between;
+}
+
+.userComentLeft{
+    display: flex;
+    align-items: center;
     padding: 0 10px;
+}
+
+.userComentLeft h3{
+    margin: 15px 0;
+}
+
+.options{
+    cursor: pointer;
+}
+
+.trash{
+    color: red;
+}
+
+.edit{
+    color: green;
+}
+
+.optionsHidden{
+    display: none;
 }
 
 .userComment span{
@@ -126,4 +153,37 @@ html, body {
 .yourComment input{
     margin: 0 20px 0 30px;
 }
+
+.editCommentHidden{
+    display: none;
+}
+
+.editComment{
+    display: flex;
+    margin-bottom: 5px;
+}
+
+.editComment input{
+    margin: 0;
+}
+
+.saveComment{
+    width: 50px;
+    padding: 10px 5px;
+    margin: 0 5px 0 20px;
+    border-radius: 10px;
+}
+
+.cancelComment{
+    width: 70px;
+    padding: 10px 5px;
+    background-color: rgb(236, 0, 0);
+    border-radius: 10px;
+    margin: 0;
+}
+
+.cancelComment:hover{
+    background-color: rgb(186, 0, 0);
+}
+
 

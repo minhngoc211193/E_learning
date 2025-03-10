@@ -49,10 +49,11 @@
     height: 100%;
     width: 350px;
     background-color: #7bafdc;
+    overflow: auto;
 }
 
 .menuTop span{
-    font-size: 150px;
+    font-size: 70px;
     display: flex;
     justify-content: center;
     padding-top: 30px;
@@ -118,7 +119,7 @@
     height: 100px;
     display: flex;
     justify-content: center;
-    align-items: end;
+    align-items: center;
     font-size: 28px;
 }
 

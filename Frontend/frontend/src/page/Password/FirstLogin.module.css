@@ -21,10 +21,10 @@ form {
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
-h1 {
+.heading {
     font-size: 40px;
     color: #333;
-    margin-bottom: 51px;
+    margin-bottom: 36px;
 }
 
 input {
@@ -88,5 +88,12 @@ button:hover {
     margin-top: -15px;
     margin-bottom: 0;
     color: red;
+    font-size: 11px;
+}
+
+.successMessage{
+    margin-top: -15px;
+    margin-bottom: 0;
+    color: green;
     font-size: 11px;
 }
