@@ -1,7 +1,7 @@
 const Class = require('../models/Class');
 const Subject = require('../models/Subject');
 const Schedule = require('../models/Schedule');
-const Assignment = require('../models/Assignment');
+
 const Document = require('../models/Document');
 
 const subjectController = {
@@ -80,7 +80,7 @@ const subjectController = {
 
             // xóa cả những thứ liên quan đến các class bị xóa cùng subject
             await Schedule.deleteMany({ Class: { $in: deletedSubject.Classes } });
-            await Assignment.deleteMany({ Class: { $in: deletedSubject.Classes } });
+
             await Document.deleteMany({ Class: { $in: deletedSubject.Classes } });
 
             res.status(200).json({ message: "Xóa lớp và các đối tượng liên quan thành công" });
