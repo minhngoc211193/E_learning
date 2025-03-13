@@ -35,6 +35,7 @@ function App() {
           <Route path="/manageblog" element={checkToken() ? <ManageBlog /> : <Navigate to="/"/>} />
           <Route path="/subject" element={checkToken() ? <Subject /> : <Navigate to="/"/>} />
           <Route path="/manageclass" element={checkToken() ? <ManageClass /> : <Navigate to="/"/>} />
+          
         </Routes>
       </div>
     </Router>
