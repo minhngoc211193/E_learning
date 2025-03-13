@@ -11,6 +11,7 @@ import EditBlog from './page/EditBlog';
 import BlogDetail from "./page/BlogDetail";
 import ManageBlog from './page/ManageBlog';
 import ManageClass from './page/ManageClass';
+import Document from './page/Document';
 
 import './App.css';
 
@@ -35,7 +36,7 @@ function App() {
           <Route path="/manageblog" element={checkToken() ? <ManageBlog /> : <Navigate to="/"/>} />
           <Route path="/subject" element={checkToken() ? <Subject /> : <Navigate to="/"/>} />
           <Route path="/manageclass" element={checkToken() ? <ManageClass /> : <Navigate to="/"/>} />
-          
+          <Route path="/document" element={checkToken() ? <Document /> : <Navigate to="/"/>}/>
         </Routes>
       </div>
     </Router>
