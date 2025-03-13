@@ -27,7 +27,6 @@ const classSchema = new mongoose.Schema({
         }
     }],
     Schedules: [{type:mongoose.Schema.Types.ObjectId, ref:"Schedule"}],
-    Assignments: [{type:mongoose.Schema.Types.ObjectId, ref:"Assignment"}],
     Documents: [{type: mongoose.Schema.Types.ObjectId, ref: "Document"}],
 });
 
