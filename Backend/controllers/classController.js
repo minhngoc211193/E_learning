@@ -1,19 +1,49 @@
 const Class = require('../models/Class');  // Import model Class
 const Subject = require('../models/Subject'); // Import model Subject
 const Schedule = require('../models/Schedule');
-const Assignment = require('../models/Assignment');
 const Document = require('../models/Document');
+const User = require('../models/User');
+const Major = require('../models/Major');
 
 const classController = {
     // Tạo lớp học mới
     createClass: async (req, res) => {
         try {
-            const { Classname, subjectId, Teacher, Student, scheduleId, assignmentId, documentId } = req.body;
+            const { Classname, subjectId, Teacher, Student, scheduleId, documentId } = req.body;
 
             // Kiểm tra xem Subject có tồn tại không
-            const subjectExists = await Subject.findById(subjectId);
+            const subjectExists = await Subject.findById(subjectId).populate('Major');
             if (!subjectExists) {
                 return res.status(404).json({ message: "Không tìm thấy Subject" });
+            }
+
+            // Kiểm tra nếu môn học thuộc ngành của Major, thì chỉ sinh viên và giáo viên thuộc ngành đó mới được tham gia
+            const subjectMajorId = subjectExists.Major._id;
+
+            // Kiểm tra giáo viên có thuộc ngành môn học này không
+            const teacher = await User.findById(Teacher).populate('Major');
+            if (!teacher || !teacher.Major || teacher.Major._id.toString() !== subjectMajorId.toString()) {
+                return res.status(400).json({ message: "Giáo viên phải thuộc ngành của môn học này" });
+            }
+
+            // Kiểm tra học sinh có thuộc ngành môn học này không
+            for (const studentId of Student) {
+                const student = await User.findById(studentId).populate('Major');
+                if (!student || !student.Major || student.Major._id.toString() !== subjectMajorId.toString()) {
+                    return res.status(400).json({ message: `Học sinh ${student.Fullname} không thuộc ngành của môn học này` });
+                }
+            }
+
+            // Kiểm tra xem học sinh đã tham gia lớp học của môn này chưa
+            for (const studentId of Student) {
+                const existingClass = await Class.findOne({
+                    Subject: subjectId,
+                    Student: studentId
+                });
+
+                if (existingClass) {
+                    return res.status(400).json({ message: `Học sinh với ID ${studentId} đã tham gia lớp học môn này` });
+                }
             }
 
             // Tạo Class mới
@@ -23,7 +53,6 @@ const classController = {
                 Teacher,
                 Student,
                 Schedules: scheduleId,
-                Assignments: assignmentId,
                 Documents: documentId
             });
 
@@ -33,6 +62,16 @@ const classController = {
             // Cập nhật lại danh sách các lớp trong Subject
             subjectExists.Classes.push(savedClass._id);
             await subjectExists.save();
+
+            // Cập nhật danh sách lớp học cho giáo viên và học sinh
+            teacher.Classes.push(savedClass._id);
+            await teacher.save();
+
+            for (const studentId of Student) {
+                const student = await User.findById(studentId);
+                student.Classes.push(savedClass._id);
+                await student.save();
+            }
 
             res.status(201).json(savedClass);
         } catch (err) {
@@ -60,8 +99,7 @@ const classController = {
                 .populate({ path: "Teacher", select: "Fullname" })
                 .populate({ path: "Student", select: "Fullname" });
             // .populate("Schedules")
-            // .populate("Assignments")
-            // .populate("Documents");
+
 
             if (!classData) return res.status(404).json({ message: "Không tìm thấy lớp" });
 
@@ -80,7 +118,7 @@ const classController = {
             // .populate("Teacher")
             // .populate("Student")
             // .populate("Schedules")
-            // .populate("Assignments")
+ 
             // .populate("Documents");
             if (classes.length === 0) {
                 return res.status(404).json({ message: "Không có lớp nào trong môn này" });
@@ -132,7 +170,7 @@ const classController = {
 
             // Xóa tất cả các Schedules, Assignments, và Documents có liên quan đến lớp học
             await Schedule.deleteMany({ Class: classData._id });
-            await Assignment.deleteMany({ Class: classData._id });
+    
             await Document.deleteMany({ Class: classData._id });
 
             // Xóa lớp học
