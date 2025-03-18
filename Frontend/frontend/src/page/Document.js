@@ -22,7 +22,7 @@ function Document (){
                 headers: {Authorization: `Bearer ${token}`},
             });
             console.log("Classes data:", response.data);
-            setClasses(response.data.classes || []);
+            setClasses(response.data || []);
         }catch(e){
             console.error("Error fetching classes", e);
             setClasses([]);
@@ -30,10 +30,10 @@ function Document (){
     };
     const fetchDocumentClass = async(classId) =>{
         try{
-            const response = await axios.get(`https://localhost:8000/document/documents/class/${classId}`,{
+            const response = await axios.get(`http://localhost:8000/document/documents/class/${classId}`,{
                 headers:{ Authorization: `Bearer ${token}` }
             });
-            setDocuments(response.data.documents);
+            setDocuments(response.data);
         }catch(e){
             console.error("Error fetching documents", e);
 
@@ -53,7 +53,7 @@ function Document (){
         formData.append("ClassId", selectClass);
 
         try{
-            await axios.post("https://localhost:8000/document/upload-document", formData, {
+            await axios.post("http://localhost:8000/document/upload-document", formData, {
                 
                 headers:{ "Content-Type" : "multipart/form-data", 
                     Authorization: `Bearer ${token}` }
@@ -69,7 +69,7 @@ function Document (){
         if (userRole !== "teacher") 
             return alert ("You do not have permission to delete the document!");
         try{
-            await axios.delete(`https://localhost:8000/document/documents/${documentId}`, {
+            await axios.delete(`http://localhost:8000/document/documents/${documentId}`, {
                 headers: {Authorization: `Bearer ${token}`}
             });
             alert("Delete Successful!");
@@ -118,7 +118,7 @@ function Document (){
             <li key={document._id} className="border p-2 rounded my-2 flex justify-between">
               <span>{document.Tittle}</span>
               <div>
-                <a href={`https://localhost:8000/document/download-document/${document._id}`} className="text-blue-500">Download</a>
+                <a href={`http://localhost:8000/document/download-document/${document._id}`} className="text-blue-500">Download</a>
                 {userRole === "teacher" && (
                   <button onClick={() => handleDelete(document._id)} className="bg-red-500 text-white px-2 py-1 ml-2 rounded">Delete</button>
                 )}
