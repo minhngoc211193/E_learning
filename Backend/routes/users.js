@@ -12,5 +12,6 @@ router.get('/users', verifyAdmin, userController.getUser);
 router.put('/update-user/:id', upload.single('file'), verifyAdmin, userController.updateUser);
 router.delete('/delete-user/:id', verifyAdmin, userController.deleteUser);
 router.get('/detail-user/:id', verifyToken, userController.detailUser);
+router.get('/users-by-major/:id', verifyAdmin, userController.getUserByMajor);
 
 module.exports = router;
