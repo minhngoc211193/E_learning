@@ -1,6 +1,8 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import CreateUser from "./page/User/CreateUser";
+import DetailUser  from './page/DetailUser';
+import UpdateUser from './page/EditUser';
 import ManageUser from "./page/ManageUser";
 import Login from "./page/Login";
 import Home from "./page/Home";
@@ -12,6 +14,8 @@ import BlogDetail from "./page/BlogDetail";
 import ManageBlog from './page/ManageBlog';
 import ManageClass from './page/ManageClass';
 import Document from './page/Document';
+import EditClass from './page/EditClass';
+import CreateClass from './page/CreateClass';
 
 import './App.css';
 
@@ -27,6 +31,8 @@ function App() {
         <Routes>
           <Route path="/" element={<Login />} />
           <Route path = "/createuser" element ={checkToken() ? <CreateUser/>: <Navigate to="/"/>  }/>
+          <Route path="/detail-user/:id" element = {checkToken() ? <DetailUser/>: <Navigate to="/"/>}/>
+          <Route path= "/update-user/:id" element = {checkToken() ? <UpdateUser/>: <Navigate to="/"/>}/>
           <Route path = "/manageuser" element ={checkToken() ? <ManageUser/>: <Navigate to="/"/>  }/>
           <Route path = "/major" element ={ checkToken() ? <Major/>: <Navigate to="/"/> }/>
           <Route path = "/home" element ={checkToken() ? <Home/> : <Navigate to="/"/>}/>
@@ -37,6 +43,10 @@ function App() {
           <Route path="/subject" element={checkToken() ? <Subject /> : <Navigate to="/"/>} />
           <Route path="/manageclass" element={checkToken() ? <ManageClass /> : <Navigate to="/"/>} />
           <Route path="/document" element={checkToken() ? <Document /> : <Navigate to="/"/>}/>
+          <Route path="/update-class/:id" element={checkToken() ? <EditClass /> : <Navigate to="/"/>}/>
+          <Route path="/detail-class/:id" element={checkToken()? <EditClass /> : <Navigate to="/"/>}/>
+          <Route path="/createclass" element={checkToken()? <CreateClass /> : <Navigate to="/"/>}/>
+          
         </Routes>
       </div>
     </Router>

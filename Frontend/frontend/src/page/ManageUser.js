@@ -1,8 +1,10 @@
 import React, {useState, useEffect} from 'react';
+import {useNavigate} from "react-router-dom";
 import styles from '../page/ManageUser.module.css';
 import axios from 'axios';
 function ManageUser (){
     const [users, setUsers] = useState([]);
+    const navigate = useNavigate();
     useEffect(() => {
 
         fetchUsers();
@@ -61,7 +63,7 @@ function ManageUser (){
                                 <td className="p-3">{user.Role}</td>
                                 <td className="p-3">{user.Username}</td>
                                 <td className="p-3">
-                                    <button className="text-blue-500 mr-3">View</button>
+                                    <button onClick={() => navigate(`/detail-user/${user._id}`)} className="text-blue-500 mr-3">View</button>
                                     <button onClick={() => handleDelete(user._id)} className="text-red-500">Delete</button>
                                 </td>
                             </tr>

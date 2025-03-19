@@ -28,7 +28,7 @@ function ManageClass (){
         if(!window.confirm("Are you sure you want to delete this class?")) 
             return;
         try{
-            await axios.delete(`hppts://localhost:80000/class/delete-class/${id}`,{
+            await axios.delete( `http://localhost:8000/class/delete-class/${id}`,{
                 headers: {Authorization: `Bearer ${token}`}
             });
             setClasses(classes.filter(classItem => classItem._id !== id));
@@ -71,7 +71,7 @@ function ManageClass (){
                     <div className="mt-4 flex justify-end space-x-2">
                             <button 
                                 className="px-3 py-1 bg-green-500 text-white rounded" 
-                                onClick={() => navigate(`/edit-class/${classItem._id}`)}
+                                onClick={() => navigate(`/update-class/${classItem._id}`)}
                             >
                                 Edit
                             </button>
