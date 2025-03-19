@@ -9,7 +9,7 @@ const classController = {
     // Tạo lớp học mới
     createClass: async (req, res) => {
         try {
-            const { Classname, subjectId, Teacher, Student, scheduleId, documentId } = req.body;
+            const { Classname, subjectId, Teacher, Student, Slots} = req.body;
 
             // Kiểm tra xem Subject có tồn tại không
             const subjectExists = await Subject.findById(subjectId).populate('Major');
@@ -52,8 +52,7 @@ const classController = {
                 Subject: subjectId,
                 Teacher,
                 Student,
-                Schedules: scheduleId,
-                Documents: documentId
+                Slots
             });
 
             // Lưu Class vào database
@@ -173,6 +172,9 @@ const classController = {
     
             await Document.deleteMany({ Class: classData._id });
 
+            await Subject.deleteMany({ Class: classData._id });
+
+            await User.deleteMany({ Class: classData._id });
             // Xóa lớp học
             // await Class.findByIdAndDelete(req.params.id);
     

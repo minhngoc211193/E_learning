@@ -93,36 +93,49 @@ const authController = {
             if (!user) {
                 return res.status(400).json({ message: "User not found" });
             }
-
+    
             const validPassword = await bcrypt.compare(req.body.Password, user.Password);
             if (!validPassword) {
                 return res.status(400).json({ message: "Incorrect password" });
             }
-
-            // ✅ Kiểm tra nếu là lần đăng nhập đầu tiên
-            if (user.firstLogin) {
-                return res.status(403).json({ message: "Bạn cần đổi mật khẩu trước khi tiếp tục", firstLogin: true });
-            }
-
+    
+            // Tạo accessToken cho người dùng
             const accessToken = jwt.sign(
                 { id: user._id, Role: user.Role },
                 process.env.JWT_SECRET,
                 { expiresIn: "1d" }
             );
-
+    
+            // Loại bỏ thông tin mật khẩu trước khi gửi response
             const { Password, ...others } = user.toObject();
+    
+            // Đặt cookie chứa token
             res.cookie("token", accessToken, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
                 sameSite: "strict"
-            }).status(200).json({user: others, accessToken});
+
+            });
+    
+            // Nếu đây là lần đăng nhập đầu tiên, trả về flag firstLogin kèm accessToken
+            if (user.firstLogin) {
+                return res.status(200).json({ 
+                    message: "Bạn cần đổi mật khẩu trước khi tiếp tục", 
+                    user: others, 
+                    accessToken, 
+                    firstLogin: true 
+                });
+            }
+    
+            // Trường hợp bình thường, trả về thông tin người dùng và accessToken
+            return res.status(200).json({ user: others, accessToken });
 
             
         } catch (err) {
             console.error("❌ Login Error:", err);
             res.status(500).json({ message: "Login failed", error: err.message });
         }
-    },
+    },    
 
     changePassword: async (req, res) => {
         try {
@@ -167,14 +180,15 @@ const authController = {
             }
     
             // 3. Kiểm tra độ mạnh của mật khẩu mới
-            const isStrongPassword = (password) => {
-                return password.length >= 8 && /\d/.test(password) && /[A-Z]/.test(password);
-            };
+
+            // const isStrongPassword = (password) => {
+            //     return password.length >= 8 && /\d/.test(password) && /[A-Z]/.test(password);
+            // };
     
-            if (!isStrongPassword(newPassword)) {
-                return res.status(400).json({ message: "Mật khẩu mới phải có ít nhất 8 ký tự, bao gồm số và chữ hoa" });
-            }
-    
+            // if (!isStrongPassword(newPassword)) {
+            //     return res.status(400).json({ message: "Mật khẩu mới phải có ít nhất 8 ký tự, bao gồm số và chữ hoa" });
+            // }
+
             // 4. Hash mật khẩu mới và lưu vào database
             const hashedNewPassword = await bcrypt.hash(newPassword, 10);
             user.Password = hashedNewPassword;

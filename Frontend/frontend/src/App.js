@@ -12,11 +12,16 @@ import CreateBLog from './page/CreateBlog';
 import EditBlog from './page/EditBlog';
 import BlogDetail from "./page/BlogDetail";
 import ManageBlog from './page/ManageBlog';
+
 import ManageClass from './page/ManageClass';
 import Document from './page/Document';
 import EditClass from './page/EditClass';
 import CreateClass from './page/CreateClass';
-
+import FirstLogin from './page/Password/FirstLogin';
+import ChangePassword from './page/Password/ChangePassword';
+import ResetPassword from './page/Password/ResetPassword';
+import Profile from './page/Profile';
+import UpdateInformationUser from './page/UpdateInformationUser';
 import './App.css';
 
 function checkToken() {
@@ -30,6 +35,11 @@ function App() {
       <div>
         <Routes>
           <Route path="/" element={<Login />} />
+          <Route path="/firstlogin" element={<FirstLogin />} />
+          <Route path="/changepassword" element={<ChangePassword />} />
+          <Route path="/resetpassword" element={<ResetPassword />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/updateinformationuser" element={<UpdateInformationUser />} />
           <Route path = "/createuser" element ={checkToken() ? <CreateUser/>: <Navigate to="/"/>  }/>
           <Route path="/detail-user/:id" element = {checkToken() ? <DetailUser/>: <Navigate to="/"/>}/>
           <Route path= "/update-user/:id" element = {checkToken() ? <UpdateUser/>: <Navigate to="/"/>}/>

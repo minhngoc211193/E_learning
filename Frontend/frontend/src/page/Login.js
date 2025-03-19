@@ -17,7 +17,6 @@ function Login() {
     
             // Lưu token & chuyển hướng
             localStorage.setItem("accessToken", res.data.accessToken);
-            localStorage.setItem("isLogin", "true")
             window.location.href = "/home";
     
         } catch (err) {
@@ -32,9 +31,10 @@ function Login() {
     
                     // 🔴 Nếu là lần đầu đăng nhập, chuyển hướng sang trang đổi mật khẩu
                     if (err.response.data.firstLogin) {
+                        alert("Đây là lần đầu tiên bạn đăng nhập, vui lòng đổi mật khẩu!");
                         setTimeout(() => {
-                            window.location.href = "/";
-                        }, 2000);
+                            window.location.href = "/firstlogin";
+                        }, 1000);
                     }
                 }
             } else {
@@ -50,11 +50,11 @@ function Login() {
                     <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)}/>
                     <input type="password" value={password} placeholder="Password" onChange={(e) => setPassword(e.target.value)}/>
                     {error && <p className={styles.errorMessage} style={{ visibility: error ? "visible" : "hidden" }}>{error}</p>}
-                    <a href="#">Forgot your password?</a>
+                    <a href="/resetpassword">Forgot your password?</a>
                     <button type="submit">Sign In</button>
                 </form>
                 <div className={styles.imageSection}>
-                    <img src={studyImg} className={styles.image} />
+                    <img src={studyImg} className={styles.image} alt=""/>
                 </div>
             </div>
         </div>

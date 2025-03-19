@@ -28,6 +28,7 @@ const classSchema = new mongoose.Schema({
     }],
     Schedules: [{type:mongoose.Schema.Types.ObjectId, ref:"Schedule"}],
     Documents: [{type: mongoose.Schema.Types.ObjectId, ref: "Document"}],
+    Slots: { type: Number, required: true },                // Số lượng slot của lớp
 });
 
 const Class = mongoose.model("Class", classSchema, "classes");
