@@ -114,6 +114,7 @@ const authController = {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
                 sameSite: "strict"
+
             });
     
             // Nếu đây là lần đăng nhập đầu tiên, trả về flag firstLogin kèm accessToken
@@ -128,6 +129,7 @@ const authController = {
     
             // Trường hợp bình thường, trả về thông tin người dùng và accessToken
             return res.status(200).json({ user: others, accessToken });
+
             
         } catch (err) {
             console.error("❌ Login Error:", err);
@@ -178,6 +180,7 @@ const authController = {
             }
     
             // 3. Kiểm tra độ mạnh của mật khẩu mới
+
             // const isStrongPassword = (password) => {
             //     return password.length >= 8 && /\d/.test(password) && /[A-Z]/.test(password);
             // };
@@ -185,7 +188,7 @@ const authController = {
             // if (!isStrongPassword(newPassword)) {
             //     return res.status(400).json({ message: "Mật khẩu mới phải có ít nhất 8 ký tự, bao gồm số và chữ hoa" });
             // }
-    
+
             // 4. Hash mật khẩu mới và lưu vào database
             const hashedNewPassword = await bcrypt.hash(newPassword, 10);
             user.Password = hashedNewPassword;
