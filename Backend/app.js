@@ -19,6 +19,7 @@ const commentRouter = require('./routes/comment');
 const subjectRouter = require('./routes/subject');
 const classRouter = require('./routes/class');
 const userRouter = require('./routes/users');
+const documentRouter = require('./routes/document');
 
 const messagesRoutes = require('./routes/messenger');
 
@@ -38,6 +39,7 @@ app.use('/comment', commentRouter);
 app.use('/subject', subjectRouter);
 app.use('/class', classRouter);
 app.use('/user', userRouter);
+app.use('/document', documentRouter);
 
 app.use('/messenger', messagesRoutes);
 

@@ -8,4 +8,5 @@ const conversationSchema = new mongoose.Schema({
 
 const Conversation = mongoose.model('Conversation', conversationSchema, 'conversations');
 
+
 module.exports = Conversation;

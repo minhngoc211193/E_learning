@@ -20,7 +20,7 @@ const blogController = {
     // get all blog
     getAllBlogs: async (req, res) => {
         try {
-            const blogs = await Blog.find().populate("User", "Fullname");
+            const blogs = await Blog.find().populate("User", "Fullname Role Email");
             res.status(200).json(blogs);
         } catch (err) {
             res.status(500).json({ message: "Failed to fetch blogs", error: err.message });
