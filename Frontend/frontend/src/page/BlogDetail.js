@@ -1,23 +1,24 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
-import {jwtDecode} from 'jwt-decode'; 
+import { jwtDecode } from 'jwt-decode';
 import axios from 'axios';
 import styles from './BlogDetail.module.css';
 import Footer from '../components/Footer';
 import Menu from '../components/Menu';
 import BackButton from '../components/BackButton';
+import Swal from "sweetalert2";
 
 function BlogDetail() {
   const { id } = useParams();
   const [blog, setBlog] = useState(null);
   const [loading, setLoading] = useState(true);
   const [editingCommentId, setEditingCommentId] = useState(null);
-  const [editedComment, setEditedComment] = useState(""); 
+  const [editedComment, setEditedComment] = useState("");
   const [error, setError] = useState("");
   const [comment, setComment] = useState("");
   const token = localStorage.getItem("accessToken");
-  
- 
+
+
   const currentUserId = jwtDecode(token).id;
 
   const toggleEditComment = (comment) => {
@@ -25,7 +26,7 @@ function BlogDetail() {
       setEditingCommentId(null);
     } else {
       setEditingCommentId(comment._id);
-      setEditedComment(comment.Content); 
+      setEditedComment(comment.Content);
     }
   };
 
@@ -70,13 +71,26 @@ function BlogDetail() {
   };
 
   const deleteComment = async (commentId) => {
+    const result = await Swal.fire({
+      title: "Do you want to delete this comment?",
+      text: "This action cannot be undone!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Delete",
+      cancelButtonText: "Cancel",
+    });
+
+    if (!result.isConfirmed) return;
     try {
       await axios.delete(`http://localhost:8000/comment/delete-comment/${commentId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchBlog();
+      Swal.fire("Đã xóa!", "Comment delete successfully.", "success");
     } catch (err) {
-      alert("Failed to delete comment.");
+      Swal.fire("Lỗi!", "Canot delete this comment.", "error");
     }
   };
 

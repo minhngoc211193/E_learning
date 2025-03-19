@@ -88,7 +88,7 @@ function ResetPassword() {
     try {
       const res = await axios.post("http://localhost:8000/auth/reset-password-otp", { Email: email, newPassword });
       setSuccess(res.data.message);
-      setTimeout(() => navigate("/l"), 1000);
+      setTimeout(() => navigate("/"), 1000);
     } catch (err) {
       setError(err.response?.data?.message || "Lỗi khi đặt lại mật khẩu");
     }

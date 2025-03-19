@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import axios from "axios";
 import styles from "./ManageBlog.module.css";
 import BackButton from '../components/BackButton';
+import Swal from "sweetalert2";
+
 
 function ManageBlog() {
   const [blogs, setBlogs] = useState([]);
@@ -27,12 +29,29 @@ function ManageBlog() {
 
   // Xử lý xóa blog
   const handleDelete = async (id) => {
+    const result = await Swal.fire({
+      title: "Do you want to delete this blog?",
+      text: "This action cannot be undone!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Delete",
+      cancelButtonText: "Cancel",
+    });
+  
+    if (!result.isConfirmed) return;
+  
     try {
-      await axios.delete(`http://localhost:8000/blog/delete-blog/${id}`,{
-        headers: { Authorization: `Bearer ${token}` }});
+      await axios.delete(`http://localhost:8000/blog/delete-blog/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setBlogs(blogs.filter((blog) => blog._id !== id));
+  
+      Swal.fire("Đã xóa!", "Blog đã được xóa thành công.", "success");
     } catch (error) {
-      console.error("Error deleting blog", error);
+      console.error("Lỗi khi xóa blog", error);
+      Swal.fire("Lỗi!", "Không thể xóa blog.", "error");
     }
   };
 

@@ -3,7 +3,7 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 import styles from "./FirstLogin.module.css";
-import img from "../assets/study.jpg";
+import img from "../../assets/study.jpg";
 
 function FirstLogin() {
     const [oldPassword, setOldPassword] = useState("");

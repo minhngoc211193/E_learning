@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import styles from './Home.module.css';
-import backgroundImg from './assets/banner.jpg';
+import backgroundImg from '../assets/banner.jpg';
 import Footer from '../components/Footer';
 import Menu from '../components/Menu';
 

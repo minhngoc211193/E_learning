@@ -2,11 +2,33 @@ import React, { useState, useEffect } from 'react';
 import styles from './Menu.module.css';
 import { jwtDecode } from "jwt-decode";
 import { useNavigate } from 'react-router-dom';
+import axios from "axios";
 
 function Menu() {
     const [isOpenMenu, setisOpenMenu] = useState(false);
     const navigate = useNavigate();
     const [userRole, setUserRole] = useState("");
+    const [fullname, setFullname] = useState("");
+
+    const fetchUserInfo = async () => {
+        const token = localStorage.getItem("accessToken");
+        if (!token) {
+            console.error("Bạn chưa đăng nhập!");
+            return;
+        }
+        try {
+            const decoded = jwtDecode(token);
+            const userId = decoded.id;
+            const res = await axios.get(`http://localhost:8000/user/detail-user/${userId}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            setFullname(res.data.Fullname);
+            setUserRole(res.data.Role);
+        } catch (err) {
+            console.error("Không thể lấy thông tin người dùng.");
+        }
+    };
+    fetchUserInfo();
 
     useEffect(() => {
         const token = localStorage.getItem("accessToken");
@@ -32,16 +54,15 @@ function Menu() {
     };
     return (
         <div>
-            <div className={isOpenMenu ? styles.hiddenBackground : styles.hiddenMenu}>
-                <div className={styles.hiddenMain}>
+            <div className={`${styles.hiddenBackground} ${isOpenMenu ? styles.isOpenBackground : ''}`}>
+                <div className={`${styles.hiddenMain} ${isOpenMenu ? styles.isOpen : ''}`} onClick={handleCloseMenu}>
                     <div className={styles.button}>
                         <button onClick={handleCloseMenu} className={styles.buttonCloseMenu}><i className="fa-solid fa-caret-right"></i></button>
                     </div>
-                    <div className={styles.menu}>
+                    <div className={styles.menu} onClick={(e) => e.stopPropagation()}>
                         <div className={styles.menuTop}>
-                            <span><i className="fa-solid fa-user"></i></span>
-                            <h2>User Name</h2>
-                            <p>Role</p>
+                            <h2>{fullname}</h2>
+                            <p>{userRole}</p>
                         </div>
                         <div className={styles.menuBottom}>
                             {/* Các option chung */}
