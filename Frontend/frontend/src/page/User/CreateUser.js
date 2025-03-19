@@ -3,6 +3,7 @@ import styles from '../User/CreateUser.module.css';
 import {useState, useEffect} from 'react';
 import { useNavigate } from "react-router-dom";
 import axios from 'axios';
+
 function CreateUser(){
     const [majors, setMajors] = useState([]);
     const navigate = useNavigate();
