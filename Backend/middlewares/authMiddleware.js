@@ -20,7 +20,7 @@ const verifyToken = (req, res, next) => {
     });
 };
 
-const verifyAdmin = (req, res, next) => {
+const verifyAdmin = (req, res, next) => { // Nhận userrole từ req :)) 
     verifyToken(req, res, () => {
         if (req.user && req.user.Role === 'admin') {
             next();

@@ -17,6 +17,7 @@ function Login() {
     
             // Lưu token & chuyển hướng
             localStorage.setItem("accessToken", res.data.accessToken);
+            localStorage.setItem("isLogin", "true")
             window.location.href = "/home";
     
         } catch (err) {

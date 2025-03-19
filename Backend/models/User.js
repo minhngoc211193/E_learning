@@ -17,9 +17,9 @@ const userSchema = new mongoose.Schema({
     Comments: [{type: mongoose.Schema.Types.ObjectId, ref: "Comment"}],
     Meeting: [{type: mongoose.Schema.Types.ObjectId, ref:"Meeting"}],
     Notifications: [{type: mongoose.Schema.Types.ObjectId, ref:"Notification"}],
-
+    Conversations: [{type: mongoose.Schema.Types.ObjectId,ref: "Conversation"}],
     firstLogin: { type: Boolean, default: true }
-});
+}, {timestamps: true});
 
 const User = mongoose.model("User", userSchema, "users");
 
