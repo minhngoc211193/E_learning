@@ -21,6 +21,8 @@ const classRouter = require('./routes/class');
 const userRouter = require('./routes/users');
 const documentRouter = require('./routes/document');
 
+const messagesRoutes = require('./routes/messenger');
+
 
 app.use(cors());
 app.use(logger('dev'));
@@ -38,6 +40,8 @@ app.use('/subject', subjectRouter);
 app.use('/class', classRouter);
 app.use('/user', userRouter);
 app.use('/document', documentRouter);
+
+app.use('/messenger', messagesRoutes);
 
 // connect to mongodb
 const connectToMongo = async () => {
