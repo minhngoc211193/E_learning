@@ -1,69 +1,102 @@
 #!/usr/bin/env node
 
-/**
- * Module dependencies.
- */
-
 var app = require('../app');
 var debug = require('debug')('backend:server');
 var http = require('http');
+var socketIo = require('socket.io');  // Thêm socket.io vào
+var jwt = require('jsonwebtoken');  // Thêm thư viện JWT để xác thực người dùng
 
-/**
- * Get port from environment and store in Express.
- */
+// Khởi tạo HTTP server và Socket.io
+var server = http.createServer(app);
+var io = socketIo(server);  // Khởi tạo Socket.io với server
 
+// Lưu io vào app để có thể sử dụng trong các controller
+app.set('io', io);
+
+// Middleware xác thực người dùng qua token JWT
+io.use((socket, next) => {
+  const token = socket.handshake.query.token;  // Lấy token từ query params
+  if (token) {
+    // Xác thực token (ví dụ dùng JWT để xác thực)
+    jwt.verify(token, 'secret_key', (err, decoded) => {
+      if (err) {
+        return next(new Error('Authentication error'));
+      }
+      socket.user = decoded;  // Lưu thông tin người dùng vào socket
+      next();
+    });
+  } else {
+    next(new Error('Authentication error'));
+  }
+});
+
+// Lắng nghe các sự kiện của Socket.io
+io.on('connection', (socket) => {
+  console.log('Một người dùng đã kết nối!');
+
+  const userId = socket.user.id;
+  const role = socket.user.role;
+
+  // Tạo room cho mỗi người dùng (có thể tham gia vào nhiều phòng dựa trên conversationId)
+  socket.join(`room_${userId}`);
+
+  // Lắng nghe sự kiện "newMessage" khi có tin nhắn mới
+  socket.on('newMessage', (data) => {
+    console.log('Tin nhắn mới:', data);
+    
+    // Phát sự kiện mới cho người nhận (tìm đúng room)
+    io.to(`room_${data.receiverId}`).emit('newMessage', data);
+  });
+
+  // Lắng nghe sự kiện "typing" khi người dùng gõ tin nhắn
+  socket.on('typing', (data) => {
+    console.log('User đang gõ:', data);
+    io.to(`room_${data.receiverId}`).emit('typing', data);
+  });
+
+  // Lắng nghe sự kiện "disconnect" khi người dùng ngắt kết nối
+  socket.on('disconnect', () => {
+    console.log('Một người dùng đã ngắt kết nối');
+    // Phát sự kiện khi người dùng ngắt kết nối, thông báo cho những người còn lại
+    io.emit('userDisconnected', { userId });
+  });
+
+  // Lắng nghe sự kiện "typingStatus" (dành cho thông báo trạng thái "typing")
+  socket.on('typingStatus', (data) => {
+    console.log(`${data.senderId} đang gõ...`);
+    io.to(`room_${data.receiverId}`).emit('typing', data);
+  });
+});
+
+// Cấu hình và khởi động server
 var port = normalizePort(process.env.PORT || '8000');
 app.set('port', port);
-console.log(`Server is running on port http:localhost:${port}/`); 
-
-/**
- * Create HTTP server.
- */
-
-var server = http.createServer(app);
-
-/**
- * Listen on provided port, on all network interfaces.
- */
+console.log(`Server đang chạy trên port http://localhost:${port}/`);
 
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
 
-/**
- * Normalize a port into a number, string, or false.
- */
-
+// Hàm normalize port
 function normalizePort(val) {
   var port = parseInt(val, 10);
-
   if (isNaN(port)) {
-    // named pipe
     return val;
   }
-
   if (port >= 0) {
-    // port number
     return port;
   }
-
   return false;
 }
 
-/**
- * Event listener for HTTP server "error" event.
- */
-
+// Xử lý lỗi khi server không thể lắng nghe
 function onError(error) {
   if (error.syscall !== 'listen') {
     throw error;
   }
 
-  var bind = typeof port === 'string'
-    ? 'Pipe ' + port
-    : 'Port ' + port;
+  var bind = typeof port === 'string' ? 'Pipe ' + port : 'Port ' + port;
 
-  // handle specific listen errors with friendly messages
   switch (error.code) {
     case 'EACCES':
       console.error(bind + ' requires elevated privileges');
@@ -78,14 +111,9 @@ function onError(error) {
   }
 }
 
-/**
- * Event listener for HTTP server "listening" event.
- */
-
+// Lắng nghe sự kiện "listening"
 function onListening() {
   var addr = server.address();
-  var bind = typeof addr === 'string'
-    ? 'pipe ' + addr
-    : 'port ' + addr.port;
+  var bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr.port;
   debug('Listening on ' + bind);
 }
