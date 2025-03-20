@@ -1,0 +1,121 @@
+/* 🎨 Trang ManageUser */
+.container {
+    width: 80%;
+    margin: 20px auto;
+    padding: 24px;
+    background-color: white;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    text-align: center;
+}
+
+/* 🔹 Navigation */
+.nav {
+    display: flex;
+    gap: 16px;
+    border-bottom: 2px solid black;
+    padding-bottom: 8px;
+    justify-content: center;
+}
+.nav span.activeTab {
+    font-weight: bold;
+    color: #1d4ed8;
+    border-bottom: 2px solid #1d4ed8;
+}
+.nav span:hover {
+    opacity: 1;
+    transform: scale(1.05);
+}
+.inactiveTab {
+    color: gray;
+    opacity: 0.7;
+}
+
+/* 🔹 Bảng */
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+    display: flex;
+    justify-content: center;
+}
+
+/* 📌 Bảng căn giữa */
+.table {
+    width: 100%;
+    max-width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.table th,
+.table td {
+    padding: 12px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+}
+
+/* 🟢 Header bảng */
+.table thead tr {
+    background-color: #d1d5db;
+}
+
+/* ✨ Hover từng dòng */
+.table tbody tr:hover {
+    background-color: #f3f4f6;
+}
+
+/* 🔥 Khi hover, cột "Name" sẽ nổi bật */
+.table tbody tr:hover td:first-child {
+    transform: scale(1.05);
+    font-weight: bold;
+    color: #1d4ed8;
+}
+
+/* 📌 Căn chỉnh hàng "Action" */
+.table td:last-child {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.action-button,
+.delete-button {
+    cursor: pointer;
+    background: none;
+    border: none;
+    font-size: 18px;  /* Tăng kích thước icon */
+    padding: 6px;
+    transition: all 0.3s ease-in-out;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;   
+    height: 36px;  
+    border-radius: 50%;
+}
+
+/* 🔹 Nút xem (View) */
+.action-button {
+    color: blue;
+    background: rgba(0, 0, 255, 0.1); 
+}
+
+/* 🔹 Nút xóa (Delete) */
+.delete-button {
+    color: red;
+    background: rgba(255, 0, 0, 0.1);
+}
+
+/* 🔥 Hover hiệu ứng */
+.action-button:hover {
+    color: white;
+    background: blue;
+    transform: scale(1.1);
+}
+
+.delete-button:hover {
+    color: white;
+    background: red;
+    transform: scale(1.1);
+}

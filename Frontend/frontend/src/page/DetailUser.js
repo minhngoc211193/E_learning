@@ -35,9 +35,13 @@ const DetailUser = () => {
             <h2 className="text-xl font-bold mb-4">User Details</h2>
             {user.Image && (
                 <img 
-                    src={`data:image/jpeg;base64,${user.Image}`} 
+                    src={
+                        user.Image.startsWith("data:image/")
+                        ? user.Image // Nếu đã có tiền tố `data:image/...`, giữ nguyên
+                        : `data:image/jpeg;base64,${user.Image}` // Nếu Base64 thiếu tiền tố, thêm vào
+                    }
                     alt="User Avatar"
-                    className="w-32 h-32 rounded-full mx-auto mb-4 border-4 border-gray-300 shadow-sm"
+                    className="w-32 h-32"
                 />
             )}
             <p><strong>Họ và tên:</strong> {user.Fullname}</p>

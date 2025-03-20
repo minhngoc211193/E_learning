@@ -1,26 +1,80 @@
 import React, {useState, useEffect} from 'react';
 import {useNavigate} from "react-router-dom";
+import { FaEye, FaTrash } from "react-icons/fa";
 import styles from '../page/ManageUser.module.css';
 import axios from 'axios';
+import { jwtDecode } from 'jwt-decode';
+import CreateUser from '../page/User/CreateUser';
+
 function ManageUser (){
     const [users, setUsers] = useState([]);
+    const [userRole, setUserRole] = useState(null);
+    const [activeTab, setActiveTab] = useState("all");
+    const [selectMajor, setSelectMajor] = useState("");
+    const [majors, setMajors] = useState([])
     const navigate = useNavigate();
-    useEffect(() => {
 
+    useEffect(() => {
+        const token = localStorage.getItem("accessToken");
+        if(token){
+            const decoded = jwtDecode(token);
+            const role = decoded.Role; 
+            setUserRole(role);
+
+            if (role !== "admin") {
+                navigate("/home");
+                return;
+            }
+        }
+        fetchMajors();
         fetchUsers();
     }, []);
-
-    const fetchUsers = async () => {
-        
+    const fetchMajors= async () => {
+        const token = localStorage.getItem("accessToken");
         try {
+            const response = await axios.get('http://localhost:8000/major/majors', {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+             });
+            setMajors(response.data);
+        } catch (error) {
+            console.error("Error fetching users", error);
+        }
+    };
+    const fetchUsers = async () => {
+        const token = localStorage.getItem("accessToken");
+        try {
+            const decoded = jwtDecode(token);
+            const role = decoded.Role; // Ensure the token contains 'role'
+            setUserRole(role);
+
+            if (role !== "admin") {
+                navigate("/home");
+                return;
+            }
             const response = await axios.get('http://localhost:8000/user/users', {
                 headers: {
-                    Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+                    Authorization: `Bearer ${token}`
                 }
              });
             setUsers(response.data);
         } catch (error) {
             console.error("Error fetching users", error);
+        }
+    };
+
+    const fetchUserByMajor = async(id) =>{
+        const token = localStorage.getItem('accessToken');
+        try {
+            const response = await axios.get(`http://localhost:8000/user/users-by-major/${id}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+             });
+            setUsers(response.data);
+        } catch (error) {
+            console.error("Error fetching users by major", error);
         }
     };
     const handleDelete = async (id) => {
@@ -39,38 +93,71 @@ function ManageUser (){
     };
 
     return (
-    <div className="p-6 bg-white shadow-lg rounded-lg">
-            <h2 className="text-2xl font-bold mb-4">Manage Account</h2>
-            <div className="flex space-x-4 border-b pb-2">
-                <span className="font-semibold border-b-2 border-black">All accounts</span>
-                <span className="text-gray-500 cursor-pointer">Create account</span>
+    <div className={styles.container}>
+            <h2 >Manage Account</h2>
+            <div className={styles.nav}>
+            <select
+                className={styles.filterDropdown}
+                value={selectMajor}
+                onChange={(e) => {
+                    setSelectMajor(e.target.value);
+                    if (e.target.value) {
+                        fetchUserByMajor(e.target.value);
+                    } else {
+                        fetchUsers();
+                    }
+                }}
+            >
+                <option value="">All accounts</option>
+                {majors.map((major) => (
+                    <option key={major._id} value={major._id}>
+                        {major.Name}
+                    </option>
+                ))}
+            </select>
+                <span className={activeTab ==="create"? styles.activeTab : styles.inactiveTab}
+                        onClick={() => setActiveTab("create")} >
+                            Create account</span>
             </div>
-
-            <div className="overflow-auto mt-4">
-                <table className="min-w-full bg-gray-200 rounded-lg">
+            {activeTab ==="all" ? (
+            <div className={styles["table-container"]}>
+                <table className={styles.table}>
                     <thead>
-                        <tr className="bg-gray-300">
-                            <th className="p-3 text-left">Name</th>
-                            <th className="p-3 text-left">Role</th>
-                            <th className="p-3 text-left">Username</th>
-                            <th className="p-3 text-left">Action</th>
+                        <tr >
+                            <th >Name</th>
+                            <th >Role</th>
+                            <th >Username</th>
+                            <th >Action</th>
                         </tr>
                     </thead>
                     <tbody>
                         {users.map(user => (
-                            <tr key={user._id} className="border-t">
-                                <td className="p-3">{user.Fullname}</td>
-                                <td className="p-3">{user.Role}</td>
-                                <td className="p-3">{user.Username}</td>
-                                <td className="p-3">
-                                    <button onClick={() => navigate(`/detail-user/${user._id}`)} className="text-blue-500 mr-3">View</button>
-                                    <button onClick={() => handleDelete(user._id)} className="text-red-500">Delete</button>
+                            <tr key={user._id} >
+                                <td >{user.Fullname}</td>
+                                <td >{user.Role}</td>
+                                <td >{user.Username}</td>
+                                <td >
+                                    <button onClick={() => navigate(`/detail-user/${user._id}`)} className={styles["action-button"]}><FaEye /></button>
+                                    <button onClick={() => handleDelete(user._id)} className={styles["delete-button"]}><FaTrash /></button>
                                 </td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
+            </div>) :(
+                <div className={styles.modalOverlay}>
+                <div className={styles.modalContent}>
+                    <button 
+                        className={styles.closeButton} 
+                        onClick={() => setActiveTab("all")}
+                    >
+                        ✖
+                    </button>
+                    <CreateUser setActiveTab={setActiveTab} />
+                </div>
             </div>
+            )}
+
         </div>
     );
 }

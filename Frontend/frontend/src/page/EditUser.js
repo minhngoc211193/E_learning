@@ -30,9 +30,13 @@ const EditUser = () => {
     }
     try {
         const decoded = jwtDecode(token);
-        const userId = decoded.id;
-
-        const res = await axios.get(`http://localhost:8000/user/detail-user/${userId}`, {
+        if(decoded.Role!== "admin"){
+          console.error("Bạn không có quyền chỉnh sửa ngừoi dùng!");
+          alert("Bạn không có quyền chỉnh sửa!!!");
+          navigate("/");
+          return
+        }
+        const res = await axios.get(`http://localhost:8000/user/detail-user/${id}`, {
             headers: { Authorization: `Bearer ${token}` }
         });
 
@@ -45,13 +49,13 @@ const EditUser = () => {
                 Role: res.data.Role || "",
                 PhoneNumber: res.data.PhoneNumber || "",
                 DateOfBirth: new Date(res.data.DateOfBirth).toISOString().split('T')[0],
-                Major: res.data.Major || "",
+                Major: res.data.Major? res.data.Major._id : "",
                 Gender: res.data.Gender || "",
                 SchoolYear: res.data.SchoolYear || ""
             });
         }
-    } catch (err) {
-        console.error("Không thể lấy thông tin người dùng.", err);
+    } catch (e) {
+        console.error("Không thể lấy thông tin người dùng.", e);
     }
 };
 useEffect(() => {
@@ -78,7 +82,6 @@ useEffect(() => {
       reader.readAsDataURL(file);
     }
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     const token = localStorage.getItem("accessToken");
@@ -90,10 +93,7 @@ useEffect(() => {
     }
 
     try {
-        // Giải mã token để lấy thông tin user
         const decodedToken = jwtDecode(token);
-        
-        // Kiểm tra nếu không phải admin, chặn cập nhật
         if (decodedToken.Role !== "admin") {
             alert("Bạn không có quyền chỉnh sửa người dùng!");
             return;
@@ -107,22 +107,47 @@ useEffect(() => {
         formData.append("DateOfBirth", userData.DateOfBirth);
         formData.append("Major", userData.Major);
         if (userData.SchoolYear) formData.append("SchoolYear", userData.SchoolYear);
-        if (userData.Image) formData.append("Image", userData.Image); // Chỉ gửi ảnh nếu có
 
-        await axios.put(`http://localhost:8000/user/update-user/${id}`, formData, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "multipart/form-data",
-            },
-        });
+        // 🖼 Xử lý ảnh
+        if (userData.Image && typeof userData.Image !== "string") { 
+            // Nếu người dùng chọn ảnh mới, chuyển sang Base64
+            const reader = new FileReader();
+            reader.readAsDataURL(userData.Image);
+            reader.onloadend = async () => {
+                const base64String = reader.result.split(",")[1]; // Loại bỏ phần đầu `data:image/png;base64,`
+                formData.append("Image", base64String); // Gửi ảnh dưới dạng Base64
 
-        alert("Cập nhật thành công!");
-        navigate("/manageuser");
+                await axios.put(`http://localhost:8000/user/update-user/${id}`, formData, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "multipart/form-data",
+                    },
+                });
+
+                alert("Cập nhật thành công!");
+                navigate("/manageuser");
+            };
+        } else {
+            // 🛠 Nếu không chọn ảnh mới, giữ nguyên ảnh cũ
+            if (userData.Image) formData.append("Image", userData.Image);
+
+            await axios.put(`http://localhost:8000/user/update-user/${id}`, formData, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "multipart/form-data",
+                },
+            });
+
+            alert("Cập nhật thành công!");
+            navigate("/manageuser");
+        }
     } catch (error) {
         console.error("Lỗi khi cập nhật user:", error);
         alert("Cập nhật thất bại!");
     }
 };
+
+
 
   return (
     <div className={styles.createPage}>

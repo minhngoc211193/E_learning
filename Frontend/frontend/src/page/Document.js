@@ -55,7 +55,10 @@ function Document (){
         try{
             await axios.post("http://localhost:8000/document/upload-document", formData, {
                 
-                headers:{ Authorization: `Bearer ${token}` }
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "multipart/form-data",
+                  },
             });
             alert("Uoload file successful! ");
             fetchDocumentClass(selectClass);
@@ -65,7 +68,7 @@ function Document (){
     };
 
     const handleDelete = async (documentId) => {
-        if (userRole !== "teacher") 
+        if (userRole !== "student") 
             return alert ("You do not have permission to delete the document!");
         try{
             await axios.delete(`http://localhost:8000/document/documents/${documentId}`, {
@@ -104,9 +107,9 @@ function Document (){
   ) :[]}
       </div>
       <div className="w-3/4 p-6">
-        <h2 className="text-2xl font-bold mb-4">{selectClass ? `Class ${selectClass}` : "Chọn lớp học"}</h2>
+        <h2 className="text-2xl font-bold mb-4">{selectClass ? `Class ${classes.find(cls => cls._id== selectClass)?.Classname || "unknown"}` : "Chọn lớp học"}</h2>
         <div className="mb-4 border p-4 rounded">
-          <input type="text" placeholder="Tiêu đề" className="border p-2 mb-2 w-full" onChange={(e) => setDocumentData({ ...documentData, Title: e.target.value })} />
+          <input type="text" placeholder="Tiêu đề" className="border p-2 mb-2 w-full" onChange={(e) => setDocumentData({ ...documentData, Tittle: e.target.value })} />
           <input type="text" placeholder="Mô tả" className="border p-2 mb-2 w-full" onChange={(e) => setDocumentData({ ...documentData, Description: e.target.value })} />
           <input type="file" onChange={(e) => setDocumentData({ ...documentData, file: e.target.files[0] })} />
           <button onClick={uploadDocument} className="bg-blue-500 text-white px-4 py-2 mt-2 rounded">Tải lên</button>
