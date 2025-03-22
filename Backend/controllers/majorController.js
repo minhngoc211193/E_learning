@@ -3,8 +3,8 @@ const Major = require('../models/Major');
 const majorController = {
     createMajor: async (req, res) => {
         try {
-            const { Name, Description } = req.body;
-            const newMajor = new Major({ Name, Description });
+            const { Name, Description, CodeMajor } = req.body;
+            const newMajor = new Major({ Name, Description, CodeMajor});
             const savedMajor = await newMajor.save();
             res.status(201).json(savedMajor);
         } catch (err) {

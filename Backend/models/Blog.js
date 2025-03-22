@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const blogSchema = new mongoose.Schema({
     Title:{type: String, required: true},
     Content : {type: String, required: true},
-    Image: {type: String, required: true},
+    Image: {type: Buffer, required: true},
     User: {type: mongoose.Schema.Types.ObjectId, ref:"User"},
     Comments:[{type: mongoose.Schema.Types.ObjectId, ref:"Comment"}]
 }, {timestamps: true}); 

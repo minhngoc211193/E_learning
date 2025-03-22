@@ -58,7 +58,7 @@ const documentController = {
             const classData = await Class.findById(classId);
 
             if (!user || !classData || !classData.Student.includes(userId) || !classData.Teacher.includes(userId)) {
-                return res.status(403).json({ message: 'Chỉ học sinh của lớp này mới có thể xem tài liệu' });
+                return res.status(403).json({ message: 'Chỉ người của lớp này mới có thể xem tài liệu' });
             }
 
             const documents = await Document.find({ Class: classId });
