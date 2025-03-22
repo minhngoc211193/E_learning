@@ -6,18 +6,24 @@ const scheduleController = {
     createSchedule: async (req, res) => {
         try {
             const { Address, Slot, ClassId, Day } = req.body;
-    
+
             // Chuyển 'Day' thành Date object
             const day = new Date(Day);
             const startOfDay = new Date(day.setHours(0, 0, 0, 0));  // 00:00:00
             const endOfDay = new Date(day.setHours(23, 59, 59, 999));  // 23:59:59
-    
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // Đặt giờ về 00:00:00
+
+            if (day < today) {
+                return res.status(400).json({ message: "Không thể tạo lịch học với ngày trong quá khứ." });
+            }
+
             // Kiểm tra xem lớp học có tồn tại không
             const classData = await Class.findById(ClassId);
             if (!classData) {
                 return res.status(404).json({ message: "Không tìm thấy lớp học" });
             }
-    
+
             // Kiểm tra xem lớp học còn Slots không
             if (classData.Slots <= 0) {
                 return res.status(400).json({ message: "Lớp học này đã hết Slot" });
@@ -30,24 +36,24 @@ const scheduleController = {
             }).populate('Class');
 
             if (existingClass) {
-                return res.status(400).json({ 
-                    message: `Lớp ${existingClass.Class.Classname} đã có lịch học vào ${Slot} vào ngày ${day.toLocaleDateString()}.` 
+                return res.status(400).json({
+                    message: `Lớp ${existingClass.Class.Classname} đã có lịch học vào ${Slot} vào ngày ${day.toLocaleDateString()}.`
                 });
             }
-    
+
             // Kiểm tra xem có lịch học nào trùng không (cùng class, phòng, slot, ngày)
             const existingSchedule = await Schedule.findOne({
                 Slot,             // Kiểm tra trùng Slot
                 Day: { $gte: startOfDay, $lt: endOfDay },  // Kiểm tra trùng ngày
                 Address,          // Kiểm tra trùng phòng học
             }).populate('Class');
-    
+
             if (existingSchedule) {
-                return res.status(400).json({ 
-                    message: `Đã có lịch học tại ${Address} vào ${Slot} vào ngày ${day.toLocaleDateString()} cho lớp học: ${existingSchedule.Class.Classname}` 
+                return res.status(400).json({
+                    message: `Đã có lịch học tại ${Address} vào ${Slot} vào ngày ${day.toLocaleDateString()} cho lớp học: ${existingSchedule.Class.Classname}`
                 });
             }
-    
+
             // Tạo lịch học mới
             const newSchedule = new Schedule({
                 Class: ClassId,
@@ -55,31 +61,37 @@ const scheduleController = {
                 Slot,
                 Day: new Date(Day)  // Lưu trữ Day dưới dạng Date object
             });
-    
+
             // Lưu lịch học vào database
             const savedSchedule = await newSchedule.save();
-    
+
             // Cập nhật lại Slots của lớp
             classData.Slots -= 1;  // Trừ đi 1 Slot
             await classData.save();
-    
+
             res.status(201).json(savedSchedule);
         } catch (err) {
             res.status(500).json({ message: "Tạo lịch học thất bại", error: err.message });
         }
     },
-    
-    
+
+
 
     updateSchedule: async (req, res) => {
         try {
             const { Address, Slot, Day, ClassId } = req.body;
-    
+
             // Chuyển 'Day' thành Date object
             const day = new Date(Day);
             const startOfDay = new Date(day.setHours(0, 0, 0, 0));  // 00:00:00
             const endOfDay = new Date(day.setHours(23, 59, 59, 999));  // 23:59:59
-    
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // Đặt giờ về 00:00:00
+
+            if (day < today) {
+                return res.status(400).json({ message: "Không thể tạo lịch học với ngày trong quá khứ." });
+            }
+
             const classData = await Class.findById(ClassId);
             if (!classData) {
                 return res.status(404).json({ message: "Không tìm thấy lớp học" });
@@ -93,8 +105,8 @@ const scheduleController = {
             }).populate('Class');
 
             if (existingClass) {
-                return res.status(400).json({ 
-                    message: `Lớp ${existingClass.Class.Classname} đã có lịch học vào ${Slot} vào ngày ${day.toLocaleDateString()}.` 
+                return res.status(400).json({
+                    message: `Lớp ${existingClass.Class.Classname} đã có lịch học vào ${Slot} vào ngày ${day.toLocaleDateString()}.`
                 });
             }
 
@@ -105,37 +117,37 @@ const scheduleController = {
                 Day: { $gte: startOfDay, $lt: endOfDay },  // Kiểm tra trùng ngày
                 _id: { $ne: req.params.id }  // Đảm bảo rằng không so sánh với chính lịch đang được cập nhật
             }).populate('Class');
-    
+
             if (existingSchedule) {
                 return res.status(400).json({ message: `Đã có lịch học tại ${Address} vào ${Slot} vào ngày ${day.toLocaleDateString()} cho lớp học: ${existingSchedule.Class.Classname}` });
             }
-    
+
             // Cập nhật lịch học
             const updatedSchedule = await Schedule.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    
+
             if (!updatedSchedule) {
                 return res.status(404).json({ message: "Không tìm thấy lịch học" });
             }
-    
+
             res.status(200).json(updatedSchedule);
         } catch (err) {
             res.status(500).json({ message: "Cập nhật lịch học thất bại", error: err.message });
         }
     },
-    
-    
+
+
 
     getScheduleByUserId: async (req, res) => {
         try {
             const userId = req.user.id;  // Lấy thông tin người dùng từ token
             const user = await User.findById(userId);
-    
+
             if (!user) {
                 return res.status(404).json({ message: 'Người dùng không tồn tại' });
             }
-    
+
             let classes;
-    
+
             if (user.Role === 'teacher') {
                 // Nếu là giáo viên, lấy tất cả lịch học của các lớp mà giáo viên giảng dạy
                 classes = await Class.find({ Teacher: userId });
@@ -145,21 +157,25 @@ const scheduleController = {
             } else {
                 return res.status(403).json({ message: 'Quyền truy cập không hợp lệ' });
             }
-    
+
             if (!classes || classes.length === 0) {
                 return res.status(404).json({ message: 'Không tìm thấy lớp học cho người dùng này' });
             }
-    
+
             // Lấy tất cả các lịch học của các lớp mà người dùng tham gia hoặc giảng dạy
             const schedules = await Schedule.find({ Class: { $in: classes.map(classItem => classItem._id) } })
-                .populate('Class')  // Lấy thông tin lớp học
-                .populate('Class.Subject')  // Lấy thông tin môn học
-                .populate('Class.Teacher');  // Lấy thông tin giáo viên
-    
+                .populate({
+                    path: 'Class',
+                    populate: [
+                        { path: 'Subject', select: 'Name' },  // Lấy tên môn học
+                        { path: 'Teacher', select: 'Fullname' }  // Lấy tên giáo viên
+                    ]
+                });
+
             if (schedules.length === 0) {
                 return res.status(404).json({ message: 'Không có lịch học cho các lớp này' });
             }
-    
+
             // Trả về lịch học
             res.status(200).json({ schedules });
         } catch (error) {
@@ -167,30 +183,62 @@ const scheduleController = {
             res.status(500).json({ message: 'Lỗi khi lấy lịch học', error: error.message });
         }
     },
-    
-    
+
+
     deleteSchedule: async (req, res) => {
         try {
             const schedule = await Schedule.findByIdAndDelete(req.params.id);
             if (!schedule) {
                 return res.status(404).json({ message: "Lịch học không tồn tại" });
             }
-    
+
             // Cập nhật lại Slots cho lớp học (tăng lên khi xóa lịch học)
             const classData = await Class.findById(schedule.Class);
             if (classData) {
                 classData.Slots += 1;
                 await classData.save();
             }
-    
+
             res.status(200).json({ message: "Xóa lịch học thành công" });
         } catch (err) {
             res.status(500).json({ message: "Xóa lịch học thất bại", error: err.message });
         }
     },
 
+    getScheduleByDay: async (req, res) => {
+        try {
+            const { day } = req.query;
+            if (!day) {
+                return res.status(400).json({ message: "Vui lòng cung cấp ngày" });
+            }
 
-    
+            // Chuyển đổi `day` thành đầu và cuối ngày để tìm kiếm
+            const date = new Date(day);
+            const startOfDay = new Date(date.setHours(0, 0, 0, 0));
+            const endOfDay = new Date(date.setHours(23, 59, 59, 999));
+
+            // Tìm lịch học trong khoảng thời gian của ngày
+            const schedules = await Schedule.find({
+                Day: { $gte: startOfDay, $lt: endOfDay }
+            })
+                .populate({
+                    path: 'Class',
+                    populate: [
+                        { path: 'Subject', select: 'Name' },  // Lấy tên môn học
+                        { path: 'Teacher', select: 'Fullname' }  // Lấy tên giáo viên
+                    ]
+                });
+
+            if (!schedules.length) {
+                return res.status(404).json({ message: "Không có lịch học nào trong ngày này" });
+            }
+
+            res.status(200).json(schedules);
+        } catch (error) {
+            res.status(500).json({ message: "Lỗi khi lấy lịch học theo ngày", error: error.message });
+        }
+    }
+
 }
 
 module.exports = scheduleController;
