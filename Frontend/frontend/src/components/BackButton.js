@@ -7,7 +7,7 @@ function BackButton(){
 
     return(
         <div className={styles.backButton}>
-            <span onClick={() => navigate(-1)}><i class="fa-solid fa-arrow-left"></i></span>
+            <span onClick={() => navigate("/home")}><i class="fa-solid fa-arrow-left"></i></span>
         </div>
     )
 }

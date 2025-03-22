@@ -34,7 +34,7 @@ function CreateBlog() {
 
             // Giải mã token để lấy userId
             const decoded = jwtDecode(token);
-            const userId = decoded.id; // Giả sử token chứa { id: "user_id" }
+            const userId = decoded.id;
 
             // Gửi request tạo bài viết
             const res = await axios.post(
