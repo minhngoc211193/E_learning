@@ -100,7 +100,7 @@ function UpdateInformation() {
                             <label>Gender</label>
                             <input type="text" name="gender" value={userData.gender} readOnly />
 
-                            <label>Password</label>
+                            <label>Password</label> <br />
                             <button className={styles.changePassword} onClick={() => navigate('/changepassword')}>
                                 <i class="fa-solid fa-key"></i> Change Password
                             </button>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from 'react-router-dom';
 import axios from "axios";
 import styles from "./ManageBlog.module.css";
@@ -12,21 +12,22 @@ function ManageBlog() {
   const navigate = useNavigate();
   const token = localStorage.getItem("accessToken");
 
-  useEffect(() => {
-    fetchBlogs();
-  }, []);
-
-  const fetchBlogs = async () => {
+  
+  const fetchBlogs = useCallback(async () => {
     try {
       const res = await axios.get('http://localhost:8000/blog/blogs',{
         headers: { Authorization: `Bearer ${token}` }
-    });
+      });
       setBlogs(res.data);
     } catch (error) {
       console.error("Error fetching blogs", error);
     }
-  };
-
+  }, [token]);
+  
+  useEffect(() => {
+    fetchBlogs();
+  },[fetchBlogs]);
+  
   // Xử lý xóa blog
   const handleDelete = async (id) => {
     const result = await Swal.fire({

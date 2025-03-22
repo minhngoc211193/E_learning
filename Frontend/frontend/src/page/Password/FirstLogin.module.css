@@ -55,7 +55,7 @@ a:hover {
     text-decoration: underline;
 }
 
-button {
+.btnSave {
     width: 100%;
     padding: 12px;
     background: #007bff;
@@ -69,7 +69,7 @@ button {
     margin-bottom: 25px;
 }
 
-button:hover {
+.btnSave:hover {
     background: #0056b3;
 }
 

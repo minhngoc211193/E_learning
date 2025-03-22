@@ -1,0 +1,228 @@
+.container{
+  background-color:#f9f9f9;
+}
+/* Header */
+.heading {
+  text-align: center;
+  font-size: 2rem;
+  color: var(--primary-dark);
+  margin-bottom: 20px;
+  margin-top: 0;
+  padding-top: 30px;
+}
+
+/* Container của lịch */
+.tableScheduleAll {
+  box-shadow: var(--shadow);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin: 0 auto 30px;
+  max-width: 900px;
+  --primary-color: #007bff;
+  --primary-dark: #0056b3;
+  --border-color: #ddd;
+  --bg-white: #fff;
+  --shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  --radius: 5px;
+}
+
+/* Style cho phần DatePicker */
+.date {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.datePicker {
+  padding: 5px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  background-color: var(--bg-white);
+}
+
+/* Style cho table */
+.scheduleTable {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: var(--bg-white);
+}
+
+.scheduleTable th,
+.scheduleTable td {
+  border: 1px solid var(--border-color);
+  padding: 10px;
+  text-align: center;
+  font-size: 16px;
+}
+
+/* Style cho header của bảng */
+.scheduleTable th {
+  background-color: var(--primary-color);
+  color: var(--bg-white);
+  font-weight: bold;
+}
+
+/* Style cho các ô trong tbody */
+.scheduleTable tbody tr:nth-child(odd) {
+  background-color: var(--bg-light);
+}
+.scheduleTable tbody tr:nth-child(even) {
+  background-color: var(--bg-white);
+}
+
+/* Style cho Room và Slot ở header cột đầu tiên */
+.room {
+  font-size: 1rem;
+  font-weight: bold;
+  margin: 0;
+}
+.slot {
+  font-size: 0.9rem;
+  margin: 0;
+  color: var(--primary-dark);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .scheduleTable th,
+  .scheduleTable td {
+    font-size: 14px;
+    padding: 8px;
+  }
+}
+/* Style cho DatePicker */
+.datePicker {
+  margin-bottom: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  background-color: var(--bg-white);
+  padding: 5px;
+}
+
+.datePicker input {
+  margin: 5px;
+  border: none;
+  outline: none;
+  font-size: 16px;
+}
+
+/* Style cho select */
+.selectClass,
+.selectSlot,
+.selectRoom {
+  width: 300px;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  outline: none;
+  cursor: pointer;
+  background-color: var(--bg-white);
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.selectClass option,
+.selectSlot option,
+.selectRoom option {
+  padding: 8px;
+  font-size: 16px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Hover & focus hiệu ứng cho select */
+.selectClass:hover,
+.selectSlot:hover,
+.selectRoom:hover {
+  border-color: var(--primary-color);
+}
+
+.selectClass:focus,
+.selectSlot:focus,
+.selectRoom:focus {
+  border-color: var(--primary-dark);
+  box-shadow: 0 0 5px rgba(0, 91, 187, 0.5);
+}
+
+/* Style cho container chính */
+.main {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+  background-color: var(--bg-light);
+  --primary-color: #007bff;
+  --primary-dark: #0056b3;
+  --border-color: #ccc;
+  --bg-light: #f9f9f9;
+  --bg-white: #fff;
+  --shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  --radius: 5px;
+}
+
+/* Form container */
+.createSchedule {
+  background-color: var(--bg-white);
+  box-shadow: var(--shadow);
+  margin-top: 50px;
+  margin-bottom: 50px;
+  padding: 30px;
+  border-radius: 10px;
+  max-width: 700px;
+  width: 100%;
+}
+
+/* Tiêu đề form */
+.headingMain {
+  margin: 10px 0 40px;
+  text-align: center;
+  font-size: 1.8rem;
+  color: var(--primary-color);
+}
+
+/* Layout cho 2 cột trong form */
+.createScheduleLeft,
+.createScheduleRight {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Điều chỉnh khoảng cách giữa 2 khối select nếu cần */
+.createScheduleLeft select {
+  padding: 12px 10px;
+}
+
+/* Giãn cách giữa các cột */
+.createScheduleRight {
+  margin-top: 20px;
+}
+
+/* Style cho button */
+.btnCreate {
+  margin-top: 30px;
+  font-size: 1.2rem;
+  background-color: #28a745;
+  color: white;
+  border-radius: var(--radius);
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  display: block;
+  width: 100%;
+}
+
+.btnCreate:hover {
+  background-color: #218838;
+}
+
+/* Responsive: sắp xếp lại layout trên màn hình nhỏ */
+@media (max-width: 768px) {
+  .createSchedule {
+    padding: 20px;
+  }
+  
+  .createScheduleLeft,
+  .createScheduleRight {
+    width: 100%;
+  }
+}

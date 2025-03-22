@@ -1,0 +1,97 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+.scheduleContainer {
+  margin: 0 auto;
+  padding: 20px;
+  font-family: 'Poppins', sans-serif; /* Phông chữ đẹp hơn */
+}
+
+.title {
+  margin-bottom: 20px;
+  color: #333;
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.tableContainer {
+  overflow-x: auto;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
+.scheduleTable {
+  width: 100%;
+  border-collapse: collapse;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.scheduleTable th,
+.scheduleTable td {
+  border: 1px solid #ddd;
+  padding: 12px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.scheduleTable th {
+  background-color: #3578c0;
+  color: white;
+  font-weight: bold;
+}
+
+.scheduleTable tbody tr:nth-child(odd) {
+  background-color: #f9f9f9; /* Màu trắng */
+}
+
+.scheduleTable tbody tr:nth-child(even) {
+  background-color: #e6e6e6; /* Màu xám nhạt */
+}
+
+.scheduleTable td {
+  height: 80px;
+  min-width: 100px;
+}
+
+.timeSlot {
+  background-color: #3578c0;
+  color: white;
+  font-weight: bold;
+}
+
+.scheduleCell {
+  position: relative;
+}
+
+.scheduleItem {
+  background-color: #ffc107;
+  color: #333;
+  padding: 8px;
+  border-radius: 5px;
+  font-size: 12px;
+  text-align: left;
+}
+
+.scheduleItem strong {
+  display: block;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.scheduleItem div {
+  font-size: 12px;
+  margin-top: 3px;
+}
+
+.datePicker {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.scheduleTable th:first-child {
+  border-top-left-radius: 8px;
+}
+
+.scheduleTable th:last-child {
+  border-top-right-radius: 8px;
+}

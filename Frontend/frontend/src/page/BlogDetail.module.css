@@ -1,32 +1,33 @@
-html, body {
+html,
+body {
     margin: 0;
     padding: 0;
     width: 100%;
     height: 100%;
 }
 
-.headerPicture{
+.headerPicture {
     width: 100%;
     height: 500px;
 }
 
-.headerPicture img{
+.headerPicture img {
     width: 100%;
     height: 100%;
 }
 
-.containerContent{
+.containerContent {
     background-color: rgb(231, 231, 231);
     padding: 80px 300px 30px 300px;
 }
 
-.containerContent h1{
+.containerContent h1 {
     margin: 0;
     font-size: 50px;
     padding: 20px 0 40px 20px;
 }
 
-.containerContent p{
+.containerContent p {
     padding: 0 40px;
     margin-top: -20px;
     font-size: 20px;
@@ -35,40 +36,40 @@ html, body {
     text-indent: 2em;
 }
 
-.mainContent{
+.mainContent {
     background-color: white;
     box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
     border-radius: 5px;
 }
 
-.authorProfile{
+.authorProfile {
     padding: 0 300px;
     background-color: white;
-    
+
 }
 
-.authorInfo{
+.authorInfo {
     display: flex;
 }
 
-.authorInfo span{
+.authorInfo span {
     display: flex;
     align-items: center;
     padding: 0 40px 0 70px;
     font-size: 50px;
 }
 
-.authorAvar h2{
+.authorAvar h2 {
     padding-top: 5px;
     margin: 0;
 }
 
-.authorAvar h4{
+.authorAvar h4 {
     margin-top: 5px;
     padding-left: 10px;
 }
 
-.date{
+.date {
     text-align: end;
     font-size: 14px;
     margin-top: -30px;
@@ -76,114 +77,151 @@ html, body {
     padding-bottom: 30px;
 }
 
-.commentContainer{
+.commentContainer {
     padding: 0 300px;
 }
 
-.mainComment{
+.mainComment {
     padding: 0 40px;
 }
 
-.userComment{
+.userComment {
     display: flex;
     align-items: center;
     justify-content: space-between;
 }
 
-.userComentLeft{
+.userComentLeft {
     display: flex;
     align-items: center;
     padding: 0 10px;
 }
 
-.userComentLeft h3{
+.userComentLeft h3 {
     margin: 15px 0;
 }
 
-.options{
+.options {
     cursor: pointer;
 }
 
-.trash{
+.trash {
     color: red;
 }
 
-.edit{
+.edit {
     color: green;
 }
 
-.optionsHidden{
+.optionsHidden {
     display: none;
 }
 
-.userComment span{
+.userComment span {
     font-size: 18px;
     padding: 0 10px;
 }
 
-.commentContent{
+.commentContent {
     padding: 0 30px;
 }
 
-.commentContent p{
+.commentContent p {
     margin: 0;
 }
 
-.dateComment{
+.dateComment {
     border-bottom: 1px solid rgb(211, 211, 211);
 }
 
-.dateComment p{
+.dateComment p {
     margin-top: 0;
     font-size: 12px;
     text-align: end;
 }
 
-.yourComment{
+.yourComment {
     padding: 30px 300px 80px 300px;
     display: flex;
     align-items: center;
 }
 
-.yourComment button{
+.yourComment button {
     margin: 0;
     width: 70px;
 }
 
-.yourComment input{
+.yourComment input {
     margin: 0 20px 0 30px;
 }
 
-.editCommentHidden{
+.editCommentHidden {
     display: none;
 }
 
-.editComment{
+.editComment {
     display: flex;
     margin-bottom: 5px;
 }
 
-.editComment input{
+.editComment input {
     margin: 0;
 }
 
-.saveComment{
+.saveComment {
     width: 50px;
     padding: 10px 5px;
     margin: 0 5px 0 20px;
     border-radius: 10px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    background-color: blue;
+    color: white;
 }
 
-.cancelComment{
+.saveComment:hover {
+    background-color: rgb(0, 0, 167);
+    transform: translateY(-2px);
+}
+
+.cancelComment {
     width: 70px;
     padding: 10px 5px;
     background-color: rgb(236, 0, 0);
     border-radius: 10px;
     margin: 0;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    color: white;
 }
 
-.cancelComment:hover{
-    background-color: rgb(186, 0, 0);
+.cancelComment:hover {
+    background-color: rgb(196, 0, 0);
+    transform: translateY(-2px);
 }
 
+.submitComment {
+    background: linear-gradient(135deg, #007bff, #00c6ff);
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    padding: 12px 12px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
 
+.submitComment:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+  
+.submitComment:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
