@@ -171,8 +171,25 @@ const documentController = {
             console.error(error);
             res.status(500).json({ message: 'Lỗi khi xóa tài liệu', error });
         }
+    },
+
+    searchDocument: async (req, res) => {
+        try{
+            const { search } = req.query;
+            if (!search) {
+                return res.status(400).json({ message: 'Vui lòng nhập từ khóa tìm kiếm' });
+            }
+            
+            const documents = await Document.find({ Tittle: { $regex: search, $options: 'i' } });
+
+            if (!documents || documents.length === 0) {
+                return res.status(404).json({ message: 'Không tìm thấy tài liệu' });
+            }
+            return res.status(200).json({ documents });
+        } catch (error) {
+            return res.status(500).json({ message: 'Lỗi khi tìm kiếm Document', error });
+        }
     }
-    
 }
 
 module.exports = documentController;

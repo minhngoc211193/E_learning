@@ -13,5 +13,6 @@ router.get('/documents/class/:classId', verifyToken, documentController.getDocum
 router.get('/download-document/:documentId', verifyToken, documentController.downloadDocument);
 router.put('/update-document/:documentId', verifyToken, documentController.updateDocument);
 router.delete('/delete-document/:documentId', verifyToken, documentController.deleteDocument);
+router.get("/search-document", documentController.searchDocument);
 
 module.exports = router;

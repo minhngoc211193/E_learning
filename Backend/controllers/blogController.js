@@ -10,12 +10,12 @@ const blogController = {
         try {
             const { Title, Content, User } = req.body;
             const file = req.file;
-            if(!file){
+            if (!file) {
                 return res.status(400).json({ message: "Vui lòng thêm ảnh" });
             }
 
-            if(!User) return res.status(400).json({ message: "Không có UserId" });
-            const newBlog = new Blog({ Title, Content, User, Image: file.buffer});
+            if (!User) return res.status(400).json({ message: "Không có UserId" });
+            const newBlog = new Blog({ Title, Content, User, Image: file.buffer });
             const savedBlog = await newBlog.save();
             res.status(201).json(savedBlog);
         } catch (err) {
@@ -27,7 +27,7 @@ const blogController = {
     getAllBlogs: async (req, res) => {
         try {
             const blogs = await Blog.find().populate("User", "Fullname Role Email");
-            
+
             const blogsWithImage = blogs.map(blog => {
                 let imageBase64 = null;
                 if (blog.Image) {
@@ -50,7 +50,7 @@ const blogController = {
     // blog detail
     getBlogById: async (req, res) => {
         try {
-            const blog = await Blog.findById(req.params.id).populate({path:'User', select:'Fullname'}).populate({path: 'Comments', populate:{path: 'User', select:'Fullname'}});
+            const blog = await Blog.findById(req.params.id).populate({ path: 'User', select: 'Fullname' }).populate({ path: 'Comments', populate: { path: 'User', select: 'Fullname' } });
             if (!blog) return res.status(404).json({ message: "Blog not found" });
 
             // Nếu có ảnh, chuyển đổi từ Buffer sang Base64
@@ -83,9 +83,9 @@ const blogController = {
                 return res.status(403).json({ message: "Bạn không có quyền sửa bài blog này vì đây không phải blog của bạn" });
             }
 
-            const {Title, Content, User} = req.body;
+            const { Title, Content, User } = req.body;
 
-            let updateData = {Title, Content, User};
+            let updateData = { Title, Content, User };
 
             const file = req.file;
             if (file) {
@@ -104,22 +104,22 @@ const blogController = {
         try {
             // Tìm blog theo ID
             const blog = await Blog.findById(req.params.id);
-    
+
             if (!blog) {
                 return res.status(404).json({ message: "Blog không tồn tại" });
             }
-    
+
             // Kiểm tra xem người dùng hiện tại có phải là người tạo blog không
             if (blog.User.toString() !== req.user.id && req.user.Role !== 'admin') {
                 return res.status(403).json({ message: "Bạn không có quyền xóa bài blog này" });
             }
-    
+
             // Xóa tất cả các comment liên quan đến blog này
             await Comment.deleteMany({ Blog: blog._id });
-    
+
             // Sau khi xóa các comment, xóa blog
             await Blog.findByIdAndDelete(req.params.id);
-    
+
             res.status(200).json({ message: "Xóa blog và các bình luận liên quan thành công" });
         } catch (err) {
             res.status(500).json({ message: "Không thể xóa blog", error: err.message });
@@ -133,7 +133,7 @@ const blogController = {
 
             const blogsWithImage = blogs.map(blog => {
                 let imageBase64 = null;
-                if(blog.Image){
+                if (blog.Image) {
                     const mimeType = mime.lookup(blog.Image) || 'image/png';
                     imageBase64 = `data:${mimeType};base64,${blog.Image.toString('base64')}`;
                 }
@@ -149,7 +149,35 @@ const blogController = {
             res.status(500).json({ message: "Không thể lấy các blog của người dùng", error: err.message });
         }
     },
-    
+
+    searchBlog: async (req, res) => {
+        try {
+            const {search} = req.query;
+            if (!search) {
+                return res.status(400).json({ message: "Vui lòng cung cấp từ khóa tìm kiếm" });
+            }
+            const blogs = await Blog.find({ Title: { $regex: search, $options: "i" } });
+            if (blogs.length === 0) {
+                return res.status(404).json({ message: "KHông tìm thấy Blog nào" });
+            }
+
+            const blogWithImage = blogs.map(blog => {
+                let imageBase64 = null;
+                if (blog.Image) {
+                    const mimeType = mime.lookup(blog.Image) || 'image/png';  // Lấy loại ảnh
+                    imageBase64 = `data:${mimeType};base64,${blog.Image.toString('base64')}`;
+                }
+
+                return {
+                    ...blog.toObject(),
+                    Image: imageBase64
+                };
+            });
+            return res.status(200).json(blogWithImage);
+        } catch (err) {
+            res.status(500).json({ message: "Lỗi tìm kiếm", error: err.message });
+        }
+    }
 };
 
 module.exports = blogController;
