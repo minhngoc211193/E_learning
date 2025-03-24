@@ -1,15 +1,21 @@
 const Blog = require("../models/Blog");
 const Comment = require("../models/Comment");
+const mime = require('mime-types');
+
 
 const blogController = {
 
     //tạo blog
     createBlog: async (req, res) => {
         try {
-            const { Title, Content, Image, User } = req.body;
+            const { Title, Content, User } = req.body;
+            const file = req.file;
+            if(!file){
+                return res.status(400).json({ message: "Vui lòng thêm ảnh" });
+            }
 
             if(!User) return res.status(400).json({ message: "Không có UserId" });
-            const newBlog = new Blog({ Title, Content, Image, User });
+            const newBlog = new Blog({ Title, Content, User, Image: file.buffer});
             const savedBlog = await newBlog.save();
             res.status(201).json(savedBlog);
         } catch (err) {
@@ -21,7 +27,21 @@ const blogController = {
     getAllBlogs: async (req, res) => {
         try {
             const blogs = await Blog.find().populate("User", "Fullname Role Email");
-            res.status(200).json(blogs);
+            
+            const blogsWithImage = blogs.map(blog => {
+                let imageBase64 = null;
+                if (blog.Image) {
+                    const mimeType = mime.lookup(blog.Image) || 'image/png'; // Bạn có thể thay 'image/png' bằng kiểu MIME đúng nếu cần
+                    imageBase64 = `data:${mimeType};base64,${blog.Image.toString('base64')}`;
+                }
+
+                return {
+                    ...blog.toObject(),
+                    Image: imageBase64
+                }
+            });
+
+            return res.status(200).json(blogsWithImage);
         } catch (err) {
             res.status(500).json({ message: "Failed to fetch blogs", error: err.message });
         }
@@ -32,7 +52,18 @@ const blogController = {
         try {
             const blog = await Blog.findById(req.params.id).populate({path:'User', select:'Fullname'}).populate({path: 'Comments', populate:{path: 'User', select:'Fullname'}});
             if (!blog) return res.status(404).json({ message: "Blog not found" });
-            res.status(200).json(blog);
+
+            // Nếu có ảnh, chuyển đổi từ Buffer sang Base64
+            let imageBase64 = null;
+            if (blog.Image) {
+                const mimeType = mime.lookup(blog.Image) || 'image/png'; // Bạn có thể thay 'image/png' bằng kiểu MIME đúng nếu cần
+                imageBase64 = `data:${mimeType};base64,${blog.Image.toString('base64')}`;
+            }
+
+            res.status(200).json({
+                ...blog.toObject(),
+                Image: imageBase64
+            });
         } catch (err) {
             res.status(500).json({ message: "Failed to fetch blog", error: err.message });
         }
@@ -52,8 +83,17 @@ const blogController = {
                 return res.status(403).json({ message: "Bạn không có quyền sửa bài blog này vì đây không phải blog của bạn" });
             }
 
+            const {Title, Content, User} = req.body;
+
+            let updateData = {Title, Content, User};
+
+            const file = req.file;
+            if (file) {
+                updateData.Image = file.buffer;
+            }
+
             // Cập nhật blog
-            const updatedBlog = await Blog.findByIdAndUpdate(req.params.id, req.body, { new: true });
+            const updatedBlog = await Blog.findByIdAndUpdate(blog, updateData, { new: true });
             res.status(200).json(updatedBlog);
         } catch (err) {
             res.status(500).json({ message: "Failed to update blog", error: err.message });
@@ -84,7 +124,31 @@ const blogController = {
         } catch (err) {
             res.status(500).json({ message: "Không thể xóa blog", error: err.message });
         }
-    }
+    },
+
+    getBlogByUser: async (req, res) => {
+        try {
+            const userId = req.params.id;
+            const blogs = await Blog.find({ User: userId }).populate("User", "Fullname Role Email");
+
+            const blogsWithImage = blogs.map(blog => {
+                let imageBase64 = null;
+                if(blog.Image){
+                    const mimeType = mime.lookup(blog.Image) || 'image/png';
+                    imageBase64 = `data:${mimeType};base64,${blog.Image.toString('base64')}`;
+                }
+
+                return {
+                    ...blog.toObject(),
+                    Image: imageBase64
+                }
+            });
+
+            return res.status(200).json(blogsWithImage);
+        } catch (err) {
+            res.status(500).json({ message: "Không thể lấy các blog của người dùng", error: err.message });
+        }
+    },
     
 };
 

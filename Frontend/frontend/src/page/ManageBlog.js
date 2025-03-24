@@ -3,11 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import axios from "axios";
 import styles from "./ManageBlog.module.css";
 import BackButton from '../components/BackButton';
+import Swal from "sweetalert2";
+
 
 function ManageBlog() {
   const [blogs, setBlogs] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
+  const token = localStorage.getItem("accessToken");
 
   useEffect(() => {
     fetchBlogs();
@@ -15,7 +18,9 @@ function ManageBlog() {
 
   const fetchBlogs = async () => {
     try {
-      const res = await axios.get('http://localhost:8000/blog/blogs');
+      const res = await axios.get('http://localhost:8000/blog/blogs',{
+        headers: { Authorization: `Bearer ${token}` }
+    });
       setBlogs(res.data);
     } catch (error) {
       console.error("Error fetching blogs", error);
@@ -24,16 +29,34 @@ function ManageBlog() {
 
   // Xử lý xóa blog
   const handleDelete = async (id) => {
+    const result = await Swal.fire({
+      title: "Do you want to delete this blog?",
+      text: "This action cannot be undone!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Delete",
+      cancelButtonText: "Cancel",
+    });
+  
+    if (!result.isConfirmed) return;
+  
     try {
-      await axios.delete(`http://localhost:8000/blog/delete-blog/${id}`);
+      await axios.delete(`http://localhost:8000/blog/delete-blog/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setBlogs(blogs.filter((blog) => blog._id !== id));
+  
+      Swal.fire("Đã xóa!", "Blog đã được xóa thành công.", "success");
     } catch (error) {
-      console.error("Error deleting blog", error);
+      console.error("Lỗi khi xóa blog", error);
+      Swal.fire("Lỗi!", "Không thể xóa blog.", "error");
     }
   };
 
-  const handleEdit = (blog) => {
-    navigate(`/editblog/${blog._id}`, { state: blog });
+  const handleEdit = (id) => {
+    navigate(`/editblog/${id}`);
   };
 
   // Xử lý tìm kiếm blog theo tiêu đề
@@ -71,7 +94,7 @@ function ManageBlog() {
               <thead>
                 <tr>
                   <th>Title</th>
-                  <th>User name</th>
+                  <th>Full name</th>
                   <th>Role</th>
                   <th>Email</th>
                   <th>Create At</th>
@@ -83,7 +106,7 @@ function ManageBlog() {
                 {filteredBlogs.map((blog) => (
                   <tr key={blog._id}>
                     <td className={styles.titleColumn}>{blog.Title}</td>
-                    <td>{blog.User?.Username || "N/A"}</td>
+                    <td>{blog.User?.Fullname || "N/A"}</td>
                     <td>{blog.User?.Role || "N/A"}</td>
                     <td>{blog.User?.Email || "N/A"}</td>
                     <td>{new Date(blog.createdAt).toLocaleDateString()}</td>
@@ -96,7 +119,7 @@ function ManageBlog() {
                       </button>
                       <button 
                         className={styles.btnEdit}
-                        onClick={() => handleEdit(blog)}>
+                        onClick={() => handleEdit(blog._id)}>
                         <i className="fa-solid fa-pen"></i>
                       </button>
                     </td>
