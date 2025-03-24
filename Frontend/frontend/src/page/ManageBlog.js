@@ -1,15 +1,14 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { useNavigate } from 'react-router-dom';
 import axios from "axios";
 import styles from "./ManageBlog.module.css";
 import BackButton from '../components/BackButton';
 import Swal from "sweetalert2";
+import Menu from "../components/Menu";
 
 
 function ManageBlog() {
   const [blogs, setBlogs] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const navigate = useNavigate();
   const token = localStorage.getItem("accessToken");
 
   
@@ -56,10 +55,6 @@ function ManageBlog() {
     }
   };
 
-  const handleEdit = (id) => {
-    navigate(`/editblog/${id}`);
-  };
-
   // Xử lý tìm kiếm blog theo tiêu đề
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
@@ -71,7 +66,7 @@ function ManageBlog() {
 
   return (
     <div className={styles.body}>
-        <BackButton />
+        <Menu />
       <div className={styles.container}>
         <h2>Manage blogs</h2>
         <div className={styles.main}>
@@ -117,11 +112,6 @@ function ManageBlog() {
                         className={styles.btnDelete}
                         onClick={() => handleDelete(blog._id)}>
                         <i className="fa-solid fa-trash"></i>
-                      </button>
-                      <button 
-                        className={styles.btnEdit}
-                        onClick={() => handleEdit(blog._id)}>
-                        <i className="fa-solid fa-pen"></i>
                       </button>
                     </td>
                   </tr>

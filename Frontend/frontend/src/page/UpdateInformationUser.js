@@ -3,7 +3,6 @@ import axios from 'axios';
 import styles from "./UpdateInformationUser.module.css";
 import ProfileImg from "../assets/profile.jpg";
 import { jwtDecode } from "jwt-decode";
-import BackButton from '../components/BackButton';
 import { useNavigate } from 'react-router-dom';
 
 function UpdateInformation() {
@@ -60,7 +59,9 @@ function UpdateInformation() {
 
     return (
         <div className={styles.body}>
-            <BackButton />
+           <div className={styles.backButton} onClick={() => navigate("/profile")}>
+                <span><i class="fa-solid fa-arrow-left"></i></span>
+            </div> 
             <div className={styles.profile}>
                 <img src={userData.image || ProfileImg} alt="User Profile" className={styles.profileImage} />
                 <h2>{userData.fullname}</h2>

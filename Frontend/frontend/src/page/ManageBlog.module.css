@@ -12,19 +12,18 @@
 
 /* Phần body của trang */
 .body {
-  padding: 20px;
-  background-color: #f9f9f9;
-  min-height: 100vh;
+  display: flex;
 }
 
 /* Container chính */
 .container {
-  max-width: 1200px;
+  width: 85%;
   margin: 0 auto;
   background-color: var(--white);
-  padding: 20px;
+  padding: 40px;
   border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  background-color: #f9f9f9;
+  min-height: 100vh;
 }
 
 /* Tiêu đề chính */
@@ -134,10 +133,3 @@
   background-color: var(--btn-delete-hover);
 }
 
-.btnEdit {
-  background-color: var(--btn-edit-bg);
-}
-
-.btnEdit:hover {
-  background-color: var(--btn-edit-hover);
-}

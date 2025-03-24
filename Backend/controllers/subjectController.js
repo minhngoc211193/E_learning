@@ -18,8 +18,8 @@ const subjectController = {
     // tạo subject
     createSubject: async (req, res) => {
         try {
-            const { Name, Description, MajorId, ClassId } = req.body;
-            const newSubject = new Subject({ Name, Description, Major: MajorId, Classes: ClassId });
+            const { Name, Description, MajorId, ClassId, CodeSubject } = req.body;
+            const newSubject = new Subject({ Name, Description, Major: MajorId, Classes: ClassId, CodeSubject });
             const savedSubject = await newSubject.save();
             res.status(201).json(savedSubject);
         } catch (err) {

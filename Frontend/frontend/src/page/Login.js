@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import styles from "./Login.module.css";
 import studyImg from "../assets/study.jpg";
 import axios from "axios";
+import { jwtDecode } from "jwt-decode";
 
 function Login() {
     const [email, setEmail] = useState("");
@@ -17,7 +18,14 @@ function Login() {
     
             // Lưu token & chuyển hướng
             localStorage.setItem("accessToken", res.data.accessToken);
-            window.location.href = "/home";
+            const token = localStorage.getItem("accessToken");
+            const decoded = jwtDecode(token);
+            const userRole = decoded.Role;
+            if(userRole === "admin") {
+                window.location.href = "/dashboard";
+            } else {
+                window.location.href = "/home";
+            }
     
         } catch (err) {
             if (err.response) {

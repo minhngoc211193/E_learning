@@ -4,7 +4,7 @@ import axios from 'axios';
 import styles from './Home.module.css';
 import backgroundImg from '../assets/banner.jpg';
 import Footer from '../components/Footer';
-import Menu from '../components/Menu';
+import Header from '../components/Header';
 
 function Home() {
     const navigate = useNavigate();
@@ -22,13 +22,8 @@ function Home() {
 
     return (
         <div>
-            <Menu />
+            <Header />
             <div className={styles.header} style={{ backgroundImage: `url(${backgroundImg})` }}>
-                <div className={styles.content}>
-                    <div className={styles.contentTop}>
-                        <h1>E-learning</h1>
-                    </div>
-                </div>
             </div>
             <div className={styles.main}>
                 <div className={styles.search}>

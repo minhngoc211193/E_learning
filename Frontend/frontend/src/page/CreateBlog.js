@@ -1,67 +1,134 @@
 import React, { useState } from "react";
-import {useNavigate} from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import {jwtDecode} from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
+import { Upload, Spin, notification, message } from "antd";
+import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
 import styles from "./CreateBlog.module.css";
-import backgroundImg from '../assets/abc.jpg';
+import backgroundImg from "../assets/abc.jpg";
+import Header from "../components/Header";
 
 function CreateBlog() {
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
-    const [image, setImage] = useState("");
-    const [error, setError] = useState("");
-    const [success, setSuccess] = useState("");
+    const [file, setFile] = useState(null);
+    const [previewImage, setPreviewImage] = useState("");
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+
+    const [api, contextHolder] = notification.useNotification();
+
+    const openNotification = (type, detailMessage = "") => {
+        if (type === "success") {
+            api.open({
+                message: "Tạo blog thành công!",
+                description: "Bài viết của bạn đã được tạo thành công.",
+                showProgress: true,
+                pauseOnHover: true,
+            });
+        } else {
+            api.open({
+                message: "Tạo blog thất bại!",
+                description: detailMessage,
+                showProgress: true,
+                pauseOnHover: true,
+            });
+        }
+    };
+
+    // Dummy request để ngăn Upload tự động gửi file
+    const dummyRequest = ({ file, onSuccess }) => {
+        setTimeout(() => {
+            onSuccess("ok");
+        }, 0);
+    };
+
+    const handleBeforeUpload = (file) => {
+        const isValidType =
+            file.type === "image/jpeg" ||
+            file.type === "image/png" ||
+            file.type === "image/jpg";
+        if (!isValidType) {
+            message.error("Bạn chỉ có thể tải lên file (jpg, jpeg, png)!");
+            return Upload.LIST_IGNORE;
+        }
+        const isLt1M = file.size / 1024 / 1024 < 1;
+        if (!isLt1M) {
+            message.error("Kích thước file phải nhỏ hơn 1MB!");
+            return Upload.LIST_IGNORE;
+        }
+        setFile(file);
+        const preview = URL.createObjectURL(file);
+        setPreviewImage(preview);
+        return false; // Ngăn upload tự động
+    };
+
+    const handleUploadChange = (info) => {
+        if (info.file.status === "uploading") {
+            setLoading(true);
+            return;
+        }
+        if (info.file.status === "done" || info.file.status === "error") {
+            setLoading(false);
+        }
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError("");
-        setSuccess("");
 
-        // Kiểm tra dữ liệu trước khi gửi
-        if (!title.trim() || !content.trim() || !image.trim()) {
-            setError("Vui lòng điền đầy đủ thông tin");
+        if (!title.trim() || !content.trim() || !file) {
+            openNotification("error", "Vui lòng điền đầy đủ thông tin và chọn ảnh");
             return;
         }
-
         try {
-            // Lấy token từ localStorage
             const token = localStorage.getItem("accessToken");
             if (!token) {
-                setError("Bạn chưa đăng nhập!");
+                openNotification("error", "Bạn chưa đăng nhập!");
                 return;
             }
-
-            // Giải mã token để lấy userId
             const decoded = jwtDecode(token);
             const userId = decoded.id;
 
-            // Gửi request tạo bài viết
+            const formData = new FormData();
+            formData.append("Title", title);
+            formData.append("Content", content);
+            formData.append("User", userId);
+            formData.append("Image", file);
+
             const res = await axios.post(
                 "http://localhost:8000/blog/create-blog",
-                { Title: title, Content: content, Image: image, User: userId },
-                { headers: { Authorization: `Bearer ${token}` } }
+                formData,
+                {
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
             );
 
-            setSuccess(res.data.message || "Tạo blog thành công!");
+            openNotification("success");
             setTitle("");
             setContent("");
-            setImage("");
-            setTimeout(() => navigate(`/home`), 1000);
+            setFile(null);
+            setPreviewImage("");
+            setTimeout(() => navigate("/profile"), 2000);
         } catch (err) {
-            setError("Tạo blog thất bại. Vui lòng thử lại!");
+            const errorMessage =
+                err.response?.data?.message || "Có lỗi xảy ra. Vui lòng thử lại!";
+            openNotification("error", errorMessage);
         }
     };
 
     return (
         <div>
-            <div className={styles.backGround} style={{ backgroundImage: `url(${backgroundImg})` }}>
+            <Header />
+            {contextHolder}
+            <div
+                className={styles.backGround}
+                style={{ backgroundImage: `url(${backgroundImg})` }}
+            >
                 <div className={styles.createNewBlogContainer}>
                     <h2 className={styles.heading}>Create New Blog</h2>
-
-                    {error && <p className={styles.errorMessage}>{error}</p>}
-                    {success && <p className={styles.successMessage}>{success}</p>}
-
                     <form className={styles.createNewBlogForm} onSubmit={handleSubmit}>
                         {/* Title */}
                         <div className={styles.formGroup}>
@@ -87,19 +154,37 @@ function CreateBlog() {
                             />
                         </div>
 
-                        {/* Image upload */}
+                        {/* Upload Image */}
                         <div className={styles.formGroup}>
-                            <label htmlFor="image">Image URL</label>
-                            <input
-                                id="image"
-                                type="text"
-                                placeholder="Put image URL here..."
-                                value={image}
-                                onChange={(e) => setImage(e.target.value)}
-                            />
+                            <label>Upload Image</label>
+                            <Upload
+                                name="Image"
+                                listType="picture-card"
+                                className="avatar-uploader"
+                                showUploadList={false}
+                                beforeUpload={handleBeforeUpload}
+                                customRequest={dummyRequest}
+                                onChange={handleUploadChange}
+                            >
+                                {previewImage ? (
+                                    <img
+                                        className={styles.previewImage}
+                                        src={previewImage}
+                                        alt="preview"
+                                        style={{ width: "100%" }}
+                                    />
+                                ) : (
+                                    <div>
+                                        {loading ? (
+                                            <Spin indicator={<LoadingOutlined />} />
+                                        ) : (
+                                            <PlusOutlined />
+                                        )}
+                                        <div style={{ marginTop: 8 }}>Upload</div>
+                                    </div>
+                                )}
+                            </Upload>
                         </div>
-
-                        {/* Submit button */}
                         <button type="submit" className={styles.submitButton}>
                             Create
                         </button>

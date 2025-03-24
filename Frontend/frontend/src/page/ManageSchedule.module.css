@@ -1,5 +1,10 @@
+.body{
+  display: flex;
+}
+
 .container{
   background-color:#f9f9f9;
+  width: 85%;
 }
 /* Header */
 .heading {
@@ -53,7 +58,6 @@
   text-align: center;
   font-size: 16px;
 }
-
 /* Style cho header của bảng */
 .scheduleTable th {
   background-color: var(--primary-color);
@@ -79,6 +83,16 @@
   font-size: 0.9rem;
   margin: 0;
   color: var(--primary-dark);
+}
+
+.subjectName{
+  margin: 0;
+  font-size: 15px;
+}
+
+.scheduleInfo{
+  margin: 0;
+  font-size: 12px;
 }
 
 /* Responsive */

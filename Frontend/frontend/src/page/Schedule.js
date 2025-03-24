@@ -4,6 +4,7 @@ import moment from "moment"; // npm install moment
 import { DatePicker } from "antd";
 import { SmileOutlined } from '@ant-design/icons';
 import styles from "./Schedule.module.css";
+import Header from "../components/Header";
 
 function Schedule() {
   const timeSlots = [
@@ -75,61 +76,64 @@ function Schedule() {
   if (error) return <div>{error}</div>;
 
   return (
-    <div className={styles.scheduleContainer}>
-      <h1 className={styles.title}>Lịch học của tuần</h1>
-      <div className={styles.datePicker}>
-      </div>
-      <div className={styles.tableContainer}>
-        <table className={styles.scheduleTable}>
-          <thead>
-            <tr>
-              <th>
-                <DatePicker
-                  picker="week" suffixIcon={smileIcon}
-                  onChange={onWeekChange}
-                  value={selectedWeek}
-                  style={{ borderColor: '#ccc', borderRadius: '5px' }}
-                /></th>
-              {weekDays.map((day, index) => (
-                <th key={index}>
-                  <div>{day.format("dddd")}</div>
-                  <div>{day.format("DD/MM/YYYY")}</div>
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {timeSlots.map((slotItem, idx) => (
-              <tr key={idx}>
-                <td className={styles.timeSlot}>
-                  <div className={styles.slotLabel}>{slotItem.slot}</div>
-                </td>
-                {weekDays.map((day, index) => {
-                  const cellSchedules = getScheduleForCell(day, slotItem);
-                  return (
-                    <td key={index} className={styles.scheduleCell}>
-                      {cellSchedules.length > 0 ? (
-                        cellSchedules.map((sch) => (
-                          <div key={sch._id} className={styles.scheduleItem}>
-                            <strong>{sch.Class.Subject}</strong>
-                            <div>
-                              {sch.Class.Classname} <br />
-                              {sch.Class.Teacher}
-                            </div>
-                            <div>Địa điểm: {sch.Address}</div>
-                          </div>
-                        ))
-                      ) : (
-                        <span>&nbsp;</span>
-                      )}
-                    </td>
-                  );
-                })}
+    <div>
+      <Header />
+      <div className={styles.scheduleContainer}>
+        <h1 className={styles.title}>Lịch học của tuần</h1>
+        <div className={styles.datePicker}>
+        </div>
+        <div className={styles.tableContainer}>
+          <table className={styles.scheduleTable}>
+            <thead>
+              <tr>
+                <th>
+                  <DatePicker
+                    picker="week" suffixIcon={smileIcon}
+                    onChange={onWeekChange}
+                    value={selectedWeek}
+                    style={{ borderColor: '#ccc', borderRadius: '5px' }}
+                  /></th>
+                {weekDays.map((day, index) => (
+                  <th key={index}>
+                    <div>{day.format("dddd")}</div>
+                    <div>{day.format("DD/MM/YYYY")}</div>
+                  </th>
+                ))}
               </tr>
-            ))}
-          </tbody>
+            </thead>
+            <tbody>
+              {timeSlots.map((slotItem, idx) => (
+                <tr key={idx}>
+                  <td className={styles.timeSlot}>
+                    <div className={styles.slotLabel}>{slotItem.slot}</div>
+                  </td>
+                  {weekDays.map((day, index) => {
+                    const cellSchedules = getScheduleForCell(day, slotItem);
+                    return (
+                      <td key={index} className={styles.scheduleCell}>
+                        {cellSchedules.length > 0 ? (
+                          cellSchedules.map((sch) => (
+                            <div key={sch._id} className={styles.scheduleItem}>
+                              <strong>Subject: {sch.Class.Subject.Name}</strong>
+                              <div>
+                                Class: {sch.Class.Classname} <br />
+                                Teacher: {sch.Class.Teacher.Fullname}<br />
+                                Room: {sch.Address}
+                              </div>
+                            </div>
+                          ))
+                        ) : (
+                          <span>&nbsp;</span>
+                        )}
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
 
-        </table>
+          </table>
+        </div>
       </div>
     </div>
   );

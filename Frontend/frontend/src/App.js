@@ -24,6 +24,7 @@ import Profile from './page/Profile';
 import UpdateInformationUser from './page/UpdateInformationUser';
 import Schedule from './page/Schedule';
 import ManageSchedule from './page/ManageSchedule';
+import Dashboard from './page/Dashboard';
 import './App.css';
 
 function checkToken() {
@@ -85,6 +86,7 @@ function App() {
           <Route path="/createclass" element={renderProtected(CreateClass)} />
           <Route path="/schedule" element={renderProtected(Schedule)} />
           <Route path="/manageschedule" element={renderProtected(ManageSchedule)} />
+          <Route path="/dashboard" element={renderProtected(Dashboard)} />
         </Routes>
       </div>
     </Router>
