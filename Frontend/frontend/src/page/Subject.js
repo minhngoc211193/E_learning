@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 function Subject() {
-    const [subjectData, setSubjectData] = useState({ Name: "", Description: "", Major:"" });
+    const [subjectData, setSubjectData] = useState({ Name: "", Description: "", MajorId:"" });
     const [userRole, setUserRole] = useState(null);
     const [majors, setMajors] = useState([]);
     const [userMajor, setUserMajor] = useState(null);
@@ -77,17 +77,24 @@ function Subject() {
         setSubjectData({ ...subjectData, [e.target.name]: e.target.value });
     };
 
+    //Create button
     const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log("Sending subjectData:", subjectData); // Debug dữ liệu gửi lên
+        const token = localStorage.getItem("accessToken");
+        const requestData = {
+            Name: subjectData.Name,
+            Description: subjectData.Description,
+            MajorId: subjectData.MajorId 
+        };
+        
         try {
-            const token = localStorage.getItem("accessToken");
+
             if (editId) {
-                await axios.put(`http://localhost:8000/subject/update-subject/${editId}`, subjectData, {
+                await axios.put(`http://localhost:8000/subject/update-subject/${editId}`, requestData, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
             } else {
-                await axios.post("http://localhost:8000/subject/create-subject", subjectData, {
+                await axios.post("http://localhost:8000/subject/create-subject", requestData, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
             }
@@ -98,11 +105,16 @@ function Subject() {
             console.error("Error saving subject", error);
         }
     };
-    
-console.log(subjectData); //
+
+    //Edit button
     const handleEdit = (subject) => {
-        setSubjectData({ Name: subject.Name, Description: subject.Description, Major: subject.Major || "" });
+        setSubjectData({ 
+            Name: subject.Name, 
+            Description: subject.Description, 
+            MajorId: subject.Major ? subject.Major._id: "" 
+        });
         setEditId(subject._id);
+
     };
 
     const handleDelete = async (_id) => {
@@ -146,8 +158,8 @@ console.log(subjectData); //
                             <input type="text" name="Name" value={subjectData.Name} onChange={handleChange} placeholder="Subject Name" required className="form-control" />
                             <input type="text" name="Description" value={subjectData.Description} onChange={handleChange} placeholder="Description" required className="form-control" />
                             <select
-                                name="Major"
-                                value={subjectData.Major}
+                                name="MajorId"
+                                value={subjectData.MajorId}
                                 onChange={handleChange}
                                 required
                                 className="form-control"
