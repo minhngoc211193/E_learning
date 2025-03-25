@@ -25,7 +25,32 @@ const scheduleRouter = require('./routes/schedule');
 const messagesRoutes = require('./routes/messenger');
 
 
-app.use(cors());
+app.use(cors({
+    origin: "http://localhost:3000", // Cho phép frontend từ localhost:3000
+    methods: ["GET", "POST"],
+    allowedHeaders: ["Content-Type", "Authorization"], // Các header được phép
+  }));
+const server = http.createServer(app);
+const io = socketIo(server, {
+  cors: {
+    origin: "http://localhost:3000", // Socket.io CORS
+    methods: ["GET", "POST"],
+  }
+});
+
+// Khởi tạo kết nối Socket.IO
+io.on('connection', (socket) => {
+  console.log('User connected');
+  
+  socket.on('disconnect', () => {
+    console.log('User disconnected');
+  });
+});
+
+server.listen(8000, () => {
+  console.log('Server running on http://localhost:8000');
+});
+
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

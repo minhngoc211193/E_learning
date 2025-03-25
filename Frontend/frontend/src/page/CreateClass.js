@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { jwtDecode } from "jwt-decode";
+
 
 function CreateClass() {
     const [step, setStep] = useState(1);
@@ -12,21 +14,29 @@ function CreateClass() {
         Student: [],
         Schedule: "",
         Document: "",
-        Assignment: ""
+        Slot:""
     });
 
     const [students, setStudents] = useState([]);
     const [search, setSearch] = useState("");
     const navigate = useNavigate();
-    const token = localStorage.getItem("accessToken");
+    console.log(classData)
     const [majors, setMajors] = useState([]);
     const [subjects, setSubjects] = useState([]);
     const [teachers, setTeachers] = useState([]);
+    const token = localStorage.getItem("accessToken");
 
     useEffect(() => {
         fetchMajors();
-        fetchStudents();
     }, []);
+
+    useEffect(() => {
+        fetchSubjects(classData.Major);
+        fetchTeachers(classData.Major);
+        fetchStudents(classData.Major);
+    }, [classData.Major]);
+
+
 
     const fetchMajors = async () => {
         try {
@@ -39,48 +49,110 @@ function CreateClass() {
         }
     };
 
-    const fetchStudents = async () => {
+    const fetchSubjects = async (majorId) => {
+        if (!majorId) return;
         try {
-            const response = await axios.get(`http://localhost:8000/student/students`, {
+
+            const response = await axios.get(`http://localhost:8000/subject/get-subjects-by-major/${majorId}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
+            setSubjects(response.data);
+        } catch (e) {
+            console.error("Error fetching subjects", e);
+        }
+    };
+
+    const fetchStudents = async (majorId) => {
+
+        try {
+            const decoded = jwtDecode(token);
+            const userRole = "student";
+            if (!classData.Major) return;
+            const response = await axios.get(`http://localhost:8000/user/users-by-major/${majorId}?Role=${userRole}`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            // const studentList = response.data.filter(user => user.role === "student");
             setStudents(response.data);
         } catch (e) {
             console.error("Error fetching students", e);
         }
     };
 
+    const fetchTeachers = async (majorId) => {
+        try{
+            const decoded = jwtDecode(token);
+            const userRole = "teacher"
+            if(!classData.Major) return;
+            const response = await axios.get(`http://localhost:8000/user/users-by-major/${majorId}?Role=${userRole}`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            console.log(response.data);
+            // const teacherList = response.data.filter(user => user.role === "teacher");
+            setTeachers(response.data);
+        }catch(e){
+            console.error("Error fetching teachers", e);
+        }
+    };
+
     const handleNext = () => setStep(2);
     const handlePre = () => setStep(1);
 
+    const handleSubjectChange = (e) => {
+        const selectedSubjectId = e.target.value;  // Lấy id của subject thay vì tên
+        console.log("Selected Subject ID: " + selectedSubjectId);
+        setClassData(prev => ({
+            ...prev,
+            Subject: selectedSubjectId,  // Lưu id của subject vào state
+        }));
+    };
+
+    const handleCheckboxChange = (student) => {
+        setClassData(prev => {
+            const newStudentList = prev.Student.includes(student._id)
+                ? prev.Student.filter(s => s !== student._id)  // Nếu học sinh đã có trong mảng, thì bỏ
+                : [...prev.Student, student._id];  // Nếu học sinh chưa có trong mảng, thêm vào
+            return {
+                ...prev,
+                Student: newStudentList
+            };
+        });
+    };
+
+    const handleTeacher = (teacher) => {
+        setClassData (prev => ({
+            ...prev,
+            Student: teacher._id
+        }));
+    };
     const handleMajorChange = (e) => {
         const selectedMajor = e.target.value;
+        console.log("Major: " + e);
+        console.log(e.target.value);
         setClassData(prev => ({
             ...prev,
             Major: selectedMajor,
             Subject: "",
             Teacher: ""
         }));
-        // Fetch subjects and teachers for selected major (if needed)
+        fetchSubjects(selectedMajor);
     };
 
-    const handleStudent = (student) => {
-        setClassData(prev => ({ ...prev, Student: [...prev.Student, student] }));
-    };
-
-    const handleRemoveStudent = (id) => {
-        setClassData(prev => ({
-            ...prev,
-            Student: prev.Student.filter(student => student._id !== id)
-        }));
-    };
 
     const handleSubmit = async () => {
         try {
-            await axios.post("https://localhost:8000/class/createclass", classData, {
+            const simplifiedClassData = {
+                Classname: classData.Classname,
+                subjectId: classData.Subject,
+                Student: classData.Student,
+                Teacher: classData.Teacher,
+                Slots: classData.Slot,
+            };
+            console.log("form gửi đi:"+ simplifiedClassData);
+
+            await axios.post("http://localhost:8000/class/create-class", simplifiedClassData, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            navigate("/classes"); // ✅ Navigate after success
+            navigate("/manageclass");
         } catch (e) {
             console.error("Error creating class", e);
         }
@@ -98,21 +170,25 @@ function CreateClass() {
                             className="border p-2 w-full" />
                         <br/>
                         <br/>
+                        <label className="block mt-4">Slot</label>
+                        <input type="text" placeholder="Slot" value={classData.Slot}
+                            onChange={(e) => setClassData({ ...classData, Slot: e.target.value })}
+                            className="border p-2 w-full" />
                         <label className="block mt-4">Major</label>
                         <select value={classData.Major} onChange={handleMajorChange} className="border p-2 w-full">
                             <option value="">Select Major</option>
                             {majors.map((major) => (
-                                <option key={major._id} value={major.Name}>{major.Name}</option>
+                                <option key={major._id} value={major._id}>{major.Name}</option>
                             ))}
                         </select>
                         <br/>
                         <br/>
                         <label className="block mt-4">Subject</label>
-                        <select value={classData.Subject} onChange={(e) => setClassData({ ...classData, Subject: e.target.value })}
+                        <select value={classData.Subject} onChange={handleSubjectChange}
                             className="border p-2 w-full" disabled={!classData.Major}>
                             <option value="">Select Subject</option>
                             {subjects.map((subject) => (
-                                <option key={subject._id} value={subject.Name}>{subject.Name}</option>
+                                <option key={subject._id} value={subject._id}>{subject.Name}</option>
                             ))}
                         </select>
                         <br/>
@@ -122,7 +198,7 @@ function CreateClass() {
                             className="border p-2 w-full" disabled={!classData.Major}>
                             <option value="">Select Teacher</option>
                             {teachers.map((teacher) => (
-                                <option key={teacher._id} value={teacher.name}>{teacher.name}</option>
+                                <option onClick={() => handleTeacher(teacher)}  key={teacher._id} value={teacher._id}>{teacher.Fullname}</option>
                             ))}
                         </select>
                         <br/>
@@ -134,11 +210,17 @@ function CreateClass() {
                         <input type="text" placeholder="Search student..." value={search}
                             onChange={(e) => setSearch(e.target.value)} className="border p-2 w-full" />
 
-                        <div className="mt-2">
+
+                    <div className="mt-2">
                             {students.filter(s => s.Fullname.toLowerCase().includes(search.toLowerCase())).map(student => (
                                 <div key={student._id} className="flex justify-between border p-2 mt-2">
                                     <span>{student.Fullname}</span>
-                                    <button onClick={() => handleStudent(student)} className="px-2 py-1 bg-green-500 text-white">Add</button>
+                                    <input
+                                        type="checkbox"
+                                        checked={classData.Student.includes(student._id)} // Kiểm tra nếu học sinh đã được chọn
+                                        onChange={() => handleCheckboxChange(student)} // Thêm hoặc bỏ học sinh khi thay đổi trạng thái checkbox
+                                        className="ml-4"
+                                    />
                                 </div>
                             ))}
                         </div>
@@ -151,5 +233,6 @@ function CreateClass() {
         </div>
     );
 }
+
 
 export default CreateClass;

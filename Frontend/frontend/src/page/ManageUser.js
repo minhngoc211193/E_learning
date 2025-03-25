@@ -1,6 +1,5 @@
 import React, {useState, useEffect} from 'react';
 import {useNavigate} from "react-router-dom";
-import { FaEye, FaTrash } from "react-icons/fa";
 import styles from '../page/ManageUser.module.css';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
@@ -93,71 +92,69 @@ function ManageUser (){
     };
 
     return (
-    <div className={styles.container}>
-            <h2 >Manage Account</h2>
+          <div className={styles.container}>
+            <h2>Manage Account</h2>
             <div className={styles.nav}>
-            <select
-                className={styles.filterDropdown}
-                value={selectMajor}
-                onChange={(e) => {
-                    setSelectMajor(e.target.value);
-                    if (e.target.value) {
-                        fetchUserByMajor(e.target.value);
-                    } else {
-                        fetchUsers();
-                    }
-                }}
-            >
-                <option value="">All accounts</option>
-                {majors.map((major) => (
-                    <option key={major._id} value={major._id}>
-                        {major.Name}
-                    </option>
-                ))}
-            </select>
+                <select
+                    className={styles.filterDropdown}
+                    value={selectMajor}
+                    onChange={(e) => {
+                        setSelectMajor(e.target.value);
+                        if (e.target.value) {
+                            fetchUserByMajor(e.target.value);
+                        } else {
+                            fetchUsers();
+                        }
+                    }}
+                >
+                    <option value="">All accounts</option>
+                    {majors.map((major) => (
+                        <option key={major._id} value={major._id}>
+                            {major.Name}
+                        </option>
+                    ))}
+                </select>
                 <span className={activeTab ==="create"? styles.activeTab : styles.inactiveTab}
                         onClick={() => setActiveTab("create")} >
                             Create account</span>
             </div>
-            {activeTab ==="all" ? (
-            <div className={styles["table-container"]}>
-                <table className={styles.table}>
-                    <thead>
-                        <tr >
-                            <th >Name</th>
-                            <th >Role</th>
-                            <th >Username</th>
-                            <th >Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {users.map(user => (
-                            <tr key={user._id} >
-                                <td >{user.Fullname}</td>
-                                <td >{user.Role}</td>
-                                <td >{user.Username}</td>
-                                <td >
-                                    <button onClick={() => navigate(`/detail-user/${user._id}`)} className={styles["action-button"]}><FaEye /></button>
-                                    <button onClick={() => handleDelete(user._id)} className={styles["delete-button"]}><FaTrash /></button>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>) :(
-                <div className={styles.modalOverlay}>
-                <div className={styles.modalContent}>
-                    <button 
-                        className={styles.closeButton} 
-                        onClick={() => setActiveTab("all")}
-                    >
-                        ✖
-                    </button>
-                    <CreateUser setActiveTab={setActiveTab} />
+            
+            {activeTab === "all" ? (
+                <div className={styles.userGrid}>
+                    {users.map(user => (
+                        <div key={user._id} className={styles.userCard} onClick={() => navigate(`/detail-user/${user._id}`)}>
+                        <div className={styles.imageContainer}>
+                        <button 
+                            className={styles.deleteButton} 
+                            onClick={(e) => {
+                                e.stopPropagation(); 
+                                handleDelete(user._id);
+                            }}
+                        >
+                            X
+                        </button>
+                            <img src={user.Image || "/default-avatar.png"} alt={user.Fullname} className={styles.avatar} />
+                        </div>
+                        <div className={styles.userInfo}>
+                            <h3 className={styles.username}>{user.Fullname}</h3>
+                            <p className={styles.userRole}>Role: {user.Role}</p>
+                        </div>
+                    </div>
+                    ))}
                 </div>
-            </div>
+            ) : (
+                <div className={styles.modalOverlay}>
+                    <div className={styles.modalContent}>
+                        <button 
+                            className={styles.closeButton} 
+                            onClick={() => setActiveTab("all")}
+                        >
+                            ✖
+                        </button>
+                        <CreateUser setActiveTab={setActiveTab} />
+                    </div>
+                </div>
             )}
-
         </div>
     );
 }

@@ -8,7 +8,6 @@ const EditUser = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [userData, setUserData] = useState({
-    Image:"",
     Fullname: "",
     Username: "",
     PhoneNumber: "",
@@ -24,10 +23,6 @@ const EditUser = () => {
 
   const fetchUserInfo = async () => {
     const token = localStorage.getItem("accessToken");
-    if (!token) {
-        console.error("Bạn chưa đăng nhập!");
-        return;
-    }
     try {
         const decoded = jwtDecode(token);
         if(decoded.Role!== "admin"){
@@ -84,68 +79,31 @@ useEffect(() => {
   };
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const token = localStorage.getItem("accessToken");
-
-    if (!token) {
-        alert("Bạn cần đăng nhập trước!");
-        navigate("/");
-        return;
+    const formData = new FormData();
+    formData.append('Fullname', userData.Fullname);
+    formData.append('Username', userData.Username);
+    formData.append('PhoneNumber', userData.PhoneNumber);
+    formData.append('SchoolYear', userData.SchoolYear);
+    formData.append('Gender', userData.Gender);
+    formData.append('DateOfBirth', userData.DateOfBirth);
+    formData.append('Major', userData.Major);
+    if (userData.Image) {
+      formData.append('file', userData.Image);
     }
 
     try {
-        const decodedToken = jwtDecode(token);
-        if (decodedToken.Role !== "admin") {
-            alert("Bạn không có quyền chỉnh sửa người dùng!");
-            return;
-        }
+      const response = await axios.put(`http://localhost:8000/user/update-user/${id}`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
 
-        const formData = new FormData();
-        formData.append("Fullname", userData.Fullname);
-        formData.append("Username", userData.Username);
-        formData.append("PhoneNumber", userData.PhoneNumber);
-        formData.append("Gender", userData.Gender);
-        formData.append("DateOfBirth", userData.DateOfBirth);
-        formData.append("Major", userData.Major);
-        if (userData.SchoolYear) formData.append("SchoolYear", userData.SchoolYear);
+      });
 
-        // 🖼 Xử lý ảnh
-        if (userData.Image && typeof userData.Image !== "string") { 
-            // Nếu người dùng chọn ảnh mới, chuyển sang Base64
-            const reader = new FileReader();
-            reader.readAsDataURL(userData.Image);
-            reader.onloadend = async () => {
-                const base64String = reader.result.split(",")[1]; // Loại bỏ phần đầu `data:image/png;base64,`
-                formData.append("Image", base64String); // Gửi ảnh dưới dạng Base64
-
-                await axios.put(`http://localhost:8000/user/update-user/${id}`, formData, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        "Content-Type": "multipart/form-data",
-                    },
-                });
-
-                alert("Cập nhật thành công!");
-                navigate("/manageuser");
-            };
-        } else {
-            // 🛠 Nếu không chọn ảnh mới, giữ nguyên ảnh cũ
-            if (userData.Image) formData.append("Image", userData.Image);
-
-            await axios.put(`http://localhost:8000/user/update-user/${id}`, formData, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "multipart/form-data",
-                },
-            });
-
-            alert("Cập nhật thành công!");
-            navigate("/manageuser");
-        }
+      // Xử lý khi update thành công
+      alert('Cập nhật thành công');
+      navigate(`/manageuser`); // Chuyển hướng đến trang chi tiết người dùng sau khi cập nhật
     } catch (error) {
-        console.error("Lỗi khi cập nhật user:", error);
-        alert("Cập nhật thất bại!");
+      console.error('Lỗi cập nhật người dùng:', error);
     }
-};
+  };
 
 
 
