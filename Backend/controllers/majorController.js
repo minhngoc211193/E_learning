@@ -3,8 +3,8 @@ const Major = require('../models/Major');
 const majorController = {
     createMajor: async (req, res) => {
         try {
-            const { Name, Description } = req.body;
-            const newMajor = new Major({ Name, Description });
+            const { Name, Description, CodeMajor } = req.body;
+            const newMajor = new Major({ Name, Description, CodeMajor});
             const savedMajor = await newMajor.save();
             res.status(201).json(savedMajor);
         } catch (err) {
@@ -48,6 +48,28 @@ const majorController = {
             res.status(200).json({ message: "Major deleted successfully" });
         } catch (err) {
             res.status(500).json({ message: "Failed to delete major", error: err.message });
+        }
+    },
+
+    searchMajor: async (req, res) => {
+        try {
+            const {search} = req.query;
+            if (!search) {
+                return res.status(400).json({ message: "Vui lòng nhập từ khóa" });
+            }
+            const majors = await Major.find({ 
+                $or: [
+                    { Name: { $regex: search, $options: "i" } },
+                    { CodeMajor: { $regex: search, $options: "i" } }
+                ]
+             });
+             if (majors.length === 0) {
+                 return res.status(404).json({ message: "Không tìm thấy Major" });
+             }
+
+             res.status(200).json(majors);
+        } catch (err) {
+            res.status(500).json({ message: "Lỗi tìm Major", error: err.message });
         }
     }
 };

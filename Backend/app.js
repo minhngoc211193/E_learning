@@ -23,6 +23,7 @@ const documentRouter = require('./routes/document');
 const scheduleRouter = require('./routes/schedule');
 
 const messagesRoutes = require('./routes/messenger');
+const googleMeetRoutes = require('./routes/meet');
 
 
 app.use(cors({
@@ -69,6 +70,7 @@ app.use('/document', documentRouter);
 app.use('/schedule', scheduleRouter);
 
 app.use('/messenger', messagesRoutes);
+app.use('/meet', googleMeetRoutes);
 
 // connect to mongodb
 const connectToMongo = async () => {
