@@ -1,203 +1,190 @@
-const Messenger = require('../models/Messenger');
 const Conversation = require('../models/Conversation');
-const User = require('../models/User');
+const Messenger = require('../models/Messenger');
+const User = require('../models/User'); 
 
-// API để gửi tin nhắn mới
+const searchAndCreateConversation = async (req, res) => {
+  try {
+    const { searchText } = req.body;
+    const userId = req.user.id; 
+    const userRole = req.user.Role;
+
+    let userToSearch;
+    if (userRole === 'student') {
+      userToSearch = await User.findOne({ Role: 'teacher', Fullname: { $regex: searchText, $options: 'i' } });
+    } else if (userRole === 'teacher') {
+      userToSearch = await User.findOne({ Role: 'student', Fullname: { $regex: searchText, $options: 'i' } });
+    } else {
+      return res.status(403).json({ message: 'Unauthorized' });
+    }
+
+    if (!userToSearch) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    let existingConversation = await Conversation.findOne({
+      $or: [
+        { studentId: userId, teacherId: userToSearch._id },
+        { studentId: userToSearch._id, teacherId: userId },
+      ],
+    });
+
+    if (!existingConversation) {
+      const newConversation = new Conversation({
+        studentId: userRole === 'student' ? userId : userToSearch._id,
+        teacherId: userRole === 'teacher' ? userId : userToSearch._id,
+      });
+
+      const savedConversation = await newConversation.save();
+      return res.status(201).json(savedConversation);
+    }
+
+    return res.status(200).json(existingConversation);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Server error', error: err });
+  }
+};
+
 const sendMessage = async (req, res) => {
   try {
-    const { receiverId, text } = req.body;  // Lấy receiverId và text từ request body
-    const senderId = req.user.id;  // Lấy senderId từ thông tin người dùng trong token
+    const { conversationId, text } = req.body; 
+    const userId = req.user.id; 
 
-    // Kiểm tra xem conversation đã tồn tại chưa
-    let conversation = await Conversation.findOne({ studentId: senderId, teacherId: receiverId });
+    const conversation = await Conversation.findById(conversationId);
     if (!conversation) {
-      conversation = new Conversation({ studentId: senderId, teacherId: receiverId });
-      await conversation.save();
+      return res.status(404).json({ message: 'Conversation not found' });
     }
 
-    // Tạo tin nhắn mới với trạng thái 'sent'
+    if (conversation.studentId.toString() !== userId && conversation.teacherId.toString() !== userId) {
+      return res.status(403).json({ message: 'You are not authorized to send messages in this conversation' });
+    }
+
     const newMessage = new Messenger({
       conversationId: conversation._id,
-      senderId,
-      receiverId,
+      senderId: userId,
+      receiverId: userId === conversation.studentId ? conversation.teacherId : conversation.studentId,
       text,
-      status: 'sent',  // Trạng thái ban đầu là 'sent'
     });
-    await newMessage.save();
 
-    // Tạo phòng chat và phát sự kiện mới qua Socket.io
-    const roomId = `room_${senderId}_${receiverId}`;
-    req.app.get('io').to(roomId).emit('newMessage', { senderId, text, timestamp: newMessage.timestamp });
+    const savedMessage = await newMessage.save();
 
-    return res.status(200).json({ message: 'Tin nhắn đã được gửi', newMessage });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: 'Lỗi gửi tin nhắn' });
+    conversation.lastMessage = savedMessage._id;
+    await conversation.save();
+
+    const io = req.app.get('io'); 
+    io.to(conversationId).emit('new message', savedMessage);
+    io.to(conversationId).emit('message delivered', { messageId: savedMessage._id, status: 'delivered' });
+
+    return res.status(201).json(savedMessage);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Server error', error: err });
   }
 };
 
-// API để cập nhật trạng thái tin nhắn
-const updateMessageStatus = async (req, res) => {
+const markMessageAsDelivered = async (conversationId, messageId) => {
   try {
-    const { messageId, status } = req.body;
-
-    if (!['sent', 'delivered', 'read'].includes(status)) {
-      return res.status(400).json({ message: 'Trạng thái không hợp lệ' });
+    // Tìm tin nhắn và cập nhật trạng thái thành 'delivered'
+    const message = await Messenger.findById(messageId);
+    if (!message) {
+      throw new Error("Message not found");
     }
 
-    // Cập nhật trạng thái tin nhắn
-    const message = await Messenger.findByIdAndUpdate(messageId, { status }, { new: true });
-
-    // Phát sự kiện cập nhật trạng thái tin nhắn qua Socket.io
-    const roomId = `room_${message.senderId}_${message.receiverId}`;
-    req.app.get('io').to(roomId).emit('messageStatusUpdated', { messageId, status });
-
-    return res.status(200).json({ message: 'Trạng thái tin nhắn đã được cập nhật', message });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: 'Lỗi khi cập nhật trạng thái tin nhắn' });
+    // Chỉ cập nhật trạng thái nếu tin nhắn chưa được delivered
+    if (message.status === 'sent') {
+      message.status = 'delivered';
+      await message.save();
+    }
+  } catch (err) {
+    console.error(err);
+    throw new Error('Error while updating message status to delivered');
   }
 };
 
-// API để tìm kiếm người dùng và tạo conversation
-const searchUserAndCreateConversation = async (req, res) => {
+const markMessageAsRead = async (messageId) => {
   try {
-    const { searchText } = req.body; // Tìm kiếm theo Fullname
-    const userId = req.user.id;  // Lấy userId từ thông tin người dùng trong token
-
-    // Kiểm tra quyền (student hoặc teacher) của người dùng
-    const role = req.user.Role;
-    console.log("User Role:", req.user.Role);
-
-    let targetUser = null;
-    const formattedSearchText = searchText.trim().replace(/\s+/g, ' '); // Loại bỏ khoảng trắng thừa
-
-    if (role === 'student') {
-      targetUser = await User.findOne({
-        Fullname: { $regex: formattedSearchText, $options: 'i' },
-        Role: 'teacher'
-      });
-    } else if (role === 'teacher') {
-      targetUser = await User.findOne({
-        Fullname: { $regex: formattedSearchText, $options: 'i' },
-        Role: 'student'
-      });
+    const message = await Messenger.findById(messageId);
+    if (!message) {
+      throw new Error("Message not found");
     }
 
-    if (!targetUser) {
-      return res.status(404).json({ message: 'Không tìm thấy người dùng' });
-    }
+    if (message.status === 'delivered') {
+      message.status = 'read';
+      await message.save();
 
-    // Kiểm tra xem conversation đã tồn tại chưa
-    let conversation = await Conversation.findOne({
+      // Phát sự kiện 'message read' khi tin nhắn đã được đọc
+      const io = req.app.get('io');
+      io.to(message.conversationId).emit('message read', { messageId: message._id, status: 'read' });
+    }
+  } catch (err) {
+    console.error(err);
+    throw new Error('Error while updating message status to read');
+  }
+};
+
+const getConversations = async (req, res) => {
+  try {
+    const userId = req.user.id; // Lấy userId từ req.user, đã được xác thực trong middleware
+    
+    // Tìm tất cả các cuộc trò chuyện mà userId là studentId hoặc teacherId
+    const conversations = await Conversation.find({
       $or: [
-        { studentId: userId, teacherId: targetUser._id },
-        { studentId: targetUser._id, teacherId: userId }
+        { studentId: userId },
+        { teacherId: userId }
       ]
-    });
+    })
+    .populate('studentId', 'Fullname')  // Thêm thông tin Fullname của sinh viên
+    .populate('teacherId', 'Fullname'); // Thêm thông tin Fullname của giáo viên
 
-    // Nếu conversation chưa tồn tại, tạo mới
-    if (!conversation) {
-      conversation = new Conversation({
-        studentId: userId,
-        teacherId: targetUser._id
-      });
-      await conversation.save();
+    // Nếu không có cuộc trò chuyện nào
+    if (!conversations || conversations.length === 0) {
+      return res.status(404).json({ message: 'No conversations found' });
     }
 
-    // Trả về thông tin người dùng tìm được và cuộc trò chuyện
-    return res.status(200).json({
-      message: 'Tìm kiếm thành công',
-      targetUser,
-      conversation
-    });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: 'Lỗi khi tìm kiếm người dùng hoặc tạo conversation' });
+    // Trả về tất cả cuộc trò chuyện tìm được
+    return res.status(200).json(conversations);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Server error', error: err });
   }
 };
 
-// API để lấy tin nhắn của một conversation
-const getMessageHistory = async (req, res) => {
+const getMessages = async (req, res) => {
   try {
-    const { conversationId, page = 1 } = req.query;  // Lấy conversationId từ query, page mặc định là 1
-    const limit = 20;  // Giới hạn số tin nhắn mỗi lần tải là 20
+    const { conversationId } = req.params;
+    const { page = 1, limit = 20 } = req.query; // Default limit is 20 messages per page
+    const userId = req.user.id;
 
-    // Tính toán số lượng tin nhắn cần bỏ qua (skip) để thực hiện phân trang
+    const conversation = await Conversation.findById(conversationId);
+    if (!conversation) {
+      return res.status(404).json({ message: 'Conversation not found' });
+    }
+
+    if (conversation.studentId.toString() !== userId && conversation.teacherId.toString() !== userId) {
+      return res.status(403).json({ message: 'You do not have permission to access this conversation' });
+    }
+
     const skip = (page - 1) * limit;
 
-    // Lấy tin nhắn của conversation với phân trang
     const messages = await Messenger.find({ conversationId })
-      .sort({ timestamp: -1 })  // Sắp xếp tin nhắn theo thời gian giảm dần (tin nhắn mới nhất lên đầu)
-      .skip(skip)  // Bỏ qua số tin nhắn đã tải ở các trang trước
-      .limit(limit);  // Giới hạn số tin nhắn lấy được mỗi lần
+      .sort({ timestamp: -1 })
+      .skip(skip)
+      .limit(limit)
+      .populate('senderId', 'Fullname')
+      .populate('receiverId', 'Fullname');
 
-    // Đếm tổng số tin nhắn trong conversation
     const totalMessages = await Messenger.countDocuments({ conversationId });
 
     return res.status(200).json({
-      message: 'Lấy tin nhắn thành công',
       messages,
-      totalMessages
+      page,
+      limit,
+      totalMessages,
     });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: 'Lỗi khi lấy tin nhắn' });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Server error', error: err });
   }
 };
 
-// API để lấy tất cả các cuộc trò chuyện của người dùng
-const getAllConversations = async (req, res) => {
-  try {
-    const userId = req.user.id;  // Lấy userId từ thông tin người dùng trong token
-    const role = req.user.Role;  // Lấy role (student, teacher) của người dùng
-
-    console.log("User from token:", req.user);
-
-    // Tìm tất cả các conversation mà người dùng tham gia (dựa trên studentId hoặc teacherId)
-    let conversations;
-    if (role === 'student') {
-      conversations = await Conversation.find({ studentId: userId }).populate('teacherId', 'Fullname');
-    } else if (role === 'teacher') {
-      conversations = await Conversation.find({ teacherId: userId }).populate('studentId', 'Fullname');
-    }
-
-    if (!conversations || conversations.length === 0) {
-      return res.status(404).json({ message: 'Không có cuộc trò chuyện nào' });
-    }
-
-    return res.status(200).json({
-      message: 'Lấy danh sách cuộc trò chuyện thành công',
-      conversations
-    });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: 'Lỗi khi lấy danh sách cuộc trò chuyện' });
-  }
-};
-
-// API để thông báo trạng thái "typing" khi người dùng đang gõ tin nhắn
-const typingStatus = async (req, res) => {
-  try {
-    const { receiverId } = req.body; // Lấy receiverId từ request body
-    const senderId = req.user.id;  // Lấy senderId từ thông tin người dùng trong token
-
-    // Tạo đối tượng chứa thông tin người đang gõ
-    const typingData = {
-      senderId,
-      receiverId,
-      status: 'typing'
-    };
-
-    // Phát sự kiện "typing" qua Socket.io
-    req.app.get('io').to(`room_${receiverId}`).emit('typing', typingData);
-
-    return res.status(200).json({ message: 'Đang gõ' });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: 'Lỗi khi gửi trạng thái gõ tin nhắn' });
-  }
-};
-
-
-module.exports = { sendMessage, getMessageHistory, updateMessageStatus, searchUserAndCreateConversation, getAllConversations, typingStatus };
+module.exports = { searchAndCreateConversation, sendMessage, getConversations, getMessages, markMessageAsDelivered, markMessageAsRead };
