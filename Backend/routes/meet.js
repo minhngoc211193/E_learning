@@ -1,16 +1,18 @@
 const express = require('express');
 const router = express.Router();
-const { requestMeeting, handleMeetingRequest, getAllMeetingRequests, getTeacherMeetings, getStudentMeetings } = require('../controllers/meetController');  
-const { verifyToken, verifyAdmin, verifyRole } = require('../middlewares/authMiddleware');  
+const { requestMeeting, getMeetings, respondToMeetingRequest, searchMeetings, deleteMeetingRequest, updateMeetingRequest  } = require('../controllers/meetController');  
+const { verifyToken, verifyRole } = require('../middlewares/authMiddleware');  
 
 router.post('/request-meeting', verifyToken, verifyRole(['student']), requestMeeting);
 
-router.post('/handle-meeting-request', verifyToken, verifyRole(['teacher']), handleMeetingRequest);
+router.get('/meetings', verifyToken, verifyRole(['student', 'teacher', 'admin']), getMeetings);
 
-router.get('/admin/meeting-requests', verifyToken, verifyAdmin, getAllMeetingRequests);
+router.post('/respond-meeting', verifyToken, verifyRole(['teacher']), respondToMeetingRequest);
 
-router.get('/student/meetings', verifyToken, verifyRole(['student']), getStudentMeetings);
+router.get('/search', verifyToken, verifyRole(['student', 'teacher', 'admin']), searchMeetings);
 
-router.get('/teacher/meetings', verifyToken, verifyRole(['teacher']), getTeacherMeetings);
+router.delete('/delete', verifyToken, verifyRole(['student']), deleteMeetingRequest);
+
+router.put('/update/:meetingId', verifyToken, verifyRole(['student']), updateMeetingRequest);
 
 module.exports = router;
