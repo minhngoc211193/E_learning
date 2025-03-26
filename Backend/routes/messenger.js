@@ -1,36 +1,34 @@
 const express = require('express');
 const router = express.Router();
-const messengerController = require('../controllers/messengerController');
+const {searchAndCreateConversation, sendMessage, getConversations, getMessages, markMessageAsDelivered, markMessageAsRead } = require('../controllers/messengerController');
 const { verifyToken, verifyRole } = require('../middlewares/authMiddleware');
 
-// API để gửi tin nhắn mới
-router.post('/send', verifyToken, verifyRole(["student", "teacher"]), async (req, res) => {
-  messengerController.sendMessage(req, res);
+router.post('/search-and-create-conversation', verifyToken, verifyRole(['student', 'teacher']), searchAndCreateConversation);
+
+// Route gửi tin nhắn mới (Chỉ dành cho student hoặc teacher)
+router.post('/send-message', verifyToken, verifyRole(['student', 'teacher']), sendMessage);
+
+// Route lấy tất cả cuộc trò chuyện (Dành cho tất cả user đã đăng nhập)
+router.get('/conversations', verifyToken, getConversations);
+
+// Route lấy tin nhắn trong một cuộc trò chuyện (Chỉ dành cho student hoặc teacher)
+router.get('/conversations/:conversationId/messages', verifyToken, verifyRole(['student', 'teacher']), getMessages);
+
+// Route đánh dấu tin nhắn là "đã giao" (delivered) (Chỉ dành cho student hoặc teacher)
+router.post('/mark-delivered/:conversationId/:messageId', verifyToken, verifyRole(['student', 'teacher']), (req, res) => {
+  const { conversationId, messageId } = req.params;
+  markMessageAsDelivered(conversationId, messageId)
+    .then(() => res.status(200).json({ message: 'Message marked as delivered' }))
+    .catch((err) => res.status(500).json({ message: 'Error', error: err }));
 });
 
-// API để cập nhật trạng thái tin nhắn
-router.put('/updateStatus', verifyToken, verifyRole(["student", "teacher"]), async (req, res) => {
-  messengerController.updateMessageStatus(req, res);
+// Route đánh dấu tin nhắn là "đã đọc" (read) (Chỉ dành cho student hoặc teacher)
+router.post('/mark-read/:messageId', verifyToken, verifyRole(['student', 'teacher']), (req, res) => {
+  const { messageId } = req.params;
+  markMessageAsRead(messageId)
+    .then(() => res.status(200).json({ message: 'Message marked as read' }))
+    .catch((err) => res.status(500).json({ message: 'Error', error: err }));
 });
 
-// API để tìm kiếm người dùng và tạo conversation
-router.post('/search', verifyToken, verifyRole(["student", "teacher"]), async (req, res) => {
-  messengerController.searchUserAndCreateConversation(req, res);
-});
-
-// API để lấy tin nhắn của một conversation (với phân trang)
-router.get('/history', verifyToken, verifyRole(["student", "teacher"]), async (req, res) => {
-  messengerController.getMessageHistory(req, res);
-});
-
-// API để lấy tất cả cuộc trò chuyện của người dùng
-router.get('/conversations', verifyToken, verifyRole(["student", "teacher"]), async (req, res) => {
-  messengerController.getAllConversations(req, res);
-});
-
-// API để thông báo trạng thái "typing"
-router.post('/typing', verifyToken, verifyRole(["student", "teacher"]), async (req, res) => {
-  messengerController.typingStatus(req, res);
-});
 
 module.exports = router;
