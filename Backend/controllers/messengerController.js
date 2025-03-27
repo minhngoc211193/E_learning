@@ -131,8 +131,8 @@ const getConversations = async (req, res) => {
         { teacherId: userId }
       ]
     })
-    .populate('studentId', 'Fullname')  // Thêm thông tin Fullname của sinh viên
-    .populate('teacherId', 'Fullname'); // Thêm thông tin Fullname của giáo viên
+    .populate('studentId', 'Fullname', 'Image')  // Thêm thông tin Fullname của sinh viên
+    .populate('teacherId', 'Fullname', 'Image'); // Thêm thông tin Fullname của giáo viên
 
     // Nếu không có cuộc trò chuyện nào
     if (!conversations || conversations.length === 0) {
@@ -168,8 +168,8 @@ const getMessages = async (req, res) => {
       .sort({ timestamp: -1 })
       .skip(skip)
       .limit(limit)
-      .populate('senderId', 'Fullname')
-      .populate('receiverId', 'Fullname');
+      .populate('senderId', 'Fullname','Image')
+      .populate('receiverId', 'Fullname','Image');
 
     const totalMessages = await Messenger.countDocuments({ conversationId });
 
