@@ -26,6 +26,7 @@ import Profile from './page/Profile';
 import UpdateInformationUser from './page/UpdateInformationUser';
 import Messenger from './page/Messenger';
 import ManageMeet from './page/ManageMeet';
+import Notification from './page/Notification';
 import './App.css';
 
 function checkToken() {
@@ -63,6 +64,7 @@ function App() {
           <Route path ="/messenger" element = {checkToken()? <Messenger /> : <Navigate to="/"/>}/>
           <Route path="/createmeeting" element={checkToken()? <CreateMeet/> : <Navigate to="/"/>}/>
           <Route path ="/managemeet" element= {checkToken()? <ManageMeet/> : <Navigate to="/"/>}/>
+          <Route path="/noti" element={checkToken()? <Notification/> : <Navigate to="/"/>}/>
         </Routes>
       </div>
     </Router>

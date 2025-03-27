@@ -1,15 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const { 
-  getUnreadNotifications, 
-  markNotificationAsRead 
+    getAllNotifications, 
 } = require('../controllers/notificationController');
-const authMiddleware = require('../middlewares/authMiddleware');
+const { verifyToken, verifyRole } = require('../middlewares/authMiddleware');
 
-// GET: Lấy danh sách thông báo chưa đọc của người dùng
-router.get('/unread', getUnreadNotifications);
+// Route to get all notifications for the authenticated user
+router.get('/noti', verifyToken , verifyRole(['student', 'teacher']), getAllNotifications);
 
-// PUT: Đánh dấu một thông báo cụ thể là đã đọc
-router.put('/:notificationId/read', markNotificationAsRead);
+// // Route to mark a specific notification as read
+// router.patch('/:notificationId/read',verifyToken , verifyRole(['student', 'teacher']), markNotificationAsRead);
 
 module.exports = router;

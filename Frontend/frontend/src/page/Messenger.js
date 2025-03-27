@@ -13,12 +13,15 @@ function Messenger() {
   const [selectedConversationId, setSelectedConversationId] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [searchText, setSearchText] = useState("");
   const [typing, setTyping] = useState(false);
   const [socket, setSocket] = useState(null);
   const [userRole, setUserRole] = useState(null);
   const [isMeetingFormVisible, setIsMeetingFormVisible] = useState(false);
   const token = localStorage.getItem("accessToken");
-  const decoded = jwtDecode(token)
+  const decoded = jwtDecode(token);
+  const role = decoded.Role;
   const userId = decoded.id;
   const navigate = useNavigate();
 
@@ -49,26 +52,60 @@ function Messenger() {
 
     }
   }, [token]);
-  const searchAndCreateConversation = async(searchText, userRole, token) =>{
-    try{
-      const response = await axios.post("http://localhost:8000/messenger/search-and-create-conversation", {searchText},
-      { hearders: {
-        Authorization:`Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
+  const handleSearch = async () => {
+    if (!searchText.trim()) return;
+    const token = localStorage.getItem("accessToken");
+
+    try {
+        const response = await axios.get("http://localhost:8000/messenger/search", {
+            params: { searchText: searchText.trim() }, // Sử dụng params để match với req.query ở backend
+            headers: { 
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+        });
+
+        setSearchResults(response.data);
+    } catch (e) {
+        console.error('Error searching and creating conversation:', e);
+        // Xử lý trường hợp không tìm thấy người dùng hoặc lỗi khác
+        if (e.response && e.response.status === 404) {
+            setSearchResults([]); // Đặt mảng rỗng nếu không tìm thấy người dùng
+        }
     }
-  );
-    if(response.data && response.data.userRole){
-      if((userRole === "student" && response.data.userRole !== "teacher")||
-      (userRole ==="teacher" && response.data.userRole !== "student")){
-        return null;
+};
+
+const handleUser = async(user) =>{
+  try{
+    const response = await axios.post("http://localhost:8000/messenger/create", 
+      {
+        searchUserId: user._id, // Sửa lại để match với backend
+      },{
+        headers: {Authorization: `Bearer ${token}`},
+      });
+      
+      // Nếu có conversation trả về, set conversation đó
+      setSelectedConversationId(response.data._id);
+      
+      // Nếu là conversation mới, fetch messages
+      fetchMessages(response.data._id);
+  }catch(e){
+    console.error("Error creating conversation:", e)
+    // Xử lý các loại lỗi khác nhau nếu cần
+    if (e.response) {
+      switch(e.response.status) {
+        case 404:
+          alert("Người dùng không tồn tại");
+          break;
+        case 403:
+          alert("Bạn không thể tạo cuộc trò chuyện với người dùng này");
+          break;
+        default:
+          alert("Có lỗi xảy ra");
       }
     }
-    return response.data;
-}catch(e)
-{
-  console.error('Error searching and creating conversation:', e);
-}}
+  }
+}
   const fetchConversations = async () => {
     try {
       const decoded = jwtDecode(token);
@@ -131,7 +168,12 @@ function Messenger() {
     socket.emit("join chat", selectedConversationId);
 
     socket.on("new message", (message) => {
-      setMessages((prevMessages) => (Array.isArray(prevMessages) ? [...prevMessages, message] : [message]));
+      setMessages((prevMessages) => {
+        if (!prevMessages.some((msg) => msg._id === message._id)) {
+          return [...prevMessages, message]; // Chỉ thêm nếu tin nhắn chưa tồn tại
+        }
+        return prevMessages;
+      });
     });
 
     socket.on("typing", () => {
@@ -161,8 +203,6 @@ function Messenger() {
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-
-      setMessages((prevMessages) => (Array.isArray(prevMessages) ? [...prevMessages, response.data] : [response.data]));
       setNewMessage("");
 
       if (socket) {
@@ -189,9 +229,20 @@ function Messenger() {
       <div className={styles["messenger-container"]}>
         <div className={styles.sidebar}>
           <h2 className={styles["sidebar-title"]}>Hội thoại</h2>
+          <input type="text" placeholder="Tìm kiếm..." value={searchText} onChange={(e) => setSearchText(e.target.value)} />
+            <button onClick={handleSearch}>Tìm</button>
+            <div>
+              {searchResults.map((user) => (
+                <div key={user._id} onClick={() => handleUser(user)} className={styles["search-result-item"]}>
+                  <FaUserCircle size={20} />
+                  <span>{user.Fullname}</span>
+                </div>
+              ))}
+            </div>
+
           {conversations.map((conv) => (
             <div key={conv._id} onClick={() => handleConversationClick(conv._id)} className={styles["conversation-item"]}>
-              <img src={conv.Image} className={styles.avatar} />
+              <img src={conv.studentId.Image} className={styles.avatar} />
               <span>
                 {conv.studentId?._id === jwtDecode(token).id ? conv.teacherId?.Fullname : conv.studentId?.Fullname}
               </span>
@@ -215,21 +266,29 @@ function Messenger() {
               <div className={styles["message-list"]}>
                 {messages.length > 0 ? (
                   messages.map((msg) => {
-                    const isSentByUser = msg.senderId === userId;
-                    const isReceivedByUser = msg.receiverId === userId; 
+                    const isSentByUser = msg.senderId?._id === userId;
 
                     return (
                       <div key={msg._id} className={`${styles.message} ${isSentByUser ? styles.sent : styles.received}`}>
-                        <img src={msg.Image}  className={styles.avatar} />
-                        <span className={styles["message-sender"]}>{msg.senderId.Fullname}</span>
-                        <div className={styles["message-bubble"]}>{msg.text}</div>
+                        {!isSentByUser && ( // Chỉ hiển thị avatar bên trái nếu không phải tin nhắn của user
+                          <img src={msg.senderId.imageBase64 || msg.senderId.Image} className={styles.avatar} />
+                        )}
+                        
+                        <div className={styles["message-content"]}>
+                          {!isSentByUser && <span className={styles["message-sender"]}>{msg.receiverId.Fullname}</span>}
+                          <div className={styles["message-bubble"]}>{msg.text}</div>
+                        </div>
+
+                        {isSentByUser && ( // Chỉ hiển thị avatar bên phải nếu là tin nhắn của user
+                          <img src={msg.senderId.imageBase64 || msg.senderId.Image} className={styles.avatar} />
+                        )}
                       </div>
                     );
                   })
                 ) : (
                   <p className={styles["no-messages"]}>Chưa có tin nhắn nào.</p>
                 )}
-                <div ref={messagesEndRef}></div> {/* Phần tử ẩn giúp cuộn xuống cuối */}
+                <div ref={messagesEndRef}></div> {/* Tự động cuộn xuống tin nhắn mới */}
               </div>
   
               <div className={styles["chat-input"]}>
