@@ -83,7 +83,7 @@ function Menu() {
                                     <div onClick={() => navigate('/manageclass')} className={styles.option}><span>Manage class </span></div>
                                     <div onClick={() => navigate('/manageschedule')} className={styles.option}><span>Manage schedule</span></div>
                                     <div onClick={() => navigate('/manageblog')} className={styles.option}><span>Manage blog</span></div>
-                                    <div onClick={() => navigate('/manageaccount')} className={styles.option}><span>Manage account</span></div>
+                                    <div onClick={() => navigate('/manageuser')} className={styles.option}><span>Manage User</span></div>
                                     <div onClick={() => navigate('/managesubject')} className={styles.option}><span>Manage subject</span></div>
                                     <div onClick={() => navigate('/managemajor')} className={styles.option}><span>Manage major</span></div>
                                 </>

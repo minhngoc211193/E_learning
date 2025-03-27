@@ -31,7 +31,7 @@ function Subject() {
             }
         } else {
             alert("Bạn cần đăng nhập trước!");
-            navigate("/home");
+            navigate("/");
         }
     }, [navigate]);
 
@@ -137,72 +137,69 @@ function Subject() {
     const filteredSubjects = selectedMajor ? subjects.filter(subject => subject.Major._id === selectedMajor) : subjects;
 
     return (
-        <section className="Subjectsection">
-            <div className="container">
-                <div className="row justify-content-center">
-                    <div className="col-md-6 text-center mb-5">
-                        <h2 className="heading-section">Manage Subjects</h2>
-                    </div>
-                </div>
-                <div className="row">
-                    <div className="col-md-12">
-                        <h4 className="text-center mb-4">Filter by Major</h4>
-                        <select className="form-control" value={selectedMajor} onChange={handleMajorFilterChange}>
-                            <option value="">All Majors</option>
-                            {majors.map((major) => (
-                                <option key={major._id} value={major._id}>{major.Name}</option>
-                            ))}
-                        </select>
-                        <h4 className="text-center mb-4">Subject Form</h4>
-                        <form onSubmit={handleSubmit} className="subject-form">
-                            <input type="text" name="Name" value={subjectData.Name} onChange={handleChange} placeholder="Subject Name" required className="form-control" />
-                            <input type="text" name="Description" value={subjectData.Description} onChange={handleChange} placeholder="Description" required className="form-control" />
-                            <select
-                                name="MajorId"
-                                value={subjectData.MajorId}
-                                onChange={handleChange}
-                                required
-                                className="form-control"
-                            >
-                                <option value="">Select Major</option>
-                                {majors.map((major) => (
-                                    <option key={major._id} value={major._id}>
-                                        {major.Name}
-                                    </option>
-                                ))}
-                            </select>
-                            <button type="submit" className="btn btn-success">{editId ? "Update" : "Create"} Subject</button>
-                        </form>
-                        <div className="table-wrap">
-                            <table className="table">
-                                <thead className="thead-primary">
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Name</th>
-                                        <th>Major</th>
-                                        <th>Action</th>
+        <section className={styles.Subjectsection}>
+            <div className={styles.container}>
+                <h2 className={styles.headingSection}>Manage Subjects</h2>
+
+                <h4 className={`${styles.textCenter} ${styles.mb4}`}>Filter by Major</h4>
+                <select className={styles.formControl} value={selectedMajor} onChange={handleMajorFilterChange}>
+                    <option value="">All Majors</option>
+                    {majors.map((major) => (
+                        <option key={major._id} value={major._id}>{major.Name}</option>
+                    ))}
+                </select>
+
+                <h4 className={`${styles.textCenter} ${styles.mb4}`}>Subject Form</h4>
+                <form onSubmit={handleSubmit} className={styles.subjectForm}>
+                    <input type="text" name="Name" value={subjectData.Name} onChange={handleChange} placeholder="Subject Name" required className={styles.formControl} />
+                    <input type="text" name="Description" value={subjectData.Description} onChange={handleChange} placeholder="Description" required className={styles.formControl} />
+                    <select
+                        name="MajorId"
+                        value={subjectData.MajorId}
+                        onChange={handleChange}
+                        required
+                        className={styles.formControl}
+                    >
+                        <option value="">Select Major</option>
+                        {majors.map((major) => (
+                            <option key={major._id} value={major._id}>
+                                {major.Name}
+                            </option>
+                        ))}
+                    </select>
+                    <button type="submit" className={`${styles.btn} ${styles.btnSuccess}`}>
+                        {editId ? "Update" : "Create"} Subject
+                    </button>
+                </form>
+
+                <div className={styles.tableWrap}>
+                    <table className={styles.table}>
+                        <thead className="thead-primary">
+                            <tr>
+                                <th>#</th>
+                                <th>Name</th>
+                                <th>Major</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {filteredSubjects.length > 0 ? (
+                                filteredSubjects.map((subject, index) => (
+                                    <tr key={subject._id}>
+                                        <td>{index + 1}</td>
+                                        <td>{subject.Name}</td>
+                                        <td>{subject.Major ? subject.Major.Name : "No Major"}</td>
+                                        <td>
+                                            <button className={`${styles.btn} ${styles.btnWarning} ${styles.me2}`} onClick={() => handleEdit(subject)}>Edit</button>
+                                            <button className={`${styles.btn} ${styles.btnDanger}`} onClick={() => handleDelete(subject._id)}>Delete</button>
+                                        </td>
                                     </tr>
-                                </thead>
-                                <tbody>
-                                    {filteredSubjects.length > 0 ? (
-                                        filteredSubjects.map((subject, index) => (
-                                            <tr key={subject._id}>
-                                                <td>{index + 1}</td>
-                                                <td>{subject.Name}</td>
-                                                <td>{subject.Major ? subject.Major.Name : "No Major"}</td>
-                                                <td>
-                                                    <button className="btn btn-warning me-2" onClick={() => handleEdit(subject)}>Edit</button>
-                                                    <button className="btn btn-danger" onClick={() => handleDelete(subject._id)}>Delete</button>
-                                                </td>
-                                            </tr>
-                                        ))
-                                    ) : (
-                                        <tr><td colSpan="4" className="text-center">No subjects found</td></tr>
-                                    )}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+                                ))
+                            ) : (
+                                <tr><td colSpan="4" className={styles.textCenter}>No subjects found</td></tr>
+                            )}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </section>

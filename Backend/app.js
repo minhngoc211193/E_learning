@@ -7,10 +7,11 @@ const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const socketIo = require('socket.io'); // Import Socket.IO
 
+
 dotenv.config();
 const app = express();
 
-// Router
+
 const authRouter = require('./routes/auth');
 const majorRouter = require('./routes/major');
 const blogRouter = require('./routes/blog');
@@ -20,12 +21,24 @@ const classRouter = require('./routes/class');
 const userRouter = require('./routes/users');
 const documentRouter = require('./routes/document');
 const scheduleRouter = require('./routes/schedule');
-const messagesRoutes = require('./routes/messenger');
+
+
+const messagesRouter = require('./routes/messenger');
 const googleMeetRoutes = require('./routes/meet');
 const notificationRoutes = require('./routes/notification')
 
-// Cấu hình middlewares
-app.use(cors());
+// Cấu hình CORS
+app.use(cors({
+    origin: "http://localhost:3000", // Cho phép frontend từ localhost:3000
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Các phương thức cho phép
+    allowedHeaders: ["Content-Type", "Authorization"], // Các header cần thiết
+    credentials: true,  // Nếu sử dụng cookie hoặc xác thực qua session
+}));
+
+// Xử lý preflight OPTIONS cho tất cả các route
+app.options('*', cors());
+
+
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -42,10 +55,14 @@ app.use('/class', classRouter);
 app.use('/user', userRouter);
 app.use('/document', documentRouter);
 app.use('/schedule', scheduleRouter);
-app.use('/messenger', messagesRoutes);
+
+
+
+app.use('/messenger', messagesRouter);
 app.use('/meet', googleMeetRoutes);
 app.use('/notification', notificationRoutes);
 
+// Kết nối MongoDB
 const connectToMongo = async () => {
   await mongoose.connect(process.env.MONGODB_URL);
   console.log("Connected to MongoDB");
@@ -94,6 +111,17 @@ io.on("connection", (socket) => {
     socket.to(receiverId).emit("message received", newMessageRecieved);
   });
 
+  socket.on('new notification', async (notification) => {
+    try {
+      if (!notification || !notification.receiverId) {
+        return console.log("Invalid notification data");
+      }
+      socket.to(notification.receiverId.toString()).emit('receive notification', notification);
+    } catch (error) {
+      console.error('Error handling new notification:', error);
+    }
+  });
+
   socket.on('mark notification read', async (notificationId) => {
     try {
       await Notification.findByIdAndUpdate(notificationId, { isRead: true });
@@ -112,3 +140,4 @@ io.on("connection", (socket) => {
 });
 
 module.exports = server;
+
