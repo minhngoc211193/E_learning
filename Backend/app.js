@@ -3,7 +3,7 @@ var path = require('path');
 var logger = require('morgan');
 const dotenv = require('dotenv');
 var mongoose = require('mongoose');
-const cookieParser = require('cookie-parser');  
+const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const socketIo = require('socket.io'); // Import Socket.IO
 
@@ -25,6 +25,7 @@ const scheduleRouter = require('./routes/schedule');
 
 const messagesRouter = require('./routes/messenger');
 const googleMeetRoutes = require('./routes/meet');
+const notificationRoutes = require('./routes/notification')
 
 // Cấu hình CORS
 app.use(cors({
@@ -59,11 +60,12 @@ app.use('/schedule', scheduleRouter);
 
 app.use('/messenger', messagesRouter);
 app.use('/meet', googleMeetRoutes);
+app.use('/notification', notificationRoutes);
 
 // Kết nối MongoDB
 const connectToMongo = async () => {
-    await mongoose.connect(process.env.MONGODB_URL);
-    console.log("Connected to MongoDB");
+  await mongoose.connect(process.env.MONGODB_URL);
+  console.log("Connected to MongoDB");
 };
 connectToMongo();
 
@@ -73,7 +75,7 @@ const server = http.createServer(app);
 const io = socketIo(server, {
   pingTimeout: 60000,
   cors: {
-    origin: "http://localhost:3000", 
+    origin: "http://localhost:3000",
   },
 });
 
@@ -100,14 +102,22 @@ io.on("connection", (socket) => {
   socket.on("stop typing", (room) => {
     socket.in(room).emit("stop typing");
   });
-  
+
   socket.on("new message", (newMessageRecieved) => {
     if (!newMessageRecieved) return console.log("chat.users not defined");
-    const senderId = newMessageRecieved.senderId;  
-    const receiverId = newMessageRecieved.receiverId; 
+    const senderId = newMessageRecieved.senderId;
+    const receiverId = newMessageRecieved.receiverId;
     if (senderId === receiverId) return;
     socket.to(receiverId).emit("message received", newMessageRecieved);
-});
+  });
+
+  socket.on('mark notification read', async (notificationId) => {
+    try {
+      await Notification.findByIdAndUpdate(notificationId, { isRead: true });
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+    }
+  });
 
   socket.on("disconnect", () => {
     console.log("User Disconnected");
