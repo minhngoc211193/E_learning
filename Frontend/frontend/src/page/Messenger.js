@@ -1,215 +1,264 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { io } from "socket.io-client";
 import { FaPaperPlane, FaUserCircle } from "react-icons/fa";
-import {jwtDecode }from "jwt-decode";
+import {jwtDecode} from "jwt-decode";
 import CreateMeet from "./CreateMeet";
-import createSocket  from "./Socket";
+import createSocket from "./Socket";
+import styles from "./Messenger.module.css";
 
-
-function Messenger () {
+function Messenger() {
+  const messagesEndRef = useRef(null);
   const [conversations, setConversations] = useState([]);
-  const [selectedConversation, setSelectedConversation] = useState(null);
+  const [selectedConversationId, setSelectedConversationId] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
+  const [typing, setTyping] = useState(false);
   const [socket, setSocket] = useState(null);
   const [userRole, setUserRole] = useState(null);
   const [isMeetingFormVisible, setIsMeetingFormVisible] = useState(false);
   const token = localStorage.getItem("accessToken");
+  const decoded = jwtDecode(token)
+  const userId = decoded.id;
   const navigate = useNavigate();
 
   useEffect(() => {
+    if (!token) {
+      navigate("/login");
+      return;
+    }
     // Khởi tạo kết nối Socket.IO
     const newSocket = createSocket();
     setSocket(newSocket);
 
-    // Cleanup khi component unmount
     return () => {
       newSocket.disconnect();
       console.log("Disconnected from server in cleanup");
     };
-  }, []);
+  }, [token, navigate]);
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
 
   // Lấy danh sách hội thoại
   useEffect(() => {
-    if(token){
-        fetchConversations();
+    if (token) {
+      fetchConversations();
+
     }
   }, [token]);
-
+  const searchAndCreateConversation = async(searchText, userRole, token) =>{
+    try{
+      const response = await axios.post("http://localhost:8000/messenger/search-and-create-conversation", {searchText},
+      { hearders: {
+        Authorization:`Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    }
+  );
+    if(response.data && response.data.userRole){
+      if((userRole === "student" && response.data.userRole !== "teacher")||
+      (userRole ==="teacher" && response.data.userRole !== "student")){
+        return null;
+      }
+    }
+    return response.data;
+}catch(e)
+{
+  console.error('Error searching and creating conversation:', e);
+}}
   const fetchConversations = async () => {
     try {
-      // Giải mã token để lấy thông tin người dùng
       const decoded = jwtDecode(token);
-      const userId = decoded.id; // Lấy userId từ token
-      const role = decoded.Role;  // Lấy role (student, teacher)
-  
-      // Cập nhật role người dùng
+      const role = decoded.Role;
+
       setUserRole(role);
-  
-      // Kiểm tra quyền truy cập
+
       if (role !== "student" && role !== "teacher") {
         alert("Bạn không được quyền truy cập");
         navigate("/home");
         return;
       }
-  
-      // Gửi yêu cầu lấy hội thoại của người dùng hiện tại
+
       const res = await axios.get("http://localhost:8000/messenger/conversations", {
         headers: {
           Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json', 
+          "Content-Type": "application/json",
         },
       });
-  
-      console.log("API Response:", res.data);
-      // Cập nhật danh sách hội thoại
-      setConversations(res.data.conversations || []);
+      console.log(res.data);
+      setConversations(res.data || []);
     } catch (error) {
       console.error("Lỗi khi lấy hội thoại:", error);
     }
   };
-  
+
+  // Khi click vào hội thoại
+  const handleConversationClick = (conversationId) => {
+    setSelectedConversationId(conversationId);
+    console.log(conversationId);
+    fetchMessages(conversationId);
+    if (socket) {
+      socket.emit("join chat", conversationId);
+    }
+  };
+
   // Lấy tin nhắn của hội thoại đã chọn
-  useEffect(() => {
-    if (!selectedConversation) return;
-    const fetchMessages = async () => {
-      try {
-        const res = await axios.get(`http://localhost:8000/messenger/history?conversationId=${selectedConversation._id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setMessages(res.data.messages.reverse());
-      } catch (error) {
-        console.error("Lỗi khi lấy tin nhắn:", error);
+  const fetchMessages = async (conversationId) => {
+    try {
+      const res = await axios.get(`http://localhost:8000/messenger/conversations/${conversationId}/messages`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      console.log("Fetched messages:", res.data);
+
+      // Kiểm tra nếu API trả về đúng kiểu dữ liệu
+      if (Array.isArray(res.data.messages)) {
+        const sortedMessages = res.data.messages.reverse(); // Đảo ngược nếu cần
+        setMessages(sortedMessages);
+      } else {
+        console.error("API không trả về mảng tin nhắn!", res.data);
       }
-    };
-    fetchMessages();
-  }, [selectedConversation, token]);
+    } catch (error) {
+      console.error("Lỗi khi lấy tin nhắn:", error);
+    }
+  };
 
   useEffect(() => {
-    if (!socket) return;
-  
-    socket.on("newMessage", (msg) => {
-      // Kiểm tra xem tin nhắn có thuộc về hội thoại đã chọn không
-      if (selectedConversation && 
-          (msg.senderId === selectedConversation.teacherId || 
-           msg.senderId === selectedConversation.studentId)) {
-        setMessages((prev) => [...prev, msg]); // Thêm tin nhắn mới vào danh sách
-      }
+    if (!selectedConversationId || !socket) return;
+
+    socket.emit("join chat", selectedConversationId);
+
+    socket.on("new message", (message) => {
+      setMessages((prevMessages) => (Array.isArray(prevMessages) ? [...prevMessages, message] : [message]));
     });
-  
-  }, [socket, selectedConversation]);
+
+    socket.on("typing", () => {
+      setTyping(true);
+    });
+
+    socket.on("stop typing", () => {
+      setTyping(false);
+    });
+
+    return () => {
+      socket.off("new message");
+      socket.off("typing");
+      socket.off("stop typing");
+    };
+  }, [selectedConversationId, socket]);
 
   // Gửi tin nhắn
   const sendMessage = async () => {
-    if (!newMessage.trim()) return;
+    if (!newMessage.trim() || !selectedConversationId) return;
     try {
-      const res = await axios.post("http://localhost:8000/messenger/send",
+      const response = await axios.post(
+        "http://localhost:8000/messenger/send-message",
         {
-          receiverId: selectedConversation.teacherId || selectedConversation.studentId,
+          conversationId: selectedConversationId,
           text: newMessage,
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setMessages((prev) => [...prev, res.data.newMessage]);
+
+      setMessages((prevMessages) => (Array.isArray(prevMessages) ? [...prevMessages, response.data] : [response.data]));
       setNewMessage("");
+
+      if (socket) {
+        socket.emit("new message", response.data);
+      }
     } catch (error) {
       console.error("Lỗi khi gửi tin nhắn:", error);
     }
   };
 
+  const handleTyping = () => {
+    if (socket && selectedConversationId) {
+      socket.emit("typing", selectedConversationId);
+    }
+  };
+
+  const handleStopTyping = () => {
+    if (socket && selectedConversationId) {
+      socket.emit("stop typing", selectedConversationId);
+    }
+  };
+
   return (
-    <div className="flex h-screen bg-gray-100">
-      {/* Sidebar: Danh sách hội thoại */}
-      <div className="w-1/3 bg-white border-r overflow-y-auto">
-        <h2 className="p-4 text-lg font-bold border-b">Hội thoại</h2>
-        {conversations.map((conv) => (
-          <div
-            key={conv._id}
-            className={`flex items-center p-3 cursor-pointer hover:bg-gray-200 ${
-              selectedConversation?._id === conv._id ? "bg-gray-300" : ""
-            }`}
-            onClick={() => setSelectedConversation(conv)}
-          >
-            <FaUserCircle className="text-2xl text-gray-500 mr-3" />
-            <span>{conv.teacherId?.Fullname || conv.studentId?.Fullname}</span>
-          </div>
-        ))}
+      <div className={styles["messenger-container"]}>
+        <div className={styles.sidebar}>
+          <h2 className={styles["sidebar-title"]}>Hội thoại</h2>
+          {conversations.map((conv) => (
+            <div key={conv._id} onClick={() => handleConversationClick(conv._id)} className={styles["conversation-item"]}>
+              <img src={conv.Image} className={styles.avatar} />
+              <span>
+                {conv.studentId?._id === jwtDecode(token).id ? conv.teacherId?.Fullname : conv.studentId?.Fullname}
+              </span>
+            </div>
+          ))}
+        </div>
+  
+        <div className={styles["chat-window"]}>
+          {selectedConversationId ? (
+            <>
+              <div className={styles["chat-header"]}>
+                <FaUserCircle className={styles["icon-lg"]} />
+                <h2>
+                  {(() => {
+                    const conv = conversations.find((c) => c._id === selectedConversationId);
+                    return conv?.studentId?._id === jwtDecode(token).id ? conv?.teacherId?.Fullname : conv?.studentId?.Fullname;
+                  })()}
+                </h2>
+              </div>
+  
+              <div className={styles["message-list"]}>
+                {messages.length > 0 ? (
+                  messages.map((msg) => {
+                    const isSentByUser = msg.senderId === userId;
+                    const isReceivedByUser = msg.receiverId === userId; 
+
+                    return (
+                      <div key={msg._id} className={`${styles.message} ${isSentByUser ? styles.sent : styles.received}`}>
+                        <img src={msg.Image}  className={styles.avatar} />
+                        <span className={styles["message-sender"]}>{msg.senderId.Fullname}</span>
+                        <div className={styles["message-bubble"]}>{msg.text}</div>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <p className={styles["no-messages"]}>Chưa có tin nhắn nào.</p>
+                )}
+                <div ref={messagesEndRef}></div> {/* Phần tử ẩn giúp cuộn xuống cuối */}
+              </div>
+  
+              <div className={styles["chat-input"]}>
+                <input
+                  type="text"
+                  placeholder="Nhập tin nhắn..."
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                />
+                <button className={styles["send-button"]} onClick={sendMessage}>
+                  <FaPaperPlane />
+                </button>
+                {typing && <p className={styles["typing-indicator"]}>Ai đó đang nhập...</p>}
+              </div>
+  
+              {userRole === "student" && (
+                <button onClick={() => setIsMeetingFormVisible(true)} className={styles["create-meet-button"]}>
+                  Tạo cuộc họp
+                </button>
+              )}
+  
+              {isMeetingFormVisible && <CreateMeet conversationId={selectedConversationId} />}
+            </>
+          ) : (
+            <div className={styles["chat-placeholder"]}>Chọn hội thoại để bắt đầu chat</div>
+          )}
+        </div>
       </div>
-
-      {/* Chat Window */}
-      <div className="w-2/3 flex flex-col">
-        {selectedConversation ? (
-          <>
-            {/* Header */}
-            <div className="p-4 bg-white border-b flex items-center">
-              <FaUserCircle className="text-3xl text-gray-500 mr-3" />
-              <h2 className="text-lg font-bold">
-                {selectedConversation.teacherId?.Fullname || selectedConversation.studentId?.Fullname}
-              </h2>
-            </div>
-
-            {/* Message List */}
-            <div className="flex-1 p-4 overflow-y-auto space-y-2">
-                {messages.map((msg) => (
-                    <div
-                        key={msg._id}
-                        className={`p-2 rounded-md ${
-                            // Kiểm tra senderId để phân biệt tin nhắn gửi đi và nhận được
-                            msg.senderId === jwtDecode(token).id ? "bg-blue-500 text-white self-end" : "bg-gray-200 self-start"
-                        }`}
-                    >
-                        {/* Hiển thị tin nhắn */}
-                        <div>{msg.text}</div>
-
-                        {/* Hiển thị receiveId   */}
-                        <div className="text-xs text-gray-500 mt-1">{msg.receiveId}</div>
-                    </div>
-                ))}
-            </div>
-            {/* Input Box */}
-            <div className="p-4 bg-white border-t flex">
-              <input
-                type="text"
-                className="flex-1 p-2 border rounded-md"
-                placeholder="Nhập tin nhắn..."
-                value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-              />
-              <button className="ml-2 bg-blue-500 text-white p-2 rounded-md" onClick={sendMessage}>
-                <FaPaperPlane />
-              </button>
-            </div>
-            {/* Nút Tạo cuộc họp */}
-            {userRole === "student" && (
-              <button
-                onClick={() => setIsMeetingFormVisible(true)}
-                className="ml-2 bg-green-500 text-white p-2 rounded-md mt-4"
-              >
-                Tạo cuộc họp
-              </button>
-            )}
-
-            {/* Hiển thị form tạo cuộc họp nếu cần */}
-            {isMeetingFormVisible && (
-              <CreateMeet
-                selectedConversation={selectedConversation}
-                token={token}
-                onClose={() => setIsMeetingFormVisible(false)}
-              />
-            )}
-          </>
-        ) : (
-          <div className="flex items-center justify-center flex-1 text-gray-500">
-            Chọn hội thoại để bắt đầu chat
-          </div>
-        )}
-      </div>
-
-    </div>
   );
-};
+}
 
 export default Messenger;

@@ -80,8 +80,8 @@ async function createSpace(authClient) {
   // Run request
   const response = await meetClient.createSpace(request);
   // console.log(`Meet URL: ${response[0].meetingUri}`);
-  // const meetingUrl = response[0].meetingUri;
-  // return meetingUrl;
+  const meetingUrl = response[0].meetingUri;
+  return meetingUrl;
 }
 
 authorize().then(createSpace).catch(console.error);

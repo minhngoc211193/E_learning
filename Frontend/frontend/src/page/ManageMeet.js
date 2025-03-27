@@ -28,11 +28,11 @@ function ManageMeeting (){
         try{
             let response;
             if(role ==="student"){
-                response = await axios.get("http://localhost:8000/meet/student/meetings", {
+                response = await axios.get("http://localhost:8000/meet/meetings", {
                     headers: { Authorization: `Bearer ${token}`}
                 });
             }else if (role === "teacher"){
-                response = await axios.get("http://localhost:8000/meet/teacher/meetings", {
+                response = await axios.get("http://localhost:8000/meet/meetings", {
                     headers: { Authorization: `Bearer ${token}`}
                 }); 
             }
@@ -43,51 +43,41 @@ function ManageMeeting (){
         }
     };
 
-
-    const handleConfirm = async (meetingId) =>{
-        const decoded = jwtDecode(token);
-        const role = decoded.Role;
-
-        if(role !=="teacher"){
-            alert(" Just teacher can confirm meetings");
-            return;
-        }
-        try {
-            const response = await axios.post("http://localhost:8000/meet/handle-meeting-request",{
-                meetingId, action: "accept"},
-                {
-                    headers: {Authorization: `Bearer ${token}`}
-                }
-            );
-            console.log("Meeting confirmed response: ", response);
-            alert("Meeting was accepted!");
-            fetchMeetings();
-        }catch(e){
-            console.error("Error confirm meeting: ", e);
-
-        }
-    };
-    const handleReject = async (meetingId) =>{
+    const handleRespond = async (meetingId, action, rejectionReason = "") =>{
         const decoded = jwtDecode(token);
         const role = decoded.Role;
         if(role!=="teacher"){
             alert("Just teacher can reject meeting!");
             return;
         }
+        if(action !== "accept" && action !== "reject"){
+          alert ("Not available activity");
+          return;
+        }
         try{
-            const response = await axios.post("http://localhost:8000/meet/handle-meeting-request", 
+            const response = await axios.post("http://localhost:8000/meet/respond-meeting", 
                 {
-                meetingId, action: "reject"
+                meetingId, action, rejectionReason: action === "reject" ? rejectionReason : undefined,
                 },
                 {headers: {Authorization: `Bearer ${token}`}}
         );
-        console.log("Meeting rejected response: ", response);
+        console.log("Response data from server:", response.data);
+        console.log(`Meeting ${action === "accept" ? "confirmed" : "rejected"} response: `, response);
+        if(action ==="reject"){
             alert ("Meeting was rejected!");
-            fetchMeetings();
+        }else if (action ==="accept"){
+          if (response.data.meetingUrl) {
+            alert(`Meeting was accepted! Join the meeting at: ${response.data.meetingUrl}`);
+          } else {
+            alert("Meeting was accepted! It's an offline meeting.");
+          }
+        }
+        fetchMeetings();
         } catch(e){
-            console.error("Error rejectng meeting", e);
+          console.error(`Error ${action === "accept" ? "confirming" : "rejecting"} meeting: `, e);
         }
     };
+
     const handleEdit = (meeting) =>{
         setCurruntMeeting(meeting);
         setEditedMeeting(meeting);
@@ -184,8 +174,8 @@ function ManageMeeting (){
                   <td>
                     {meeting.status === "Pending" && (
                       <>
-                        <button onClick={() => handleConfirm(meeting._id)}>Chấp nhận</button>
-                        <button onClick={() => handleReject(meeting._id)}>Từ chối</button>
+                        <button onClick={() => handleRespond(meeting._id, "accept")}>Chấp nhận</button>
+                        <button onClick={() => handleRespond(meeting._id, "reject")}>Từ chối</button>
                       </>
                     )}
                     {meeting.status === "Accepted" && <span>Đã xác nhận</span>}
