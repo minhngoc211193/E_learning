@@ -11,6 +11,7 @@ import CreateBLog from './page/CreateBlog';
 import EditBlog from './page/EditBlog';
 import BlogDetail from "./page/BlogDetail";
 import ManageBlog from './page/ManageBlog';
+import CreateMeet from './page/CreateMeet';
 
 import ManageClass from './page/ManageClass';
 import Major from "./page/Major";
@@ -24,6 +25,7 @@ import ResetPassword from './page/Password/ResetPassword';
 import Profile from './page/Profile';
 import UpdateInformationUser from './page/UpdateInformationUser';
 import Messenger from './page/Messenger';
+import ManageMeet from './page/ManageMeet';
 import './App.css';
 
 function checkToken() {
@@ -59,7 +61,8 @@ function App() {
           <Route path="/detail-class/:id" element={checkToken()? <DetailClass /> : <Navigate to="/"/>}/>
           <Route path="/create-class" element={checkToken()? <CreateClass /> : <Navigate to="/"/>}/>
           <Route path ="/messenger" element = {checkToken()? <Messenger /> : <Navigate to="/"/>}/>
-          
+          <Route path="/createmeeting" element={checkToken()? <CreateMeet/> : <Navigate to="/"/>}/>
+          <Route path ="/managemeet" element= {checkToken()? <ManageMeet/> : <Navigate to="/"/>}/>
         </Routes>
       </div>
     </Router>

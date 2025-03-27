@@ -29,6 +29,7 @@ async function requestMeeting(req, res) {
       time,
       address: meetingType === 'offline' ? address : null,  
       status: 'Pending',
+      meetingUrl: ""
     };
 
     let meetingUrl = null;
@@ -202,15 +203,7 @@ async function getTeacherMeetings(req, res) {
 
     res.status(200).json({
       message: 'Danh sách yêu cầu cuộc họp của giáo viên:',
-      meetings: meetings.map(meeting => ({
-        student: meeting.studentId.Fullname,
-        reason: meeting.reason,
-        meetingType: meeting.meetingType,
-        status: meeting.status,
-        time: meeting.time,
-        address: meeting.address,
-        meetingUrl: meeting.meetingUrl,
-      })),
+      meetings
     });
 
   } catch (err) {

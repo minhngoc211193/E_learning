@@ -29,7 +29,6 @@ const sendMessage = async (req, res) => {
     const roomId = `room_${senderId}_${receiverId}`;
     req.app.get('io').to(roomId).emit('newMessage', { senderId, text, timestamp: newMessage.timestamp });
 
-    console.log("Tin nhắn đã được gửi");
     return res.status(200).json({ message: 'Tin nhắn đã được gửi', newMessage });
   } catch (error) {
     console.error(error);
@@ -199,5 +198,6 @@ const typingStatus = async (req, res) => {
     return res.status(500).json({ message: 'Lỗi khi gửi trạng thái gõ tin nhắn' });
   }
 };
+
 
 module.exports = { sendMessage, getMessageHistory, updateMessageStatus, searchUserAndCreateConversation, getAllConversations, typingStatus };

@@ -2,13 +2,14 @@ import React, { useState, useEffect } from 'react';
 import styles from '../User/CreateUser.module.css';
 import { useNavigate } from "react-router-dom";
 import axios from 'axios';
+import {jwtDecode} from 'jwt-decode';
 
 function CreateUser({ setActiveTab }) {
     const [majors, setMajors] = useState([]);
     const navigate = useNavigate();
+    const token = localStorage.getItem("accessToken");
 
     useEffect(() => {
-        const token = localStorage.getItem("accessToken");
         if (token) {
             try {
                 const decodedToken = JSON.parse(atob(token.split(".")[1])); 
@@ -27,9 +28,14 @@ function CreateUser({ setActiveTab }) {
     }, [navigate]);
 
     useEffect(() => {
+        const decoded = jwtDecode(token);
+        const userRole = decoded?.role;
+
         const fetchMajors = async () => {
             try {
-                const response = await axios.get("http://localhost:8000/major/majors");
+                const response = await axios.get("http://localhost:8000/major/majors", {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
                 setMajors(response.data);
             } catch (err) {
                 console.log(err);
@@ -58,6 +64,7 @@ function CreateUser({ setActiveTab }) {
     const handleSubmit = async (e) => {
         e.preventDefault();
         const token = localStorage.getItem("accessToken");
+        console.log("Form submitted!", userData); 
         try {
             const response = await axios.post("http://localhost:8000/auth/register", userData, {
                 headers: {
@@ -110,7 +117,7 @@ function CreateUser({ setActiveTab }) {
                             </select>
 
                             {userData.Role === "student" || userData.Role === "teacher" ? (
-                                <select name="Major" value={userData.Major} onChange={handleChange} className={styles.Select}>
+                                <select name="Major" value={userData.Major || ""} onChange={handleChange} className={styles.Select}>
                                     {majors.map((major) => (
                                         <option key={major._id} value={major._id}>{major.Name}</option>
                                     ))}
@@ -130,7 +137,7 @@ function CreateUser({ setActiveTab }) {
                             <input type="date" name="DateOfBirth" value={userData.DateOfBirth} onChange={handleChange} className={styles.Select} required />
                         </div>
 
-                        <button type="submit" className={styles.Create}>Create New User</button>
+                        <button type="submit" onClick={handleSubmit} className={styles.Create}>Create New User</button>
                     </form>
 
                     {message && <p>{message}</p>}
