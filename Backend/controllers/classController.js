@@ -5,11 +5,22 @@ const Document = require('../models/Document');
 const User = require('../models/User');
 const Major = require('../models/Major');
 
+const nodemailer = require('nodemailer');
+require('dotenv').config();
+
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.EMAIL_USER, // Email của bạn
+        pass: process.env.EMAIL_PASS  // Mật khẩu ứng dụng
+    }
+});
+
 const classController = {
     // Tạo lớp học mới
     createClass: async (req, res) => {
         try {
-            const { Classname, subjectId, Teacher, Student, Slots} = req.body;
+            const { Classname, subjectId, Teacher, Student, Slots } = req.body;
 
             // Kiểm tra xem Subject có tồn tại không
             const subjectExists = await Subject.findById(subjectId).populate('Major');
@@ -57,6 +68,38 @@ const classController = {
 
             // Lưu Class vào database
             const savedClass = await newClass.save();
+
+            // ===== Gửi email cho giáo viên =====
+            const teacherInfo = await User.findById(Teacher);
+            if (teacherInfo) {
+                const mailOptions = {
+                    from: process.env.EMAIL_USER,
+                    to: teacherInfo.Email, // Email của teacher
+                    subject: "Thông báo: Bạn vừa được phân công giảng dạy lớp mới",
+                    text: `Xin chào ${teacherInfo.Fullname},\n\n` +
+                        `Bạn vừa được phân công giảng dạy lớp: ${Classname}.\n` +
+                        `Vui lòng kiểm tra hệ thống để biết thêm chi tiết.\n\n` +
+                        `Trân trọng,`
+                };
+                await transporter.sendMail(mailOptions);
+            }
+
+            // ===== Gửi email cho từng học sinh =====
+            for (const studentId of Student) {
+                const studentInfo = await User.findById(studentId);
+                if (studentInfo) {
+                    const mailOptions = {
+                        from: process.env.EMAIL_USER,
+                        to: studentInfo.Email,
+                        subject: "Thông báo: Bạn vừa được thêm vào lớp mới",
+                        text: `Xin chào ${studentInfo.Fullname},\n\n` +
+                            `Bạn vừa được thêm vào lớp: ${Classname}.\n` +
+                            `Vui lòng kiểm tra hệ thống để biết thêm chi tiết.\n\n` +
+                            `Trân trọng,`
+                    };
+                    await transporter.sendMail(mailOptions);
+                }
+            }
 
             // Cập nhật lại danh sách các lớp trong Subject
             subjectExists.Classes.push(savedClass._id);
@@ -117,7 +160,7 @@ const classController = {
             // .populate("Teacher")
             // .populate("Student")
             // .populate("Schedules")
- 
+
             // .populate("Documents");
             if (classes.length === 0) {
                 return res.status(404).json({ message: "Không có lớp nào trong môn này" });
@@ -147,29 +190,135 @@ const classController = {
         }
     },
 
-    // Cập nhật thông tin lớp học theo ID
     updateClass: async (req, res) => {
         try {
-            const updatedClass = await Class.findByIdAndUpdate(req.params.id, req.body, { new: true });
-            if (!updatedClass) return res.status(404).json({ message: "Không tìm thấy lớp" });
+            // Lấy thông tin class cũ để so sánh
+            const oldClass = await Class.findById(req.params.id)
+                .populate("Teacher")   // Lấy đầy đủ object Teacher
+                .populate("Student");  // Lấy đầy đủ object Student
+            
+            if (!oldClass) {
+                return res.status(404).json({ message: "Không tìm thấy lớp" });
+            }
+    
+            // Lưu lại danh sách IDs (và info) trước khi cập nhật
+            const oldTeacherId = oldClass.Teacher?._id.toString() || null;
+            const oldStudentIds = oldClass.Student.map(s => s._id.toString());
+    
+            // Thực hiện cập nhật
+            const updatedClass = await Class.findByIdAndUpdate(
+                req.params.id,
+                req.body,
+                { new: true }
+            )
+            .populate("Teacher")
+            .populate("Student");
+    
+            if (!updatedClass) {
+                return res.status(404).json({ message: "Không tìm thấy lớp sau khi update" });
+            }
+    
+            // ==================== 1. Kiểm tra thay đổi giáo viên ====================
+            const newTeacherId = updatedClass.Teacher?._id.toString() || null;
+    
+            if (newTeacherId !== oldTeacherId) {
+                // ----- (a) Giáo viên mới (nếu có) -----
+                if (newTeacherId) {
+                    const newTeacher = updatedClass.Teacher;
+                    // Gửi email cho giáo viên mới
+                    const mailOptionsNew = {
+                        from: process.env.EMAIL_USER,
+                        to: newTeacher.Email,
+                        subject: "Thông báo: Bạn vừa được phân công vào lớp mới",
+                        text: `Xin chào ${newTeacher.Fullname},\n\n` +
+                              `Bạn vừa được phân công giảng dạy lớp: ${updatedClass.Classname}.\n` +
+                              `Vui lòng kiểm tra hệ thống để biết thêm chi tiết.\n\n` +
+                              `Trân trọng,`
+                    };
+                    await transporter.sendMail(mailOptionsNew);
+                }
+                
+                // ----- (b) Giáo viên cũ (nếu có) -----
+                if (oldTeacherId) {
+                    // Tìm lại thông tin giáo viên cũ
+                    const oldTeacher = await User.findById(oldTeacherId);
+                    if (oldTeacher) {
+                        const mailOptionsOld = {
+                            from: process.env.EMAIL_USER,
+                            to: oldTeacher.Email,
+                            subject: "Thông báo: Bạn vừa bị gỡ khỏi lớp",
+                            text: `Xin chào ${oldTeacher.Fullname},\n\n` +
+                                  `Bạn vừa bị gỡ khỏi lớp: ${updatedClass.Classname}.\n` +
+                                  `Vui lòng kiểm tra hệ thống để biết thêm chi tiết.\n\n` +
+                                  `Trân trọng,`
+                        };
+                        await transporter.sendMail(mailOptionsOld);
+                    }
+                }
+            }
+    
+            // ==================== 2. Kiểm tra thay đổi danh sách Student ====================
+            const newStudentIds = updatedClass.Student.map(s => s._id.toString());
+    
+            // Tìm các student được thêm
+            const addedStudentIds = newStudentIds.filter(id => !oldStudentIds.includes(id));
+            // Tìm các student bị xóa
+            const removedStudentIds = oldStudentIds.filter(id => !newStudentIds.includes(id));
+    
+            // ----- (a) Gửi email cho student vừa được thêm -----
+            for (const addedId of addedStudentIds) {
+                const addedStudent = await User.findById(addedId);
+                if (addedStudent) {
+                    const mailOptionsAdded = {
+                        from: process.env.EMAIL_USER,
+                        to: addedStudent.Email,
+                        subject: "Thông báo: Bạn vừa được thêm vào lớp",
+                        text: `Xin chào ${addedStudent.Fullname},\n\n` +
+                              `Bạn vừa được thêm vào lớp: ${updatedClass.Classname}.\n` +
+                              `Vui lòng kiểm tra hệ thống để biết thêm chi tiết.\n\n` +
+                              `Trân trọng,`
+                    };
+                    await transporter.sendMail(mailOptionsAdded);
+                }
+            }
+    
+            // ----- (b) Gửi email cho student vừa bị xóa -----
+            for (const removedId of removedStudentIds) {
+                const removedStudent = await User.findById(removedId);
+                if (removedStudent) {
+                    const mailOptionsRemoved = {
+                        from: process.env.EMAIL_USER,
+                        to: removedStudent.Email,
+                        subject: "Thông báo: Bạn vừa bị gỡ khỏi lớp",
+                        text: `Xin chào ${removedStudent.Fullname},\n\n` +
+                              `Bạn vừa bị gỡ khỏi lớp: ${updatedClass.Classname}.\n` +
+                              `Vui lòng kiểm tra hệ thống để biết thêm chi tiết.\n\n` +
+                              `Trân trọng,`
+                    };
+                    await transporter.sendMail(mailOptionsRemoved);
+                }
+            }
+    
+            // Trả về kết quả cập nhật
             res.status(200).json(updatedClass);
         } catch (err) {
             res.status(500).json({ message: "Update-lớp thất bại", error: err.message });
         }
     },
+    
 
     // Xóa lớp học theo ID
     deleteClass: async (req, res) => {
         try {
             const classData = await Class.findByIdAndDelete(req.params.id);
-    
+
             if (!classData) {
                 return res.status(404).json({ message: "Lớp học không tồn tại" });
             }
 
             // Xóa tất cả các Schedules, Assignments, và Documents có liên quan đến lớp học
             await Schedule.deleteMany({ Class: classData._id });
-    
+
             await Document.deleteMany({ Class: classData._id });
 
             await Subject.deleteMany({ Class: classData._id });
@@ -177,7 +326,7 @@ const classController = {
             await User.deleteMany({ Class: classData._id });
             // Xóa lớp học
             // await Class.findByIdAndDelete(req.params.id);
-    
+
             res.status(200).json({ message: "Xóa lớp và các đối tượng liên quan thành công" });
         } catch (err) {
             res.status(500).json({ message: "Xóa thất bại", error: err.message });
@@ -186,19 +335,19 @@ const classController = {
 
     searchClass: async (req, res) => {
         try {
-            const {search} = req.query;
-            if(!search) {
-                return res.status(400).json({message: "Vui lòng nhập từ khóa tìm kiếm"});
+            const { search } = req.query;
+            if (!search) {
+                return res.status(400).json({ message: "Vui lòng nhập từ khóa tìm kiếm" });
             }
-            const classes = await Class.find({Classname: {$regex: search, $options: "i"}});
-            if(classes.length === 0) {
-                return res.status(404).json({message: "Không tìm thấy lớp học"});
+            const classes = await Class.find({ Classname: { $regex: search, $options: "i" } });
+            if (classes.length === 0) {
+                return res.status(404).json({ message: "Không tìm thấy lớp học" });
             }
             res.status(200).json(classes);
         } catch (err) {
             res.status(500).json({ message: "Tìm kiếm lớp học thất bại", error: err.message });
+        }
     }
-}
 };
 
 module.exports = classController;

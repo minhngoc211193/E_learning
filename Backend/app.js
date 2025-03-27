@@ -4,10 +4,13 @@ var logger = require('morgan');
 const dotenv = require('dotenv');
 var mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');  
-const cors = require('cors'); 
+const cors = require('cors');
+const socketIo = require('socket.io'); // Import Socket.IO
+
 
 dotenv.config();
 const app = express();
+
 
 const authRouter = require('./routes/auth');
 const majorRouter = require('./routes/major');
@@ -18,6 +21,7 @@ const classRouter = require('./routes/class');
 const userRouter = require('./routes/users');
 const documentRouter = require('./routes/document');
 const scheduleRouter = require('./routes/schedule');
+
 
 const messagesRouter = require('./routes/messenger');
 const googleMeetRoutes = require('./routes/meet');
@@ -32,6 +36,7 @@ app.use(cors({
 
 // Xử lý preflight OPTIONS cho tất cả các route
 app.options('*', cors());
+
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -51,6 +56,7 @@ app.use('/document', documentRouter);
 app.use('/schedule', scheduleRouter);
 
 
+
 app.use('/messenger', messagesRouter);
 app.use('/meet', googleMeetRoutes);
 
@@ -61,4 +67,56 @@ const connectToMongo = async () => {
 };
 connectToMongo();
 
-module.exports = app;
+const http = require('http');
+const server = http.createServer(app);
+
+const io = socketIo(server, {
+  pingTimeout: 60000,
+  cors: {
+    origin: "http://localhost:3000", 
+  },
+});
+
+app.set('io', io);
+
+io.on("connection", (socket) => {
+  console.log("Connected to socket.io");
+
+  socket.on("setup", (userData) => {
+    if (!userData || !userData._id) return;
+    socket.join(userData._id);
+    socket.emit("connected");
+  });
+
+  socket.on("join chat", (room) => {
+    socket.join(room);
+    console.log("User Joined Room: " + room);
+  });
+
+  socket.on("typing", (room) => {
+    socket.in(room).emit("typing");
+  });
+
+  socket.on("stop typing", (room) => {
+    socket.in(room).emit("stop typing");
+  });
+  
+  socket.on("new message", (newMessageRecieved) => {
+    if (!newMessageRecieved) return console.log("chat.users not defined");
+    const senderId = newMessageRecieved.senderId;  
+    const receiverId = newMessageRecieved.receiverId; 
+    if (senderId === receiverId) return;
+    socket.to(receiverId).emit("message received", newMessageRecieved);
+});
+
+  socket.on("disconnect", () => {
+    console.log("User Disconnected");
+    const userData = socket.handshake.query.userData;
+    if (userData && userData._id) {
+      socket.leave(userData._id);
+    }
+  });
+});
+
+module.exports = server;
+
