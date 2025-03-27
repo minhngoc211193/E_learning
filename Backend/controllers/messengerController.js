@@ -2,6 +2,7 @@ const Conversation = require('../models/Conversation');
 const Messenger = require('../models/Messenger');
 const User = require('../models/User'); 
 const {createNotification} = require('./notificationController')
+const mime = require('mime-types');
 
 const searchUser = async (req, res) => {
   try {
@@ -57,6 +58,9 @@ const createConversation = async (req, res) => {
       const newConversation = new Conversation({
         studentId: userRole === 'student' ? userId : searchedUserId,
         teacherId: userRole === 'teacher' ? userId : searchedUserId,
+        // Lấy ảnh của cả student và teacher
+        studentImage: userRole === 'student' ? req.user.Image : userToSearch.Image,
+        teacherImage: userRole === 'teacher' ? req.user.Image : userToSearch.Image
       });
 
       const savedConversation = await newConversation.save();
@@ -122,17 +126,45 @@ const sendMessage = async (req, res) => {
 
 const getConversations = async (req, res) => {
   try {
-    const userId = req.user.id; // Lấy userId từ req.user, đã được xác thực trong middleware
-    
+    const userId = req.user.id; // Lấy userId từ req.user, đã được xác thực trong middleware 
+
     // Tìm tất cả các cuộc trò chuyện mà userId là studentId hoặc teacherId
-    const conversations = await Conversation.find({
-      $or: [
-        { studentId: userId },
-        { teacherId: userId }
-      ]
+    const conversations = await Conversation.find({ 
+      $or: [ 
+        { studentId: userId }, 
+        { teacherId: userId } 
+      ] 
     })
-    .populate('studentId', 'Fullname', 'Image')  // Thêm thông tin Fullname của sinh viên
-    .populate('teacherId', 'Fullname', 'Image'); // Thêm thông tin Fullname của giáo viên
+    .populate({
+      path: 'studentId',
+      select: 'Fullname Image',
+      transform: (user) => {
+        let imageBase64 = null;
+        if (user.Image) {
+          const mimeType = mime.lookup(user.Image) || 'image/png';
+          imageBase64 = `data:${mimeType};base64,${user.Image.toString('base64')}`;
+        }
+        return {
+          ...user.toObject(),
+          Image: imageBase64
+        };
+      }
+    })
+    .populate({
+      path: 'teacherId',
+      select: 'Fullname Image',
+      transform: (user) => {
+        let imageBase64 = null;
+        if (user.Image) {
+          const mimeType = mime.lookup(user.Image) || 'image/png';
+          imageBase64 = `data:${mimeType};base64,${user.Image.toString('base64')}`;
+        }
+        return {
+          ...user.toObject(),
+          Image: imageBase64
+        };
+      }
+    });
 
     // Nếu không có cuộc trò chuyện nào
     if (!conversations || conversations.length === 0) {
@@ -168,13 +200,32 @@ const getMessages = async (req, res) => {
       .sort({ timestamp: -1 })
       .skip(skip)
       .limit(limit)
-      .populate('senderId', 'Fullname','Image')
-      .populate('receiverId', 'Fullname','Image');
+      .populate('senderId', 'Fullname Image')
+      .populate('receiverId', 'Fullname Image');
+
+    // Convert images to base64
+    const processedMessages = messages.map(message => {
+      const processedMessage = message.toObject(); 
+
+      // Process sender image
+      if (processedMessage.senderId && processedMessage.senderId.Image) {
+        const mimeType = mime.lookup(processedMessage.senderId.Image) || 'image/png';
+        processedMessage.senderId.imageBase64 = `data:${mimeType};base64,${processedMessage.senderId.Image.toString('base64')}`;
+      }
+
+      // Process receiver image
+      if (processedMessage.receiverId && processedMessage.receiverId.Image) {
+        const mimeType = mime.lookup(processedMessage.receiverId.Image) || 'image/png';
+        processedMessage.receiverId.imageBase64 = `data:${mimeType};base64,${processedMessage.receiverId.Image.toString('base64')}`;
+      }
+
+      return processedMessage;
+    });
 
     const totalMessages = await Messenger.countDocuments({ conversationId });
 
     return res.status(200).json({
-      messages,
+      messages: processedMessages,
       page,
       limit,
       totalMessages,

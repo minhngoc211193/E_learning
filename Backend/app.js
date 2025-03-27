@@ -22,7 +22,7 @@ const documentRouter = require('./routes/document');
 const scheduleRouter = require('./routes/schedule');
 const messagesRoutes = require('./routes/messenger');
 const googleMeetRoutes = require('./routes/meet');
-const notificationRoutes = require('.routes/notification')
+const notificationRoutes = require('./routes/notification')
 
 // Cấu hình middlewares
 app.use(cors());
