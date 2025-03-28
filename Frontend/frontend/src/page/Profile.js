@@ -32,7 +32,7 @@ function Profile() {
             const decoded = jwtDecode(token);
             const userId = decoded.id;
             const res = await axios.get(`http://localhost:8000/user/detail-user/${userId}`, {
-                headers: { Authorization: `Bearer ${token}`, "Cache-Control": "no-cache" }
+                headers: { Authorization: `Bearer ${token}` }
             });
 
             if (res.status === 200) {

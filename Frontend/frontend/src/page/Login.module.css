@@ -6,9 +6,9 @@
     background: rgb(245,246,247);
 }
 
-form {
+.content form {
     width: 350px;
-    padding: 2rem;
+    padding: 36px;
     background: white;
     border-radius: 10px 0 0 10px;
     text-align: center;
@@ -21,13 +21,13 @@ form {
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
-h1 {
+.content h1 {
     font-size: 40px;
     color: #333;
     margin-bottom: 51px;
 }
 
-input {
+.content input {
     width: 90%;
     padding: 12px;
     margin: 15px 0;
@@ -38,11 +38,11 @@ input {
     transition: border 0.3s;
 }
 
-input:focus {
+.content input:focus {
     border-color: #007bff;
 }
 
-a {
+.content a {
     display: block;
     margin: 20px 0;
     font-size: 14px;
@@ -51,7 +51,7 @@ a {
     transition: 0.3s;
 }
 
-a:hover {
+.content a:hover {
     text-decoration: underline;
 }
 

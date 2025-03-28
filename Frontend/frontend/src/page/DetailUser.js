@@ -16,7 +16,9 @@ const DetailUser = () => {
                 const response = await axios.get(`http://localhost:8000/user/detail-user/${id}`, { 
                     headers: { Authorization: `Bearer ${token}` }
                 });
+                console.log(response.data);
                 setUser(response.data);
+
             } catch (err) {
                 setError("Lỗi khi tải thông tin người dùng");
             } finally {

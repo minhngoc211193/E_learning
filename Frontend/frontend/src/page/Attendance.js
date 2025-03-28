@@ -3,6 +3,7 @@ import axios from "axios";
 import styles from "./Attendance.module.css";
 import { useParams } from "react-router-dom";
 import { notification } from "antd";
+import { useNavigate } from "react-router-dom";
 
 function Attendance() {
   const [attendanceData, setAttendanceData] = useState([]);
@@ -11,6 +12,7 @@ function Attendance() {
   const token = localStorage.getItem("accessToken");
   const [api, contextHolder] = notification.useNotification();
   const { scheduleId } = useParams();
+  const navigate = useNavigate();
 
   const openNotification = (type, detailMessage = "", pauseOnHover = true) => {
     if (type === "success") {
@@ -37,7 +39,7 @@ function Attendance() {
           `http://localhost:8000/attendance/get-attendance-by-schedule/${scheduleId}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        setAttendanceData(response.data.attendanceRecords);
+        setAttendanceData(response.data.usersWithImage);
       } catch (err) {
         setError("Không thể lấy dữ liệu điểm danh.");
       } finally {
@@ -85,6 +87,9 @@ function Attendance() {
     <div>
       {contextHolder}
       <div className={styles.container}>
+        <div className={styles.backButton} onClick={() => navigate("/schedule")}>
+          <span><i className="fa-solid fa-arrow-left"></i></span>
+        </div>
         <h1 className={styles.header}>Danh sách điểm danh lớp: </h1>
         <h3 className={styles.header}>Ngày: </h3>
         <div className={styles.tableContainer}>

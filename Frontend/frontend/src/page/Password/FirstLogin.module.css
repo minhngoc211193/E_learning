@@ -6,7 +6,7 @@
     background: rgb(245,246,247);
 }
 
-form {
+.content form {
     width: 350px;
     padding: 2rem;
     background: white;
@@ -27,7 +27,7 @@ form {
     margin-bottom: 36px;
 }
 
-input {
+.content input {
     width: 90%;
     padding: 12px;
     margin: 15px 0;
@@ -38,11 +38,11 @@ input {
     transition: border 0.3s;
 }
 
-input:focus {
+.content input:focus {
     border-color: #007bff;
 }
 
-a {
+.content a {
     display: block;
     margin: 20px 0;
     font-size: 14px;
@@ -51,7 +51,7 @@ a {
     transition: 0.3s;
 }
 
-a:hover {
+.content a:hover {
     text-decoration: underline;
 }
 

@@ -37,7 +37,6 @@ function Schedule() {
         showProgress: true,
         pauseOnHover: true,
       });
-      // Reset notifData sau khi đã hiển thị
       setNotifData(null);
     }
   }, [notifData, api]);
@@ -51,8 +50,6 @@ function Schedule() {
         );
         setSchedules(res.data.schedules);
         setLoading(false);
-        // Gọi thông báo thành công
-        setNotifData({ type: "success" });
       } catch (err) {
         const errorMessage = err.response?.data?.message || "Có lỗi xảy ra!";
         setNotifData({ type: "error", detailMessage: errorMessage });
@@ -90,9 +87,35 @@ function Schedule() {
     }
   };
 
-  const handleAttendance = (schedulesId) => {
-    window.location.href = `/attendance/${schedulesId}`;
-  };
+// Hàm xử lý khi người dùng click vào lịch học
+const handleAttendance = async (scheduleId) => {
+  try {
+    // Gửi yêu cầu lấy dữ liệu điểm danh cho lịch học
+    const res = await axios.get(
+      `http://localhost:8000/attendance/get-attendance/${scheduleId}`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    // Kiểm tra xem dữ liệu điểm danh có thành công không
+    if (res.data && res.data.success) {
+      // Nếu thành công, chuyển hướng đến trang điểm danh
+      window.location.href = `/attendance/${scheduleId}`;
+    } else {
+      // Nếu không thành công, hiển thị thông báo lỗi
+      setNotifData({
+        type: "error",
+        detailMessage: "Không thể lấy dữ liệu điểm danh. Vui lòng thử lại sau!",
+      });
+    }
+  } catch (err) {
+    // Hiển thị thông báo lỗi nếu gặp lỗi khi gọi API
+    setNotifData({
+      type: "error",
+      detailMessage: "Không thể lấy dữ liệu điểm danh. Vui lòng thử lại sau!",
+    });
+  }
+};
+
 
   if (loading) return <div>Đang tải lịch học...</div>;
 
