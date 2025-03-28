@@ -50,7 +50,7 @@ const blogController = {
     // blog detail
     getBlogById: async (req, res) => {
         try {
-            const blog = await Blog.findById(req.params.id).populate({ path: 'User', select: 'Fullname' }).populate({ path: 'Comments', populate: { path: 'User', select: 'Fullname' } });
+            const blog = await Blog.findById(req.params.id).populate({ path: 'User', select: 'Fullname' }).populate({ path: 'Comments', populate: { path: 'User', select: 'Fullname Image' } });
             if (!blog) return res.status(404).json({ message: "Blog not found" });
 
             // Nếu có ảnh, chuyển đổi từ Buffer sang Base64

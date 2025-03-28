@@ -150,11 +150,77 @@ const classController = {
     // Cập nhật thông tin lớp học theo ID
     updateClass: async (req, res) => {
         try {
-            const updatedClass = await Class.findByIdAndUpdate(req.params.id, req.body, { new: true });
-            if (!updatedClass) return res.status(404).json({ message: "Không tìm thấy lớp" });
-            res.status(200).json(updatedClass);
+            const { Classname, subjectId, Teacher, Student, Slots } = req.body;
+            const classId = req.params.id; // ID lớp cần cập nhật
+    
+            // Tìm lớp học cần cập nhật
+            const updatedClass = await Class.findById(classId);
+            if (!updatedClass) {
+                return res.status(404).json({ message: "Không tìm thấy lớp học" });
+            }
+    
+            // Kiểm tra xem Subject có tồn tại không
+            const subjectExists = await Subject.findById(subjectId).populate('Major');
+            if (!subjectExists) {
+                return res.status(404).json({ message: "Không tìm thấy Subject" });
+            }
+    
+            // Kiểm tra giáo viên có thuộc ngành của môn học không
+            const teacher = await User.findById(Teacher).populate('Major');
+            if (!teacher || !teacher.Major || teacher.Major._id.toString() !== subjectExists.Major._id.toString()) {
+                return res.status(400).json({ message: "Giáo viên phải thuộc ngành của môn học này" });
+            }
+    
+            // Kiểm tra học sinh có thuộc ngành môn học này không và chưa tham gia lớp này
+            for (const studentId of Student) {
+                const student = await User.findById(studentId).populate('Major');
+                if (!student || !student.Major || student.Major._id.toString() !== subjectExists.Major._id.toString()) {
+                    return res.status(400).json({ message: `Học sinh ${student.Fullname} không thuộc ngành của môn học này` });
+                }
+            }
+    
+            // Kiểm tra chỉ các học sinh mới được thêm vào lớp mà chưa có trong lớp này
+            const newStudents = Student.filter(studentId => !updatedClass.Student.includes(studentId));
+    
+            // Kiểm tra xem học sinh mới đã tham gia lớp học của môn này chưa
+            for (const studentId of newStudents) {
+                const existingClass = await Class.findOne({
+                    Subject: subjectExists._id,
+                    Student: studentId
+                });
+    
+                if (existingClass) {
+                    return res.status(400).json({ message: `Học sinh với ID ${studentId} đã tham gia lớp học môn này` });
+                }
+            }
+    
+            // Cập nhật thông tin lớp học
+            updatedClass.Classname = Classname;
+            updatedClass.Subject = subjectId;
+            updatedClass.Teacher = Teacher;
+            updatedClass.Student = Student;
+            updatedClass.Slots = Slots;
+    
+            // Lưu lại lớp học sau khi cập nhật
+            const savedClass = await updatedClass.save();
+    
+            // Cập nhật các học sinh mới vào các lớp của họ
+            for (const studentId of newStudents) {
+                const student = await User.findById(studentId);
+                if (!student) {
+                    return res.status(404).json({ message: `Không tìm thấy học sinh với ID ${studentId}` });
+                }
+    
+                student.Classes.push(savedClass._id);
+                await student.save();
+    
+                // Tạo attendance cho học sinh mới trong các lịch học của lớp
+                await addAttendanceForNewStudent(savedClass._id, studentId); // Tạo attendance cho học sinh
+            }
+    
+            res.status(200).json(savedClass);
         } catch (err) {
-            res.status(500).json({ message: "Update-lớp thất bại", error: err.message });
+            res.status(500).json({ message: "Cập nhật lớp thất bại", error: err.message });
         }
     },
 

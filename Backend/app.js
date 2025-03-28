@@ -14,7 +14,7 @@ const app = express();
 const authRouter = require('./routes/auth');
 const majorRouter = require('./routes/major');
 const blogRouter = require('./routes/blog');
-
+const attendanceRouter = require('./routes/attendance');
 const commentRouter = require('./routes/comment');
 const subjectRouter = require('./routes/subject');
 const classRouter = require('./routes/class');
@@ -43,6 +43,7 @@ app.use('/class', classRouter);
 app.use('/user', userRouter);
 app.use('/document', documentRouter);
 app.use('/schedule', scheduleRouter);
+app.use('/attendance', attendanceRouter);
 
 app.use('/messenger', messagesRoutes);
 app.use('/meet', googleMeetRoutes);
