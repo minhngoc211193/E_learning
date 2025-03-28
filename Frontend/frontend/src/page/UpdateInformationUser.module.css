@@ -1,4 +1,24 @@
-.body{
+:root {
+    --font-family-sans-serif: 'Open Sans', sans-serif;
+}
+
+.detailInfor {
+    width: 100%;
+    margin: 0 auto;
+    display: flex;
+    font-family: var(--font-family-sans-serif);
+}
+
+.body {
+    height: 100vh;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 10rem;
+}
+
+.body2 {
     height: 100vh;
     width: 100%;
     display: flex;
@@ -7,50 +27,90 @@
     gap: 50px;
 }
 
-.profile{
+.profile {
     background-color: rgb(255, 255, 255);
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     text-align: center;
     border-radius: 10px;
 }
 
-.profile img{
+.profileImage {
     height: 200px;
     width: auto;
     padding: 30px 30px 0 30px;
 }
 
-.main{
+.main {
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     border-radius: 10px;
 }
 
-.main form{
+.main form {
     background-color: rgb(255, 255, 255);
     width: 600px;
     text-align: start;
     border-radius: 10px;
 }
 
-.main label{
+.main label {
     margin-left: 5px;
 }
 
-.main input{
+.main input {
     margin-top: 2px;
 }
 
-.mainForm{
+.mainForm {
     display: flex;
     gap: 50px;
 }
 
-.changePassword{
+.changePassword {
     margin-top: 5px;
     background-color: rgb(239, 239, 239);
     color: black;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.changePassword:hover{
+.changePassword:hover {
     background-color: rgb(198, 198, 198);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.changePassword:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.backButton {
+    position: fixed;
+    right: 96%;
+    top: 3%;
+    height: 40px;
+    width: 40px;
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, 0.2);
+    color: white;
+    border: none;
+    cursor: pointer;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+    font-size: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.backButton:hover {
+    background-color: #afafaf;
+}
+
+.backButtonHidden {
+    display: none;
 }

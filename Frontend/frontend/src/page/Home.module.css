@@ -27,7 +27,7 @@
 
 .search input{
     background-color: transparent;
-    border: 1px solid rgb(0, 0, 0, 0.2);
+    border: 1px solid rgba(0, 0, 0, 0.2);
     color: black;
     height: 40px;
     width: 700px;
@@ -39,7 +39,7 @@
 
 .search button{
     cursor: pointer;
-    background-color: rgba(0, 0, 0, 0.2);
+    background-color: #f7f7f7;
     color: black;
     height: 40px;
     width: 40px;
@@ -47,6 +47,7 @@
     margin: 0;
     padding: 0;
     margin-left: 10px;
+    border: 1px solid rgba(0, 0, 0, 0.2);
 }
 
 .main{

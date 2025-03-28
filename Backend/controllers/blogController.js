@@ -50,19 +50,61 @@ const blogController = {
     // blog detail
     getBlogById: async (req, res) => {
         try {
-            const blog = await Blog.findById(req.params.id).populate({ path: 'User', select: 'Fullname' }).populate({ path: 'Comments', populate: { path: 'User', select: 'Fullname' } });
+            const blog = await Blog.findById(req.params.id)
+                .populate({
+                    path: 'User',
+                    select: 'Fullname Image'  // Lấy cả 'Fullname' và 'Image' của người viết blog
+                })
+                .populate({
+                    path: 'Comments',
+                    populate: {
+                        path: 'User',
+                        select: 'Fullname Image'  // Lấy cả 'Fullname' và 'Image' của người bình luận
+                    }
+                });
+    
             if (!blog) return res.status(404).json({ message: "Blog not found" });
-
-            // Nếu có ảnh, chuyển đổi từ Buffer sang Base64
+    
+            // Nếu có ảnh của blog, chuyển đổi từ Buffer sang Base64
             let imageBase64 = null;
             if (blog.Image) {
                 const mimeType = mime.lookup(blog.Image) || 'image/png'; // Bạn có thể thay 'image/png' bằng kiểu MIME đúng nếu cần
                 imageBase64 = `data:${mimeType};base64,${blog.Image.toString('base64')}`;
             }
-
+    
+            // Chuyển đổi ảnh của chủ blog (người viết blog) từ Buffer sang Base64
+            let userImageBase64 = null;
+            if (blog.User.Image) {
+                const mimeType = mime.lookup(blog.User.Image) || 'image/png'; // Kiểu MIME mặc định
+                userImageBase64 = `data:${mimeType};base64,${blog.User.Image.toString('base64')}`;
+            }
+    
+            // Chuyển đổi ảnh của từng người bình luận từ Buffer sang Base64
+            const commentsWithImage = blog.Comments.map(comment => {
+                let commentImageBase64 = null;
+                if (comment.User.Image) {
+                    const mimeType = mime.lookup(comment.User.Image) || 'image/png';  // Kiểu MIME mặc định
+                    commentImageBase64 = `data:${mimeType};base64,${comment.User.Image.toString('base64')}`;
+                }
+    
+                // Thêm ảnh dưới dạng Base64 vào bình luận
+                return {
+                    ...comment.toObject(),
+                    User: {
+                        ...comment.User.toObject(),
+                        Image: commentImageBase64
+                    }
+                };
+            });
+    
             res.status(200).json({
                 ...blog.toObject(),
-                Image: imageBase64
+                Image: imageBase64,
+                User: {
+                    ...blog.User.toObject(),
+                    Image: userImageBase64 // Thêm ảnh người viết blog đã chuyển sang Base64
+                },
+                Comments: commentsWithImage  // Trả về các bình luận với ảnh đã được chuyển đổi
             });
         } catch (err) {
             res.status(500).json({ message: "Failed to fetch blog", error: err.message });

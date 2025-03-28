@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
+import styles from "./CreateClass.module.css";
 
 
 function CreateClass() {
@@ -159,75 +160,56 @@ function CreateClass() {
     };
 
     return (
-        <div className="container mx-auto p-6">
-            <h1 className="text-3xl font-bold">Create new class</h1>
-            <div className="mt-4">
+        <div className={styles.container}>
+            <h1>Create new class</h1>
+            <div className={styles["form-group"]}>
                 {step === 1 ? (
-                    <div>
-                        <label className="block mt-4">Class Name</label>
-                        <input type="text" placeholder="Name" value={classData.Classname}
-                            onChange={(e) => setClassData({ ...classData, Classname: e.target.value })}
-                            className="border p-2 w-full" />
-                        <br/>
-                        <br/>
-                        <label className="block mt-4">Slot</label>
-                        <input type="text" placeholder="Slot" value={classData.Slot}
-                            onChange={(e) => setClassData({ ...classData, Slot: e.target.value })}
-                            className="border p-2 w-full" />
-                        <label className="block mt-4">Major</label>
-                        <select value={classData.Major} onChange={handleMajorChange} className="border p-2 w-full">
+                    <>
+                        <label>Class Name</label>
+                        <input type="text" name="Classname" value={classData.Classname} onChange={(e) => setClassData({ ...classData, Classname: e.target.value })} />
+
+                        <label>Slot</label>
+                        <input type="text" name="Slot" value={classData.Slot} onChange={(e) => setClassData({ ...classData, Slot: e.target.value })} />
+
+                        <label>Major</label>
+                        <select name="Major" value={classData.Major} onChange={handleMajorChange}>
                             <option value="">Select Major</option>
-                            {majors.map((major) => (
-                                <option key={major._id} value={major._id}>{major.Name}</option>
-                            ))}
+                            {majors.map((major) => <option key={major._id} value={major._id}>{major.Name}</option>)}
                         </select>
-                        <br/>
-                        <br/>
-                        <label className="block mt-4">Subject</label>
-                        <select value={classData.Subject} onChange={handleSubjectChange}
-                            className="border p-2 w-full" disabled={!classData.Major}>
+
+                        <label>Subject</label>
+                        <select name="Subject" value={classData.Subject} onChange={handleSubjectChange} disabled={!classData.Major}>
                             <option value="">Select Subject</option>
-                            {subjects.map((subject) => (
-                                <option key={subject._id} value={subject._id}>{subject.Name}</option>
-                            ))}
+                            {subjects.map((subject) => <option key={subject._id} value={subject._id}>{subject.Name}</option>)}
                         </select>
-                        <br/>
-                        <br/>
-                        <label className="block mt-4">Teacher</label>
+
+                        <label >Teacher</label>
                         <select value={classData.Teacher} onChange={(e) => setClassData({ ...classData, Teacher: e.target.value })}
-                            className="border p-2 w-full" disabled={!classData.Major}>
+                             disabled={!classData.Major}>
                             <option value="">Select Teacher</option>
                             {teachers.map((teacher) => (
                                 <option onClick={() => handleTeacher(teacher)}  key={teacher._id} value={teacher._id}>{teacher.Fullname}</option>
                             ))}
                         </select>
-                        <br/>
-                        <br/>
-                        <button onClick={handleNext} className="mt-4 px-4 py-2 bg-blue-500 text-white">Next</button>
-                    </div>
+
+                        <button className={styles["btn-next"]} onClick={() => setStep(2)}>Next</button>
+                    </>
                 ) : (
-                    <div>
-                        <input type="text" placeholder="Search student..." value={search}
-                            onChange={(e) => setSearch(e.target.value)} className="border p-2 w-full" />
+                    <>
+                        <input type="text" placeholder="Search student..." value={search} onChange={(e) => setSearch(e.target.value)} />
 
-
-                    <div className="mt-2">
-                            {students.filter(s => s.Fullname.toLowerCase().includes(search.toLowerCase())).map(student => (
-                                <div key={student._id} className="flex justify-between border p-2 mt-2">
+                        <div className={styles["student-list"]}>
+                            {students.filter((s) => s.Fullname.toLowerCase().includes(search.toLowerCase())).map((student) => (
+                                <div key={student._id} className={styles["student-item"]}>
                                     <span>{student.Fullname}</span>
-                                    <input
-                                        type="checkbox"
-                                        checked={classData.Student.includes(student._id)} // Kiểm tra nếu học sinh đã được chọn
-                                        onChange={() => handleCheckboxChange(student)} // Thêm hoặc bỏ học sinh khi thay đổi trạng thái checkbox
-                                        className="ml-4"
-                                    />
+                                    <input type="checkbox" checked={classData.Student.includes(student._id)} onChange={() => handleCheckboxChange(student._id)} />
                                 </div>
                             ))}
                         </div>
 
-                        <button onClick={handlePre} className="px-4 py-2 bg-gray-500 text-white">Back</button>
-                        <button onClick={handleSubmit} className="px-4 py-2 bg-blue-500 text-white">Create</button>
-                    </div>
+                        <button className={styles["btn-back"]} onClick={() => setStep(1)}>Back</button>
+                        <button className={styles["btn-next"]} onClick={handleSubmit}>Create</button>
+                    </>
                 )}
             </div>
         </div>

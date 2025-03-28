@@ -1,5 +1,3 @@
-
-
 import { io } from "socket.io-client";
 
 // Tạo một hàm để khởi tạo kết nối Socket.IO
@@ -7,6 +5,7 @@ function createSocket () {
   // Kết nối đến server, thay đổi URL nếu cần
   const socket = io("http://localhost:8000", {
     transports: ["websocket"],
+
   }); // URL của server
 
   // Bạn có thể thêm các sự kiện ở đây nếu cần
@@ -17,6 +16,12 @@ function createSocket () {
   socket.on("disconnect", () => {
     console.log("Đã ngắt kết nối khỏi server");
   });
+  socket.on('new notification', (notification) => {
+    console.log('Received Notification:', notification);
+    // Xử lý notification
+    socket.emit('receive notification', notification);
+  });
+
 
   return socket;
 };
