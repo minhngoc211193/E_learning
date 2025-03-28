@@ -1,109 +1,132 @@
+:root {
+  --primary-color: #007bff;
+  --primary-dark: #0056b3;
+  --light-gray: #f5f5f5;
+  --white: #ffffff;
+  --border-color: #ddd;
+  --btn-delete-bg: #dc3545;
+  --btn-delete-hover: #c82333;
+  --btn-edit-bg: #28a745;
+  --btn-edit-hover: #218838;
+  --font-family-sans-serif: 'Open Sans', sans-serif;
+}
+
+/* Phần body của trang */
 .body {
-  height: 100vh;
-  background-color: rgb(241, 241, 241);
   display: flex;
-  justify-content: center;
-  align-items: center;
+  font-family: var(--font-family-sans-serif);
 }
 
+/* Container chính */
 .container {
-  height: 650px;
-  width: 1500px;
-  padding: 20px;
-  background-color: white;
-  border-radius: 10px;
+  flex: 1;
+  overflow-y: auto;
+  margin: 0 auto;
+  background-color: var(--white);
+  padding: 40px;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  min-height: 100vh;
 }
 
+/* Tiêu đề chính */
 .container h2 {
-  font-size: 30px;
-  border-bottom: 1px solid rgb(204, 204, 204);
-  padding-bottom: 20px;
-  padding-left: 20px;
+  text-align: center;
+  margin-bottom: 20px;
+  color: var(--primary-color);
 }
 
+/* Main area chứa bảng và các chức năng */
+.main {
+  margin-top: 20px;
+}
+
+/* Top area chứa tiêu đề và phần tìm kiếm */
 .topTable {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  padding: 0 50px;
+  align-items: center;
+  margin-bottom: 20px;
 }
 
 .topTable span {
-  font-size: 20px;
+  font-size: 1.2rem;
+  color: var(--primary-color);
 }
 
-.topTable input {
-  width: 300px;
-  border-radius: 15px;
-}
-
+/* Style cho phần tìm kiếm */
 .search {
-  display: flex;
-  align-items: center;
+  position: relative;
+}
+
+.searchInput {
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  outline: none;
+  font-size: 1rem;
 }
 
 .search i {
-  font-size: 25px;
-  margin-left: 10px;
-  cursor: pointer;
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--border-color);
 }
 
-.table{
-  max-height: 400px;
-  overflow-y: auto;
+/* Style cho table */
+.table {
+  margin: 0 auto;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
 }
 
 .table table {
   width: 100%;
   border-collapse: collapse;
-  text-align: left;
 }
 
-.table th{
-  text-align: center;
-  border: 1px solid #000000;
-  padding: 10px;
-  background-color: #ccc;
-  position: sticky;
-  top: 0;
-  z-index: 1;
-}
-
+/* Các ô trong bảng */
+.table th,
 .table td {
-  border: 1px solid #000000;
-  padding: 10px;
-  text-align: left;
+  padding: 12px;
+  border: 1px solid var(--border-color);
+  text-align: center;
+  font-size: 0.95rem;
 }
 
-.titleColumn{
-  max-width: 250px;
-  word-wrap: break-word;
-  overflow-wrap: break-word; 
-  white-space: normal;
+/* Phần tiêu đề bảng cố định khi cuộn */
+.table thead th {
+  background-color: var(--primary-color);
+  color: var(--white);
+  font-weight: bold;
 }
 
-.button {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+/* Xen kẽ màu dòng: trắng và xám nhạt */
+.table tbody tr:nth-child(odd) {
+  background-color: var(--white);
+}
+.table tbody tr:nth-child(even) {
+  background-color: var(--light-gray);
+}
+
+/* Style cho các nút hành động */
+.button button {
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin: 0 4px;
+  color: var(--white);
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
 }
 
 .btnDelete {
-  width: 50px;
-  margin: 5px;
-  background-color: rgb(255, 6, 6);
+  background-color: var(--btn-delete-bg);
 }
 
 .btnDelete:hover {
-  background-color: rgb(196, 0, 0);
+  background-color: var(--btn-delete-hover);
 }
 
-.btnEdit {
-  width: 50px;
-  margin: 5px;
-  background-color: rgb(0, 214, 0);
-}
-
-.btnEdit:hover {
-  background-color: rgb(0, 119, 16);
-}
