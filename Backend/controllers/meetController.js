@@ -1,8 +1,6 @@
 const User = require('../models/User'); 
 const Meeting = require('../models/Meeting'); 
-const { authorize, createSpace, updateMeetingStatus } = require('../services/meetService');
-const jwt = require('jsonwebtoken'); 
-const { verifyToken } = require('../middlewares/authMiddleware');
+const { authorize, createSpace } = require('../services/meetService');
 
 async function requestMeeting(req, res) {
   try {
@@ -20,7 +18,6 @@ async function requestMeeting(req, res) {
       return res.status(404).json({ message: 'Không tìm thấy giáo viên này.' });
     }
 
-    // Tạo yêu cầu meeting với trạng thái Pending
     const meetingRequest = {
       studentId,
       teacherId: teacher._id,
@@ -29,14 +26,8 @@ async function requestMeeting(req, res) {
       time,
       address: meetingType === 'offline' ? address : null,  
       status: 'Pending',
+      meetingUrl: ""
     };
-
-    let meetingUrl = null;
-    if (meetingType === 'online') {
-      const authClient = await authorize();
-      meetingUrl = await createSpace(authClient);
-      meetingRequest.meetingUrl = meetingUrl;
-    }
 
     const newMeeting = new Meeting(meetingRequest);
     await newMeeting.save();
@@ -48,7 +39,6 @@ async function requestMeeting(req, res) {
 
     res.status(201).json({
       message: 'Yêu cầu meeting đã được gửi thành công!',
-      // meetingUrl: meetingType === 'online' ? meetingUrl : null,  
     });
 
   } catch (err) {
@@ -57,166 +47,324 @@ async function requestMeeting(req, res) {
   }
 }
 
-async function handleMeetingRequest(req, res) {
-  try {
-    const { meetingId, action } = req.body; 
-    const teacherId = req.user.id; 
+const getMeetings = async (req, res) => {
+  const userId = req.user.id; 
+  const userRole = req.user.Role;
 
-    const meeting = await Meeting.findById(meetingId);
-    if (!meeting) {
-      return res.status(404).json({ message: 'Không tìm thấy yêu cầu cuộc họp này.' });
+  let meetings;
+  try {
+    if (userRole === 'student') {
+      meetings = await Meeting.find({ studentId: userId })
+        .populate('teacherId', 'Fullname email') 
+        .select('studentId teacherId reason meetingType status time address meetingUrl createdAt updatedAt'); 
+    } else if (userRole === 'teacher') {
+      meetings = await Meeting.find({ teacherId: userId })
+        .populate('studentId', 'Fullname email') 
+        .select('studentId teacherId reason meetingType status time address meetingUrl createdAt updatedAt'); 
+    } else if (userRole === 'admin') {
+      meetings = await Meeting.find()
+        .populate('studentId', 'Fullname email') 
+        .populate('teacherId', 'Fullname email')
+        .select('studentId teacherId reason meetingType status time address meetingUrl createdAt updatedAt'); 
     }
 
-    if (meeting.teacherId.toString() !== teacherId) {
-      return res.status(403).json({ message: 'Bạn không có quyền xử lý yêu cầu này.' });
+    res.status(200).json({ meetings });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Đã có lỗi xảy ra, vui lòng thử lại.' });
+  }
+};
+
+const respondToMeetingRequest = async (req, res) => {
+  try {
+    const { meetingId, action, rejectionReason } = req.body; 
+    const teacherId = req.user.id; 
+
+    const meetingRequest = await Meeting.findById(meetingId);
+
+    if (!meetingRequest) {
+      return res.status(404).json({ message: 'Không tìm thấy yêu cầu cuộc họp.' });
+    }
+
+    if (meetingRequest.teacherId.toString() !== teacherId) {
+      return res.status(403).json({ message: 'Chỉ giáo viên mới có thể trả lời yêu cầu cuộc họp.' });
+    }
+
+    if (meetingRequest.status !== 'Pending') {
+      return res.status(400).json({ message: 'Yêu cầu cuộc họp này đã được phản hồi trước đó.' });
+    }
+
+    if (action === 'reject') {
+      meetingRequest.status = 'Rejected';
+      meetingRequest.rejectionReason = rejectionReason; 
+      await meetingRequest.save();
+
+      return res.status(200).json({
+        message: 'Yêu cầu cuộc họp đã bị từ chối.',
+        rejectionReason
+      });
     }
 
     if (action === 'accept') {
-      meeting.status = 'Accepted';
+      meetingRequest.status = 'Accepted';
 
-      if (meeting.meetingType === 'online') {
+      if (meetingRequest.meetingType === 'online') {
         const authClient = await authorize();
-        const meetingUrl = await createSpace(authClient); // Tạo URL Google Meet
-        meeting.meetingUrl = meetingUrl;
-      } else {
-        meeting.meetingUrl = meeting.address;
+        const meetingUrl = await createSpace(authClient);
+        meetingRequest.meetingUrl = meetingUrl;
+      } else if (meetingRequest.meetingType === 'offline') {
+        meetingRequest.meetingUrl = null; 
       }
 
-      await meeting.save();
+      await meetingRequest.save();
 
-      res.status(200).json({
-        message: 'Yêu cầu cuộc họp đã được chấp nhận!',
-        meetingUrl: meeting.meetingUrl,
+      return res.status(200).json({
+        message: 'Yêu cầu cuộc họp đã được chấp nhận.',
+        meetingUrl: meetingRequest.meetingUrl
       });
+    }
 
-    } 
-    else if (action === 'reject') {
-      meeting.status = 'Rejected';
-      await meeting.save();
+    return res.status(400).json({ message: 'Phản hồi không hợp lệ.' });
 
-      res.status(200).json({ message: 'Yêu cầu cuộc họp đã bị từ chối.' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Đã có lỗi xảy ra, vui lòng thử lại.' });
+  }
+};
+
+const searchMeetings = async (req, res) => {
+  const userId = req.user.id;
+  const userRole = req.user.Role;
+  const searchText = req.query.searchText; 
+
+  let meetings;
+  try {
+    if (userRole === 'student') {
+      meetings = await Meeting.find({ studentId: userId })
+        .populate('teacherId', 'Fullname')
+        .select('teacherId reason status time meetingType');
+      
+        const filteredMeetings = meetings.filter(meeting =>
+          meeting.teacherId.Fullname.toLowerCase().includes(searchText.toLowerCase())
+        );
+
+      res.status(200).json({ meetings: filteredMeetings });
+
+    } else if (userRole === 'teacher') {
+      meetings = await Meeting.find({ teacherId: userId })
+        .populate('studentId', 'Fullname') 
+        .select('studentId reason status time meetingType');
+
+      const filteredMeetings = meetings.filter(meeting =>
+        meeting.studentId.Fullname.toLowerCase().includes(searchText.toLowerCase())
+      );
+
+      res.status(200).json({ meetings: filteredMeetings });
+
+    } else if (userRole === 'admin') {
+      meetings = await Meeting.find()
+        .populate('studentId', 'Fullname') 
+        .populate('teacherId', 'Fullname') 
+        .select('studentId teacherId reason status time meetingType');
+
+      const filteredMeetings = meetings.filter(meeting =>
+        meeting.studentId.Fullname.toLowerCase().includes(searchText.toLowerCase()) ||
+        meeting.teacherId.Fullname.toLowerCase().includes(searchText.toLowerCase())
+      );
+
+      res.status(200).json({ meetings: filteredMeetings });
+
     } else {
-      return res.status(400).json({ message: 'Hành động không hợp lệ.' });
+      res.status(403).json({ message: 'Quyền truy cập không hợp lệ.' });
     }
 
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Đã có lỗi xảy ra, vui lòng thử lại.' });
   }
-}
+};
 
-async function getAllMeetingRequests(req, res) {
+const deleteMeetingRequest = async (req, res) => {
   try {
-    // Kiểm tra quyền hạn của Admin
-    const userId = req.user.id;
-    const user = await User.findById(userId);
-    if (user.Role !== 'admin') {
-      return res.status(403).json({ message: 'Bạn không có quyền truy cập vào yêu cầu này.' });
+    const { meetingId } = req.body;
+    const studentId = req.user.id; 
+
+    const meetingRequest = await Meeting.findById(meetingId);
+
+    if (!meetingRequest) {
+      return res.status(404).json({ message: 'Không tìm thấy yêu cầu cuộc họp.' });
     }
 
-    // Lấy tất cả các yêu cầu meeting từ cơ sở dữ liệu
-    const meetings = await Meeting.find()
-      .populate('studentId', 'Fullname')  // Lấy thông tin học sinh
-      .populate('teacherId', 'Fullname')  // Lấy thông tin giáo viên
-      .select('studentId teacherId reason meetingType status');  // Chọn thông tin cần thiết
-
-    // Nếu không có yêu cầu nào
-    if (!meetings || meetings.length === 0) {
-      return res.status(404).json({ message: 'Không có yêu cầu cuộc họp nào.' });
+    if (meetingRequest.studentId.toString() !== studentId) {
+      return res.status(403).json({ message: 'Chỉ học sinh tạo ra yêu cầu này mới có thể xóa.' });
     }
 
-    // Trả về danh sách yêu cầu cuộc họp
-    res.status(200).json({
-      message: 'Danh sách yêu cầu cuộc họp:',
-      meetings: meetings.map(meeting => ({
-        student: meeting.studentId.Fullname,
-        teacher: meeting.teacherId.Fullname,
-        reason: meeting.reason,
-        meetingType: meeting.meetingType,
-        status: meeting.status,
-      })),
-    });
+    if (meetingRequest.status !== 'Pending') {
+      return res.status(400).json({ message: 'Chỉ có yêu cầu cuộc họp đang chờ phản hồi mới có thể xóa.' });
+    }
+    await meetingRequest.deleteOne();
+
+    res.status(200).json({ message: 'Yêu cầu cuộc họp đã được xóa thành công.' });
 
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Đã có lỗi xảy ra, vui lòng thử lại.' });
   }
-}
+};
 
-async function getStudentMeetings(req, res) {
+async function updateMeetingRequest(req, res) {
   try {
-    const studentId = req.user.id; // Lấy ID của học sinh từ token
+    const { meetingId } = req.body; 
+    const { time, meetingType, address } = req.body; 
+    const studentId = req.user.id;  
 
     const student = await User.findById(studentId);
-    if (student.Role !== 'student') {
-      return res.status(403).json({ message: 'Chỉ học sinh mới có thể yêu cầu cuộc họp.' });
+    if (!student || student.Role !== 'student') {
+      return res.status(403).json({ message: 'Chỉ học sinh mới có thể cập nhật yêu cầu họp.' });
     }
 
-    // Lấy tất cả các cuộc họp mà học sinh đã gửi
-    const meetings = await Meeting.find({ studentId })
-      .populate('studentId', 'Fullname')  // Lấy thông tin học sinh
-      .populate('teacherId', 'Fullname')  // Lấy thông tin giáo viên
-      .select('studentId teacherId reason meetingType status time address meetingUrl');  // Chọn thông tin cần thiết
-
-    if (!meetings || meetings.length === 0) {
-      return res.status(404).json({ message: 'Không có yêu cầu cuộc họp nào.' });
+    const meeting = await Meeting.findById(meetingId);
+    if (!meeting) {
+      return res.status(404).json({ message: 'Không tìm thấy yêu cầu họp.' });
     }
+
+    if (meeting.studentId.toString() !== studentId) {
+      return res.status(403).json({ message: 'Bạn không có quyền sửa yêu cầu họp này.' });
+    }
+
+    if (meeting.status !== 'Pending') {
+      return res.status(400).json({ message: 'Chỉ có thể cập nhật yêu cầu họp đang ở trạng thái Pending.' });
+    }
+
+    const isTimeProvided = time !== undefined && time !== null;
+    const isMeetingTypeProvided = meetingType !== undefined && meetingType !== null;
+
+    if (!isTimeProvided && !isMeetingTypeProvided) {
+      return res.status(400).json({
+        message: 'Bạn cần cập nhật ít nhất 1 trong 2 trường: time hoặc meetingType.'
+      });
+    }
+
+    if (isMeetingTypeProvided) {
+      // Kiểm tra hợp lệ Enum
+      if (!['online', 'offline'].includes(meetingType)) {
+        return res.status(400).json({ message: 'meetingType không hợp lệ.' });
+      }
+
+      // Nếu chuyển từ online sang offline => cần address
+      if (meeting.meetingType === 'online' && meetingType === 'offline') {
+        if (!address) {
+          return res.status(400).json({
+            message: 'Khi chuyển từ online sang offline, bạn phải nhập địa chỉ (address).'
+          });
+        }
+        meeting.address = address; // Cập nhật địa chỉ
+      }
+
+      // Nếu chuyển từ offline sang online => xóa address
+      if (meeting.meetingType === 'offline' && meetingType === 'online') {
+        meeting.address = null;
+      }
+
+      meeting.meetingType = meetingType;
+    }
+
+    if (isTimeProvided) {
+      const providedTime = new Date(time);
+      if (providedTime < new Date()) {
+        return res.status(400).json({
+          message: 'Không thể đặt thời gian ở quá khứ.'
+        });
+      }
+    
+      meeting.time = providedTime;
+    }
+
+    await meeting.save();
 
     res.status(200).json({
-      message: 'Danh sách yêu cầu cuộc họp của học sinh:',
-      meetings: meetings.map(meeting => ({
-        teacher: meeting.teacherId.Fullname,
-        reason: meeting.reason,
-        meetingType: meeting.meetingType,
-        status: meeting.status,
-        time: meeting.time,
-        address: meeting.address,
-        meetingUrl: meeting.meetingUrl,
-      })),
+      message: 'Cập nhật yêu cầu họp thành công.',
+      meeting
     });
 
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Đã có lỗi xảy ra, vui lòng thử lại.' });
+    res.status(500).json({ message: 'Có lỗi xảy ra, vui lòng thử lại sau.' });
   }
 }
 
-async function getTeacherMeetings(req, res) {
-  try {
-    const teacherId = req.user.id; // Lấy ID của giáo viên từ token
+module.exports = { requestMeeting, getMeetings, respondToMeetingRequest, searchMeetings, deleteMeetingRequest, updateMeetingRequest };
 
-    const teacher = await User.findById(teacherId);
-    if (teacher.Role !== 'teacher') {
-      return res.status(403).json({ message: 'Chỉ giáo viên mới có thể nhận cuộc họp.' });
-    }
+// Cấm xóa 
+// const searchMeetings = async (req, res) => {
+//   const userId = req.user.id;
+//   const userRole = req.user.Role;
+//   const searchText = req.query.searchText; 
 
-    // Lấy tất cả các cuộc họp mà giáo viên đã nhận
-    const meetings = await Meeting.find({ teacherId })
-      .populate('studentId', 'Fullname')  // Lấy thông tin học sinh
-      .populate('teacherId', 'Fullname')  // Lấy thông tin giáo viên
-      .select('studentId teacherId reason meetingType status time address meetingUrl');  // Chọn thông tin cần thiết
+//   let meetings;
+//   try {
+//     const regex = new RegExp(searchText, 'i'); // Tạo một biểu thức chính quy không phân biệt chữ hoa, chữ thường
 
-    if (!meetings || meetings.length === 0) {
-      return res.status(404).json({ message: 'Không có yêu cầu cuộc họp nào.' });
-    }
+//     if (userRole === 'student') {
+//       meetings = await Meeting.find({ studentId: userId })
+//         .populate('teacherId', 'Fullname')
+//         .select('teacherId reason status time meetingType');
 
-    res.status(200).json({
-      message: 'Danh sách yêu cầu cuộc họp của giáo viên:',
-      meetings: meetings.map(meeting => ({
-        student: meeting.studentId.Fullname,
-        reason: meeting.reason,
-        meetingType: meeting.meetingType,
-        status: meeting.status,
-        time: meeting.time,
-        address: meeting.address,
-        meetingUrl: meeting.meetingUrl,
-      })),
-    });
+    // res.status(200).json({
+    //   message: 'Danh sách yêu cầu cuộc họp của giáo viên:',
+    //   meetings
+    // });
 
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Đã có lỗi xảy ra, vui lòng thử lại.' });
-  }
-}
+//       // Tìm kiếm trong tất cả các trường của meeting
+//       const filteredMeetings = meetings.filter(meeting =>
+//         meeting.teacherId.Fullname.match(regex) || 
+//         meeting.reason.match(regex) ||
+//         meeting.status.match(regex) ||
+//         meeting.meetingType.match(regex)
+//       );
 
-module.exports = { requestMeeting, handleMeetingRequest, getAllMeetingRequests, getTeacherMeetings, getStudentMeetings };
+
+//       res.status(200).json({ meetings: filteredMeetings });
+
+//     } else if (userRole === 'teacher') {
+//       meetings = await Meeting.find({ teacherId: userId })
+//         .populate('studentId', 'Fullname') 
+//         .select('studentId reason status time meetingType');
+
+//       // Tìm kiếm trong tất cả các trường của meeting
+//       const filteredMeetings = meetings.filter(meeting =>
+//         meeting.studentId.Fullname.match(regex) || 
+//         meeting.reason.match(regex) ||
+//         meeting.status.match(regex) ||
+//         meeting.meetingType.match(regex)
+//       );
+
+//       res.status(200).json({ meetings: filteredMeetings });
+
+//     } else if (userRole === 'admin') {
+//       meetings = await Meeting.find()
+//         .populate('studentId', 'Fullname') 
+//         .populate('teacherId', 'Fullname') 
+//         .select('studentId teacherId reason status time meetingType');
+
+//       // Tìm kiếm trong tất cả các trường của meeting
+//       const filteredMeetings = meetings.filter(meeting =>
+//         meeting.studentId.Fullname.match(regex) || 
+//         meeting.teacherId.Fullname.match(regex) ||
+//         meeting.reason.match(regex) ||
+//         meeting.status.match(regex) ||
+//         meeting.meetingType.match(regex)
+//       );
+
+//       res.status(200).json({ meetings: filteredMeetings });
+
+//     } else {
+//       res.status(403).json({ message: 'Quyền truy cập không hợp lệ.' });
+//     }
+
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ message: 'Đã có lỗi xảy ra, vui lòng thử lại.' });
+//   }
+// };

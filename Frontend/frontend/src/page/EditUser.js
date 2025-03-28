@@ -8,7 +8,6 @@ const EditUser = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [userData, setUserData] = useState({
-    Image:"",
     Fullname: "",
     Username: "",
     PhoneNumber: "",
@@ -24,15 +23,15 @@ const EditUser = () => {
 
   const fetchUserInfo = async () => {
     const token = localStorage.getItem("accessToken");
-    if (!token) {
-        console.error("Bạn chưa đăng nhập!");
-        return;
-    }
     try {
         const decoded = jwtDecode(token);
-        const userId = decoded.id;
-
-        const res = await axios.get(`http://localhost:8000/user/detail-user/${userId}`, {
+        if(decoded.Role!== "admin"){
+          console.error("Bạn không có quyền chỉnh sửa ngừoi dùng!");
+          alert("Bạn không có quyền chỉnh sửa!!!");
+          navigate("/");
+          return
+        }
+        const res = await axios.get(`http://localhost:8000/user/detail-user/${id}`, {
             headers: { Authorization: `Bearer ${token}` }
         });
 
@@ -45,13 +44,13 @@ const EditUser = () => {
                 Role: res.data.Role || "",
                 PhoneNumber: res.data.PhoneNumber || "",
                 DateOfBirth: new Date(res.data.DateOfBirth).toISOString().split('T')[0],
-                Major: res.data.Major || "",
+                Major: res.data.Major? res.data.Major._id : "",
                 Gender: res.data.Gender || "",
                 SchoolYear: res.data.SchoolYear || ""
             });
         }
-    } catch (err) {
-        console.error("Không thể lấy thông tin người dùng.", err);
+    } catch (e) {
+        console.error("Không thể lấy thông tin người dùng.", e);
     }
 };
 useEffect(() => {
@@ -78,51 +77,35 @@ useEffect(() => {
       reader.readAsDataURL(file);
     }
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const token = localStorage.getItem("accessToken");
-
-    if (!token) {
-        alert("Bạn cần đăng nhập trước!");
-        navigate("/");
-        return;
+    const formData = new FormData();
+    formData.append('Fullname', userData.Fullname);
+    formData.append('Username', userData.Username);
+    formData.append('PhoneNumber', userData.PhoneNumber);
+    formData.append('SchoolYear', userData.SchoolYear);
+    formData.append('Gender', userData.Gender);
+    formData.append('DateOfBirth', userData.DateOfBirth);
+    formData.append('Major', userData.Major);
+    if (userData.Image) {
+      formData.append('file', userData.Image);
     }
 
     try {
-        // Giải mã token để lấy thông tin user
-        const decodedToken = jwtDecode(token);
-        
-        // Kiểm tra nếu không phải admin, chặn cập nhật
-        if (decodedToken.Role !== "admin") {
-            alert("Bạn không có quyền chỉnh sửa người dùng!");
-            return;
-        }
+      const response = await axios.put(`http://localhost:8000/user/update-user/${id}`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
 
-        const formData = new FormData();
-        formData.append("Fullname", userData.Fullname);
-        formData.append("Username", userData.Username);
-        formData.append("PhoneNumber", userData.PhoneNumber);
-        formData.append("Gender", userData.Gender);
-        formData.append("DateOfBirth", userData.DateOfBirth);
-        formData.append("Major", userData.Major);
-        if (userData.SchoolYear) formData.append("SchoolYear", userData.SchoolYear);
-        if (userData.Image) formData.append("Image", userData.Image); // Chỉ gửi ảnh nếu có
+      });
 
-        await axios.put(`http://localhost:8000/user/update-user/${id}`, formData, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "multipart/form-data",
-            },
-        });
-
-        alert("Cập nhật thành công!");
-        navigate("/manageuser");
+      // Xử lý khi update thành công
+      alert('Cập nhật thành công');
+      navigate(`/manageuser`); // Chuyển hướng đến trang chi tiết người dùng sau khi cập nhật
     } catch (error) {
-        console.error("Lỗi khi cập nhật user:", error);
-        alert("Cập nhật thất bại!");
+      console.error('Lỗi cập nhật người dùng:', error);
     }
-};
+  };
+
+
 
   return (
     <div className={styles.createPage}>

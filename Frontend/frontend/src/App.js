@@ -7,25 +7,37 @@ import UpdateUser from './page/EditUser';
 import ManageUser from "./page/ManageUser";
 import Login from "./page/Login";
 import Home from "./page/Home";
-import Major from "./page/Major";
 import Subject from "./page/Subject";
 import CreateBLog from './page/CreateBlog';
 import EditBlog from './page/EditBlog';
 import BlogDetail from "./page/BlogDetail";
 import ManageBlog from './page/ManageBlog';
+<<<<<<< HEAD
+=======
+import CreateMeet from './page/CreateMeet';
+
+>>>>>>> 5b4d772a32245fd54b3ede247d2c8d43914127f8
 import ManageClass from './page/ManageClass';
+import Major from "./page/Major";
 import Document from './page/Document';
 import EditClass from './page/EditClass';
+import DetailClass from './page/DetailClass';
 import CreateClass from './page/CreateClass';
 import FirstLogin from './page/Password/FirstLogin';
 import ChangePassword from './page/Password/ChangePassword';
 import ResetPassword from './page/Password/ResetPassword';
 import Profile from './page/Profile';
 import UpdateInformationUser from './page/UpdateInformationUser';
+<<<<<<< HEAD
 import Schedule from './page/Schedule';
 import ManageSchedule from './page/ManageSchedule';
 import Dashboard from './page/Dashboard';
 import Attendance from './page/Attendance';
+=======
+import Messenger from './page/Messenger';
+import ManageMeet from './page/ManageMeet';
+import Notification from './page/Notification';
+>>>>>>> 5b4d772a32245fd54b3ede247d2c8d43914127f8
 import './App.css';
 
 function checkToken() {
@@ -60,6 +72,7 @@ function App() {
       <div>
         <Routes>
           <Route path="/" element={<Login />} />
+<<<<<<< HEAD
           <Route path="/firstlogin" element={
               checkToken() 
                 ? (isFirstLogin() ? <FirstLogin /> : <Navigate to="/home" />)
@@ -89,6 +102,33 @@ function App() {
           <Route path="/manageschedule" element={renderProtected(ManageSchedule)} />
           <Route path="/dashboard" element={renderProtected(Dashboard)} />
           <Route path="/attendance/:scheduleId" element={renderProtected(Attendance)} />
+=======
+          <Route path="/firstlogin" element={<FirstLogin />} />
+          <Route path="/changepassword" element={<ChangePassword />} />
+          <Route path="/resetpassword" element={<ResetPassword />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/updateinformationuser" element={<UpdateInformationUser />} />
+          <Route path = "/createuser" element ={checkToken() ? <CreateUser/>: <Navigate to="/"/>  }/>
+          <Route path="/detail-user/:id" element = {checkToken() ? <DetailUser/>: <Navigate to="/"/>}/>
+          <Route path= "/update-user/:id" element = {checkToken() ? <UpdateUser/>: <Navigate to="/"/>}/>
+          <Route path = "/manageuser" element ={checkToken() ? <ManageUser/>: <Navigate to="/"/>  }/>
+          <Route path = "/major" element ={ checkToken() ? <Major/>: <Navigate to="/"/> }/>
+          <Route path = "/home" element ={checkToken() ? <Home/> : <Navigate to="/"/>}/>
+          <Route path="/createblog" element={checkToken() ? <CreateBLog /> : <Navigate to="/"/>} />
+          <Route path="/editblog/:id" element={checkToken() ? <EditBlog /> : <Navigate to="/"/>} />
+          <Route path="/blogdetail/:id" element={checkToken() ? <BlogDetail /> : <Navigate to="/"/>} />
+          <Route path="/manageblog" element={checkToken() ? <ManageBlog /> : <Navigate to="/"/>} />
+          <Route path="/subject" element={checkToken() ? <Subject /> : <Navigate to="/"/>} />
+          <Route path="/manageclass" element={checkToken() ? <ManageClass /> : <Navigate to="/"/>} />
+          <Route path="/document" element={checkToken() ? <Document /> : <Navigate to="/"/>}/>
+          <Route path="/update-class/:classId" element={checkToken() ? <EditClass /> : <Navigate to="/"/>}/>
+          <Route path="/detail-class/:id" element={checkToken()? <DetailClass /> : <Navigate to="/"/>}/>
+          <Route path="/create-class" element={checkToken()? <CreateClass /> : <Navigate to="/"/>}/>
+          <Route path ="/messenger" element = {checkToken()? <Messenger /> : <Navigate to="/"/>}/>
+          <Route path="/createmeeting" element={checkToken()? <CreateMeet/> : <Navigate to="/"/>}/>
+          <Route path ="/managemeet" element= {checkToken()? <ManageMeet/> : <Navigate to="/"/>}/>
+          <Route path="/noti" element={checkToken()? <Notification/> : <Navigate to="/"/>}/>
+>>>>>>> 5b4d772a32245fd54b3ede247d2c8d43914127f8
         </Routes>
       </div>
     </Router>
