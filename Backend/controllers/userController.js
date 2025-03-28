@@ -158,36 +158,51 @@ const userController = {
         try {
             const { id } = req.params;
             const { Role } = req.query;  // role sẽ được truyền qua query string (ví dụ: /users-by-major/:majorId?role=teacher)
-
+    
             // Kiểm tra xem role có phải là "teacher" hoặc "student" không
             if (Role && !['teacher', 'student'].includes(Role)) {
                 return res.status(400).json({ message: 'Role không hợp lệ. Chỉ chấp nhận teacher hoặc student.' });
             }
-
+    
             // Tìm Major để xác định các User trong Major này
             const major = await Major.findById(id);
             if (!major) {
                 return res.status(404).json({ message: 'Không tìm thấy Major này' });
             }
-
+    
             // Tìm người dùng theo Major và Role
             const users = await User.find({
                 Major: id,  // Tìm theo Major
                 Role: Role || { $in: ['teacher', 'student'] }  // Nếu role không được truyền vào thì tìm tất cả các teacher và student
             });
-
+    
             // Nếu không có người dùng nào
             if (users.length === 0) {
                 return res.status(404).json({ message: 'Không có người dùng nào trong Major này với Role đã chọn' });
             }
-
-            res.status(200).json(users);
-
+    
+            // Xử lý ảnh cho từng người dùng nếu có
+            const usersWithImage = users.map(user => {
+                let imageBase64 = null;
+                if (user.Image) {
+                    const mimeType = mime.lookup(user.Image) || 'image/png';  // Lấy loại ảnh
+                    imageBase64 = `data:${mimeType};base64,${user.Image.toString('base64')}`;
+                }
+    
+                return {
+                    ...user.toObject(),
+                    Image: imageBase64  // Thêm trường Image vào response
+                };
+            });
+    
+            res.status(200).json(usersWithImage);
+    
         } catch (err) {
             console.error(err);
             res.status(500).json({ message: 'Lỗi khi truy vấn dữ liệu', error: err.message });
         }
     },
+    
 
     searchUser: async (req, res) => {
         try {

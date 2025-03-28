@@ -2,6 +2,7 @@ const Schedule = require('../models/Schedule');
 const Class = require('../models/Class');
 const User = require('../models/User');
 const nodemailer = require('nodemailer');
+const Attendance = require('../models/Attendance');
 require('dotenv').config();
 
 const transporter = nodemailer.createTransport({
@@ -82,8 +83,8 @@ const scheduleController = {
             await classData.save();
 
 
-            const students = classData.Student;  // Lấy danh sách sinh viên trong lớp
-            const teacher = classData.Teacher;  // Lấy giáo viên của lớp
+            const students = await User.find({ _id: { $in: classData.Student } });
+            const teacher = await User.findById(classData.Teacher);
 
             const attendancePromises = students.map(async (student) => {
                 const attendanceExists = await Attendance.findOne({
@@ -106,8 +107,6 @@ const scheduleController = {
             await Promise.all(attendancePromises);
 
             // ============== THÊM PHẦN GỬI MAIL ==============
-            const teacher = await User.findById(classData.Teacher);
-            const students = await User.find({ _id: { $in: classData.Student } });
 
             // Định dạng ngày để gửi mail (VD: 24/03/2025)
             const formattedDate = new Date(Day).toLocaleDateString();
