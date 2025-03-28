@@ -58,7 +58,7 @@ const attendanceController = {
       }
       const currentDate = new Date();
       const scheduleDate = new Date(schedule.Day);
-      const previousDayUTC = new Date(Date.UTC(currentDate.getUTCFullYear(), currentDate.getUTCMonth(), currentDate.getUTCDate() - 1, 0, 0, 0));
+      const previousDayUTC = new Date(Date.UTC(currentDate.getUTCFullYear(), currentDate.getUTCMonth(), currentDate.getUTCDate()));
 
       if (schedule.Class.Teacher.toString() !== req.user.id && req.user.Role !== 'admin') {
         return res.status(403).json({ message: "Bạn không phải giáo viên của lớp này" });
@@ -117,10 +117,10 @@ const attendanceController = {
       const schedule = await Schedule.findById(scheduleId).populate('Class', select = 'Teacher');
 
       const currentDate = new Date();
-      const previousDayUTC = new Date(Date.UTC(currentDate.getUTCFullYear(), currentDate.getUTCMonth(), currentDate.getUTCDate() - 1, 0, 0, 0));
+      const previousDayUTC = new Date(Date.UTC(currentDate.getUTCFullYear(), currentDate.getUTCMonth(), currentDate.getUTCDate()));
       if (previousDayUTC < schedule.Day) {
         return res.status(400).json({
-          message: "Bạn chỉ có thể sửa điểm danh trong ngày của lịch học và ngày hôm sau."
+          message: "Lịch học chưa diễn ra."
         });
       }
       if (schedule.Class.Teacher.toString() !== req.user.id && req.user.Role !== 'admin') {

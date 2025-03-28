@@ -2,6 +2,7 @@ const Schedule = require('../models/Schedule');
 const Class = require('../models/Class');
 const User = require('../models/User');
 const nodemailer = require('nodemailer');
+const Attendance = require('../models/Attendance');
 require('dotenv').config();
 
 const transporter = nodemailer.createTransport({
@@ -106,7 +107,6 @@ const scheduleController = {
             await Promise.all(attendancePromises);
 
             // ============== THÊM PHẦN GỬI MAIL ==============
-
 
             // Định dạng ngày để gửi mail (VD: 24/03/2025)
             const formattedDate = new Date(Day).toLocaleDateString();
