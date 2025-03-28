@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import moment from "moment"; // npm install moment
-import { DatePicker } from "antd";
-import { SmileOutlined } from '@ant-design/icons';
+import moment from "moment";
+import { DatePicker, notification } from "antd";
+import { SmileOutlined } from "@ant-design/icons";
 import styles from "./Schedule.module.css";
 import Header from "../components/Header";
 
@@ -17,10 +17,30 @@ function Schedule() {
 
   const [schedules, setSchedules] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
   const [selectedWeek, setSelectedWeek] = useState(moment());
-  const smileIcon = <SmileOutlined />;
+  // State để lưu thông tin notification
+  const [notifData, setNotifData] = useState(null);
   const token = localStorage.getItem("accessToken");
+  const smileIcon = <SmileOutlined />;
+  const [api, contextHolder] = notification.useNotification();
+
+  // Sử dụng useEffect để trigger notification khi notifData thay đổi
+  useEffect(() => {
+    if (notifData) {
+      api.open({
+        message: notifData.type === "success" ? "Tải lịch thành công!" : "Tải lịch thất bại!",
+        description:
+          notifData.detailMessage ||
+          (notifData.type === "success"
+            ? "Lịch của bạn đã được tải thành công."
+            : ""),
+        showProgress: true,
+        pauseOnHover: true,
+      });
+      // Reset notifData sau khi đã hiển thị
+      setNotifData(null);
+    }
+  }, [notifData, api]);
 
   useEffect(() => {
     const fetchSchedule = async () => {
@@ -31,10 +51,11 @@ function Schedule() {
         );
         setSchedules(res.data.schedules);
         setLoading(false);
-        console.log(res.data.schedules);
+        // Gọi thông báo thành công
+        setNotifData({ type: "success" });
       } catch (err) {
-        console.error(err);
-        setError(err.response?.data?.message || "Có lỗi khi tải lịch học");
+        const errorMessage = err.response?.data?.message || "Có lỗi xảy ra!";
+        setNotifData({ type: "error", detailMessage: errorMessage });
         setLoading(false);
       }
     };
@@ -53,46 +74,48 @@ function Schedule() {
   const weekDays = getWeekDays();
 
   // Hàm lọc lịch học theo ngày và khung giờ
-  // Giả sử mỗi schedule có thuộc tính date (ISO string) và slot
   const getScheduleForCell = (weekDate, slot) => {
     return schedules.filter((item) => {
-      const itemDate = moment(item.Day); // Chuyển đổi ngày từ database
+      const itemDate = moment(item.Day);
       return itemDate.isSame(weekDate, "day") && item.Slot === slot.slot;
     });
   };
 
-
   // Xử lý khi người dùng thay đổi tuần trên DatePicker
   const onWeekChange = (date) => {
     if (date) {
-      // Đưa về đầu tuần (thứ Hai)
-      const selectedDate = moment(date.toDate()); // Chuyển đổi về JavaScript Date trước khi dùng moment
-      const startOfWeek = selectedDate.startOf("isoWeek"); // Lấy ngày đầu tuần chính xác
+      const selectedDate = moment(date.toDate());
+      const startOfWeek = selectedDate.startOf("isoWeek");
       setSelectedWeek(startOfWeek);
     }
   };
 
+  const handleAttendance = (schedulesId) => {
+    window.location.href = `/attendance/${schedulesId}`;
+  };
+
   if (loading) return <div>Đang tải lịch học...</div>;
-  if (error) return <div>{error}</div>;
 
   return (
     <div>
+      {contextHolder}
       <Header />
       <div className={styles.scheduleContainer}>
         <h1 className={styles.title}>Lịch học của tuần</h1>
-        <div className={styles.datePicker}>
-        </div>
+        <div className={styles.datePicker}></div>
         <div className={styles.tableContainer}>
           <table className={styles.scheduleTable}>
             <thead>
               <tr>
                 <th>
                   <DatePicker
-                    picker="week" suffixIcon={smileIcon}
+                    picker="week"
+                    suffixIcon={smileIcon}
                     onChange={onWeekChange}
                     value={selectedWeek}
-                    style={{ borderColor: '#ccc', borderRadius: '5px' }}
-                  /></th>
+                    style={{ borderColor: "#ccc", borderRadius: "5px" }}
+                  />
+                </th>
                 {weekDays.map((day, index) => (
                   <th key={index}>
                     <div>{day.format("dddd")}</div>
@@ -113,11 +136,16 @@ function Schedule() {
                       <td key={index} className={styles.scheduleCell}>
                         {cellSchedules.length > 0 ? (
                           cellSchedules.map((sch) => (
-                            <div key={sch._id} className={styles.scheduleItem}>
+                            <div
+                              key={sch._id}
+                              className={styles.scheduleItem}
+                              onClick={() => handleAttendance(sch._id)}
+                            >
                               <strong>Subject: {sch.Class.Subject.Name}</strong>
                               <div>
                                 Class: {sch.Class.Classname} <br />
-                                Teacher: {sch.Class.Teacher.Fullname}<br />
+                                Teacher: {sch.Class.Teacher.Fullname}
+                                <br />
                                 Room: {sch.Address}
                               </div>
                             </div>
@@ -131,7 +159,6 @@ function Schedule() {
                 </tr>
               ))}
             </tbody>
-
           </table>
         </div>
       </div>

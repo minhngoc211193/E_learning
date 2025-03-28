@@ -9,16 +9,36 @@ import Header from '../components/Header';
 function Home() {
     const navigate = useNavigate();
     const [blogs, setBlogs] = useState([]);
+    const [searchQuery, setSearchQuery] = useState("");
 
     // Gọi API lấy danh sách blog
-    useEffect(() => {
-        const token = localStorage.getItem("accessToken"); // Lấy token từ localStorage
-        axios.get('http://localhost:8000/blog/blogs', {
+    const fetchBlogs = (search = "") => {
+        const token = localStorage.getItem("accessToken");
+        const url = search 
+            ? `http://localhost:8000/blog/search-blog?search=${search}`
+            : "http://localhost:8000/blog/blogs";
+
+        axios.get(url, {
             headers: { Authorization: `Bearer ${token}` }
         })
         .then(response => setBlogs(response.data))
         .catch(error => console.error("Error fetching blogs:", error));
+    };
+
+    // Lấy danh sách blog khi load trang
+    useEffect(() => {
+        fetchBlogs();
     }, []);
+
+    // Xử lý tìm kiếm khi nhấn nút
+    const handleSearch = () => {
+        fetchBlogs(searchQuery);
+    };
+    const handleKeyDown = (event) => {
+        if (event.key === "Enter") {
+            handleSearch();
+        }
+    };
 
     return (
         <div>
@@ -27,8 +47,16 @@ function Home() {
             </div>
             <div className={styles.main}>
                 <div className={styles.search}>
-                            <input type="text" placeholder='Search for blog' />
-                            <button><i class="fa-solid fa-magnifying-glass"></i></button>
+                    <input 
+                        type="text" 
+                        placeholder="Search for blog" 
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        onKeyDown={handleKeyDown}
+                    />
+                    <button onClick={handleSearch}>
+                        <i className="fa-solid fa-magnifying-glass"></i>
+                    </button>
                 </div>
                 <h1 className={styles.latestBlogs}>Latest blogs</h1>
                 <div className={styles.blogContainer}>

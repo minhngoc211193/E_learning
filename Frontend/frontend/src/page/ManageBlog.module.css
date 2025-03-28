@@ -8,16 +8,19 @@
   --btn-delete-hover: #c82333;
   --btn-edit-bg: #28a745;
   --btn-edit-hover: #218838;
+  --font-family-sans-serif: 'Open Sans', sans-serif;
 }
 
 /* Phần body của trang */
 .body {
   display: flex;
+  font-family: var(--font-family-sans-serif);
 }
 
 /* Container chính */
 .container {
-  width: 85%;
+  flex: 1;
+  overflow-y: auto;
   margin: 0 auto;
   background-color: var(--white);
   padding: 40px;
@@ -73,9 +76,6 @@
 
 /* Style cho table */
 .table {
-  max-height: 60vh;       /* Chiều cao tối đa của bảng, thay đổi theo nhu cầu */
-  overflow-y: auto;       /* Cho phép cuộn theo trục dọc */
-  overflow-x: hidden;     /* Ẩn thanh cuộn ngang */
   margin: 0 auto;
   border: 1px solid var(--border-color);
   border-radius: var(--radius);
@@ -100,9 +100,6 @@
   background-color: var(--primary-color);
   color: var(--white);
   font-weight: bold;
-  position: sticky;
-  top: 0;
-  z-index: 1; /* Đảm bảo header nằm trên các hàng dữ liệu */
 }
 
 /* Xen kẽ màu dòng: trắng và xám nhạt */

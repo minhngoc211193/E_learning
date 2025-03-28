@@ -31,7 +31,7 @@ function Header() {
   fetchUserInfo();
   const handleLogout = () => {
     localStorage.removeItem("accessToken");
-    window.location.href = "/";
+    navigate('/');
   };
 
   return (
@@ -42,7 +42,6 @@ function Header() {
       <div className={styles.rightSection}>
         <nav className={styles.nav}>
           <ul>
-            <li onClick={() => navigate('/dashboard')} className={styles.navItem}>Dashboard</li>
             <li onClick={() => navigate('/myclass')} className={styles.navItem}>Class</li>
             <li onClick={() => navigate('/schedule')} className={styles.navItem}>Schedule</li>
             <li onClick={() => navigate('/createblog')} className={styles.navItem}>Create blog</li>

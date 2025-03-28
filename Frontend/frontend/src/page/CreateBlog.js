@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
-import { Upload, Spin, notification, message } from "antd";
+import { Upload, Spin, notification} from "antd";
 import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
 import styles from "./CreateBlog.module.css";
 import backgroundImg from "../assets/abc.jpg";
@@ -49,12 +49,12 @@ function CreateBlog() {
             file.type === "image/png" ||
             file.type === "image/jpg";
         if (!isValidType) {
-            message.error("Bạn chỉ có thể tải lên file (jpg, jpeg, png)!");
+            openNotification("error", "Bạn chỉ có thể tải lên file (jpg, jpeg, png)!");
             return Upload.LIST_IGNORE;
         }
-        const isLt1M = file.size / 1024 / 1024 < 1;
-        if (!isLt1M) {
-            message.error("Kích thước file phải nhỏ hơn 1MB!");
+        const isLt3M = file.size / 1024 / 1024 < 3;
+        if (!isLt3M) {
+            openNotification("error", "Kích thước file phải nhỏ hơn 3MB!");
             return Upload.LIST_IGNORE;
         }
         setFile(file);
@@ -95,7 +95,7 @@ function CreateBlog() {
             formData.append("User", userId);
             formData.append("Image", file);
 
-            const res = await axios.post(
+            await axios.post(
                 "http://localhost:8000/blog/create-blog",
                 formData,
                 {

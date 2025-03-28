@@ -1,10 +1,16 @@
+:root {
+  --font-family-sans-serif: 'Open Sans', sans-serif;
+}
+
 .body{
   display: flex;
+  font-family: var(--font-family-sans-serif);
 }
 
 .container{
   background-color:#f9f9f9;
-  width: 85%;
+  flex: 1;
+  overflow-y: auto;
 }
 /* Header */
 .heading {
@@ -71,6 +77,15 @@
 }
 .scheduleTable tbody tr:nth-child(even) {
   background-color: var(--bg-white);
+}
+
+.scheduleItem{
+  cursor: pointer;
+}
+
+.scheduleItem.activeSchedule {
+  background-color: #d1d5db;
+  border-radius: 10px;
 }
 
 /* Style cho Room và Slot ở header cột đầu tiên */
@@ -226,7 +241,25 @@
 }
 
 .btnCreate:hover {
-  background-color: #218838;
+  background-color: #08621b;
+}
+
+.btnDelete {
+  margin-top: 30px;
+  font-size: 1.2rem;
+  background-color: #ff1629;
+  color: white;
+  border-radius: var(--radius);
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  display: block;
+  width: 100%;
+}
+
+.btnDelete:hover {
+  background-color: #8a000c;
 }
 
 /* Responsive: sắp xếp lại layout trên màn hình nhỏ */

@@ -27,5 +27,6 @@ router.get("/detail-blog/:id", verifyToken, blogController.getBlogById);
 router.put("/update-blog/:id", upload.single('Image'), verifyToken, blogController.updateBlog);
 router.delete("/delete-blog/:id",verifyToken, blogController.deleteBlog);
 router.get("/get-blog-by-user/:id", verifyToken, blogController.getBlogByUser);
+router.get("/search-blog", verifyToken, blogController.searchBlog);
 
 module.exports = router;

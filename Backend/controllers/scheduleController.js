@@ -165,7 +165,7 @@ const scheduleController = {
             // Lấy tất cả các lịch học của các lớp mà người dùng tham gia hoặc giảng dạy
             const schedules = await Schedule.find({ Class: { $in: classes.map(classItem => classItem._id) } })
                 .populate({
-                    path: 'Class',
+                    path: 'Class', select: 'Classname',
                     populate: [
                         { path: 'Subject', select: 'Name' },  // Lấy tên môn học
                         { path: 'Teacher', select: 'Fullname' }  // Lấy tên giáo viên
@@ -222,7 +222,7 @@ const scheduleController = {
                 Day: { $gte: startOfDay, $lt: endOfDay }
             })
                 .populate({
-                    path: 'Class',
+                    path: 'Class', select: 'Classname',
                     populate: [
                         { path: 'Subject', select: 'Name' },  // Lấy tên môn học
                         { path: 'Teacher', select: 'Fullname' }  // Lấy tên giáo viên
@@ -237,8 +237,23 @@ const scheduleController = {
         } catch (error) {
             res.status(500).json({ message: "Lỗi khi lấy lịch học theo ngày", error: error.message });
         }
-    }
+    },
 
+    getScheduleById: async (req, res) => {
+        try {
+            const schedule = await Schedule.findById(req.params.id)
+            .populate({
+                path:"Class", select:"Classname", 
+                populate:{path:"Subject", select:"Name"}, 
+                populate:{path:"Teacher", select:"Fullname"}});
+            if (!schedule) {
+                return res.status(404).json({ message: "Không tìm thấy lịch học" });
+            }
+            res.status(200).json(schedule);
+        } catch (error) {
+            res.status(500).json({ message: "Lỗi khi lấy chi tiết lịch học", error: error.message });
+        }
+    }
 }
 
 module.exports = scheduleController;

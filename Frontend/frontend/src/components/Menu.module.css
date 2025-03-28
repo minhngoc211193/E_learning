@@ -1,39 +1,82 @@
 .sidebar {
-    width: 15%;
-    padding: 20px; /* Khoảng cách lề */
-    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-    padding: 10px;
-    height: auto; /* Chiều cao toàn màn hình */
-  }
+  width: 15%;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+  height: 100vh;
+}
 
-  .sidebar i{
-    padding-right: 10px;
-    color: rgb(62, 149, 255);
-  }
-  
-  .sidebar h3 {
-    margin-bottom: 40px;
-    font-size: 30px;
-  }
+.sidebar i {
+  padding-right: 10px;
+  color: rgb(62, 149, 255);
+}
 
-  .menu{
-    margin-top: 30px;
-  }
-  
-  .sidebar a {
-    display: block;
-    padding: 10px;
-    text-decoration: none !important;
-    color: black;
-    margin: 5px 0px;
-  }
-  
-  .sidebar a:hover {
-    background-color: rgba(0, 123, 255, 0.1);
-    border-radius: 8px;
-    cursor: pointer;
-  }
+.sidebar h3 {
+  margin-bottom: 40px;
+  font-size: 30px;
+}
 
-  .sidebar img{
-    width: 200px;
-  }
+.top {
+  padding: 10px
+}
+
+.menu {
+  margin-top: 30px;
+}
+
+.sidebar a {
+  display: block;
+  padding: 10px;
+  text-decoration: none !important;
+  color: black;
+  margin: 5px 0px;
+  cursor: pointer;
+}
+
+.sidebar a:hover {
+  background-color: rgba(0, 123, 255, 0.1);
+  border-radius: 8px;
+}
+
+.sidebar img {
+  width: 200px;
+}
+
+.bottom {
+  margin-top: 200px;
+}
+
+.user {
+  display: flex;
+  align-items: center;
+  padding: 10px 10px;
+  border-top: 1px solid rgb(222, 222, 222);
+  border-bottom: 1px solid rgb(222, 222, 222);
+  cursor: pointer;
+}
+
+.user:hover {
+  background-color: rgba(0, 123, 255, 0.1);
+  border-radius: 8px;
+  border: 1px rgba(0, 123, 255, 0.1);
+}
+
+.user img {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 5px;
+}
+
+.logout {
+  padding: 10px 10px 10px 30px;
+  margin: 20px 10px;
+  cursor: pointer;
+}
+
+.logout:hover {
+  background-color: rgba(0, 123, 255, 0.1);
+  border-radius: 8px;
+}

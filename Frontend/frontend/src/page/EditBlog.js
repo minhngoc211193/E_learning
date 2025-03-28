@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
-import {jwtDecode} from "jwt-decode";
-import { Upload, Spin, notification, message } from "antd";
-import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
+import { jwtDecode } from "jwt-decode";
+import { Upload, notification } from "antd";
+import { PlusOutlined } from "@ant-design/icons";
 import styles from "./EditBlog.module.css";
 import backgroundImg from "../assets/abc.jpg";
 
@@ -16,7 +16,7 @@ function EditBlog() {
   const navigate = useNavigate();
   const [api, contextHolder] = notification.useNotification();
 
-  const openNotification = (type, detailMessage = "") => {
+  const openNotification = useCallback((type, detailMessage = "") => {
     if (type === "success") {
       api.open({
         message: "Cập nhật blog thành công!",
@@ -32,7 +32,7 @@ function EditBlog() {
         pauseOnHover: true,
       });
     }
-  };
+  }, [api]); 
 
   // Dummy request để ngăn Upload tự động gửi file
   const dummyRequest = ({ file, onSuccess }) => {
@@ -47,13 +47,13 @@ function EditBlog() {
       file.type === "image/png" ||
       file.type === "image/jpg";
     if (!isValidType) {
-      message.error("Bạn chỉ có thể tải lên file (jpg, jpeg, png)!");
+      openNotification("error", "Bạn chỉ có thể tải lên file (jpg, jpeg, png)!");
       return Upload.LIST_IGNORE;
     }
     // Nếu muốn giới hạn kích thước file là 1MB:
-    const isLt1M = file.size / 1024 / 1024 < 1;
-    if (!isLt1M) {
-      message.error("Kích thước file phải nhỏ hơn 1MB!");
+    const isLt3M = file.size / 1024 / 1024 < 3;
+    if (!isLt3M) {
+      openNotification("error", "Kích thước file phải nhỏ hơn 3MB!");
       return Upload.LIST_IGNORE;
     }
     setFile(file);
@@ -84,7 +84,6 @@ function EditBlog() {
         });
         setTitle(res.data.Title);
         setContent(res.data.Content);
-        // Giả sử backend trả về URL hoặc base64 string cho ảnh, nếu không có file mới sẽ hiển thị ảnh cũ
         if (res.data.Image) {
           setPreviewImage(res.data.Image);
         }
@@ -93,7 +92,7 @@ function EditBlog() {
       }
     };
     fetchBlog();
-  }, [id]);
+  }, [id, openNotification]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

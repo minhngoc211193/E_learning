@@ -10,6 +10,6 @@ router.get('/detail-subject/:id', verifyAdmin, subjectController.detailSubject);
 router.put('/update-subject/:id', verifyAdmin, subjectController.updateSubject);       // Cập nhật Subject theo ID
 router.delete('/delete-subject/:id', verifyAdmin, subjectController.deleteSubject);     // Xóa Subject theo ID
 router.get('/get-subjects-by-major/:majorId', verifyToken,  subjectController.getSubjectsByMajor); // Lấy tất cả Subject theo Major
-
+router.get("/search-subject", subjectController.searchSubject);
 
 module.exports = router;

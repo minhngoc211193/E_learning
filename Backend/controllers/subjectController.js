@@ -85,11 +85,27 @@ const subjectController = {
 
             res.status(200).json({ message: "Xóa lớp và các đối tượng liên quan thành công" });
         } catch (err) {
-            res.status(500).json({ message: "Failed to delete subject", error: err.message });
+            res.status(500).json({ message: "Lỗi xóa Subject", error: err.message });
         }
     },
 
-    
+    searchSubject: async (req, res) => {
+        try{
+            const { search } = req.query;
+            const subjects = await Subject.find({
+                $or: [
+                    { Name: { $regex: search, $options: "i" } },
+                    { CodeSubject: { $regex: search, $options: "i" } }
+                ]
+            }).populate("Major", "Name Description");
+            if(subjects.length === 0){
+                return res.status(404).json({message: "Không tìm thấy Subject"});
+            }
+            res.status(200).json(subjects);
+        } catch (err) {
+            res.status(500).json({ message: "Lỗi tìm kiếm Subject", error: err.message });
+        }
+    }
 }
 
 module.exports = subjectController;

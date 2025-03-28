@@ -182,7 +182,23 @@ const classController = {
         } catch (err) {
             res.status(500).json({ message: "Xóa thất bại", error: err.message });
         }
+    },
+
+    searchClass: async (req, res) => {
+        try {
+            const {search} = req.query;
+            if(!search) {
+                return res.status(400).json({message: "Vui lòng nhập từ khóa tìm kiếm"});
+            }
+            const classes = await Class.find({Classname: {$regex: search, $options: "i"}});
+            if(classes.length === 0) {
+                return res.status(404).json({message: "Không tìm thấy lớp học"});
+            }
+            res.status(200).json(classes);
+        } catch (err) {
+            res.status(500).json({ message: "Tìm kiếm lớp học thất bại", error: err.message });
     }
+}
 };
 
 module.exports = classController;

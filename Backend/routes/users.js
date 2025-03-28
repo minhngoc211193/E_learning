@@ -13,5 +13,6 @@ router.put('/update-user/:id', upload.single('file'), verifyAdmin, userControlle
 router.delete('/delete-user/:id', verifyAdmin, userController.deleteUser);
 router.get('/detail-user/:id', verifyToken, userController.detailUser);
 router.get('/users-by-major/:id', verifyAdmin, userController.getUserByMajor);
+router.get('/search-user', verifyAdmin, userController.searchUser);
 
 module.exports = router;

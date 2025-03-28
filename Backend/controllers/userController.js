@@ -187,6 +187,47 @@ const userController = {
             console.error(err);
             res.status(500).json({ message: 'Lỗi khi truy vấn dữ liệu', error: err.message });
         }
+    },
+
+    searchUser: async (req, res) => {
+        try{
+            const { search } = req.query;  // Nhận từ khóa tìm kiếm từ query string
+
+        if (!search) {
+            return res.status(400).json({ message: 'Vui lòng cung cấp từ khóa tìm kiếm' });
+        }
+
+        // Tìm người dùng theo Fullname hoặc Username, sử dụng Regular Expression (i.e., case-insensitive search)
+        const users = await User.find({
+            $or: [
+                { Fullname: { $regex: search, $options: 'i' } },  // Tìm theo Fullname, không phân biệt chữ hoa/thường
+                { Username: { $regex: search, $options: 'i' } }   // Tìm theo Username, không phân biệt chữ hoa/thường
+            ]
+        }).select('-Password');  // Loại bỏ trường Password
+
+        if (users.length === 0) {
+            return res.status(404).json({ message: 'Không tìm thấy người dùng nào' });
+        }
+
+        // Xử lý ảnh cho từng người dùng nếu có
+        const usersWithImage = users.map(user => {
+            let imageBase64 = null;
+            if (user.Image) {
+                const mimeType = mime.lookup(user.Image) || 'image/png';  // Lấy loại ảnh
+                imageBase64 = `data:${mimeType};base64,${user.Image.toString('base64')}`;
+            }
+
+            return {
+                ...user.toObject(),
+                Image: imageBase64
+            };
+        });
+
+        // Trả về danh sách người dùng phù hợp với từ khóa tìm kiếm
+        return res.status(200).json(usersWithImage);
+        } catch (err) {
+            return res.status(500).json({ message: 'Lỗi tìm kiếm', error: err.message });
+        }
     }
 };
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import styles from "./Profile.module.css";
 import BackgroundProfile from "../assets/background.png";
 import ProfileImg from "../assets/profile.jpg";
@@ -7,6 +7,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import Header from "../components/Header";
+import Menu from "../components/Menu";
 
 function Profile() {
     const [image, setImage] = useState("");
@@ -17,10 +18,13 @@ function Profile() {
     const [gender, setGender] = useState("");
     const [blogs, setBlogs] = useState([]);
     const navigate = useNavigate();
+    const token = localStorage.getItem("accessToken");
 
-    const fetchUserInfo = async () => {
+    const decoded = jwtDecode(token);
+    const isAdmin = decoded.Role && decoded.Role.toLowerCase() === "admin";
+
+    const fetchUserInfo = useCallback(async () => {
         try {
-            const token = localStorage.getItem("accessToken");
             if (!token) {
                 console.error("Bạn chưa đăng nhập!");
                 return;
@@ -47,11 +51,11 @@ function Profile() {
         } catch (err) {
             console.error("Không thể lấy thông tin người dùng hoặc blog.", err);
         }
-    };
+    }, [token]);
 
     useEffect(() => {
         fetchUserInfo();
-    }, []);
+    }, [fetchUserInfo]);
 
     const handleEdit = (id) => {
         navigate(`/editblog/${id}`);
@@ -87,58 +91,60 @@ function Profile() {
     };
 
     return (
-        <div className={styles.container}>
-        <Header/>
-            <img src={BackgroundProfile} alt="User Cover" className={styles.coverImage} />
-            <div className={styles.profileContainer}>
-                <img src={image || ProfileImg} alt="User Profile" className={styles.profileImage} />
-            </div>
+        <div className={isAdmin ? styles.main : styles.main2}>
+            {isAdmin ? (<> <Menu /></>) : (<Header />)}
+            <div className={styles.container}>
+                <img src={BackgroundProfile} alt="User Cover" className={styles.coverImage} />
+                <div className={styles.profileContainer}>
+                    <img src={image || ProfileImg} alt="User Profile" className={styles.profileImage} />
+                </div>
 
-            <div className={styles.infoContainer}>
-                <h1 className={styles.fullName}>{fullname}</h1>
-                <p className={styles.about}>
-                    <i className="fa-solid fa-envelope"></i> Email: {email}
-                </p>
-                <p className={styles.about}>
-                    <i className="fa-solid fa-phone"></i> Phone number: {phoneNumber}
-                </p>
-                <p className={styles.about}>
-                    <i className="fa-solid fa-cake-candles"></i> Date of birth: {dateOfBirth}
-                </p>
-                <p className={styles.about}>
-                    <i className="fa-solid fa-venus-mars"></i> Gender: {gender}
-                </p>
-                <button onClick={() => navigate('/updateinformationuser')} className={styles.btnEdit}>
-                    <i className="fa-solid fa-pen"></i> Detail profile
-                </button>
-                <div className={styles.cardsContainer}>
-                    {blogs.length > 0 ? (
-                        blogs.map((blog) => (
-                            <div key={blog._id} className={styles.blogCard} onClick={() => handleEdit(blog._id)}>
-                                <i class="fa-solid fa-trash" onClick={(e) => handleDelete(blog._id, e)}></i>
-                                {blog.Image && (
-                                    <img
-                                        src={blog.Image}
-                                        alt={blog.Title}
-                                        className={styles.blogImage}
-                                    />
-                                )}
-                                <div className={styles.blogContent}>
-                                    <h3 className={styles.blogTitle}>{blog.Title}</h3>
-                                    <p className={styles.blogContent}>
-                                        {blog.Content.length > 100 ? blog.Content.substring(0, 100) + "..." : blog.Content}
-                                    </p>
+                <div className={styles.infoContainer}>
+                    <h1 className={styles.fullName}>{fullname}</h1>
+                    <p className={styles.about}>
+                        <i className="fa-solid fa-envelope"></i> Email: {email}
+                    </p>
+                    <p className={styles.about}>
+                        <i className="fa-solid fa-phone"></i> Phone number: +84{phoneNumber}
+                    </p>
+                    <p className={styles.about}>
+                        <i className="fa-solid fa-cake-candles"></i> Date of birth: {dateOfBirth}
+                    </p>
+                    <p className={styles.about}>
+                        <i className="fa-solid fa-venus-mars"></i> Gender: {gender}
+                    </p>
+                    <button onClick={() => navigate('/updateinformationuser')} className={styles.btnEdit}>
+                        <i className="fa-solid fa-pen"></i> Detail profile
+                    </button>
+                    <div className={styles.cardsContainer}>
+                        {blogs.length > 0 ? (
+                            blogs.map((blog) => (
+                                <div key={blog._id} className={styles.blogCard} onClick={() => handleEdit(blog._id)}>
+                                    <i class="fa-solid fa-trash" onClick={(e) => handleDelete(blog._id, e)}></i>
+                                    {blog.Image && (
+                                        <img
+                                            src={blog.Image}
+                                            alt={blog.Title}
+                                            className={styles.blogImage}
+                                        />
+                                    )}
+                                    <div className={styles.blogContent}>
+                                        <h3 className={styles.blogTitle}>{blog.Title}</h3>
+                                        <p className={styles.blogContent}>
+                                            {blog.Content.length > 100 ? blog.Content.substring(0, 100) + "..." : blog.Content}
+                                        </p>
+                                    </div>
                                 </div>
+                            ))
+                        ) : (
+                            <div className={styles.blogCardNone}>
+                                <p>No blog yet</p> <br />
+                                <button onClick={() => navigate('/createblog')}>
+                                    <i className="fa-solid fa-pen"></i> Create blog
+                                </button>
                             </div>
-                        ))
-                    ) : (
-                        <div className={styles.blogCardNone}>
-                            <p>No blog yet</p> <br />
-                            <button onClick={() => navigate('/createblog')}>
-                                <i className="fa-solid fa-pen"></i> Create blog
-                            </button>
-                        </div>
-                    )}
+                        )}
+                    </div>
                 </div>
             </div>
         </div>

@@ -24,4 +24,5 @@ yarn-debug.log*
 
 /bin 
 
-ab.txt
+credentials.json
+token.json

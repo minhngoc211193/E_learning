@@ -1,33 +1,35 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import styles from "./ManageBlog.module.css";
-import BackButton from '../components/BackButton';
 import Swal from "sweetalert2";
 import Menu from "../components/Menu";
-
 
 function ManageBlog() {
   const [blogs, setBlogs] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const token = localStorage.getItem("accessToken");
 
-  
-  const fetchBlogs = useCallback(async () => {
-    try {
-      const res = await axios.get('http://localhost:8000/blog/blogs',{
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setBlogs(res.data);
-    } catch (error) {
-      console.error("Error fetching blogs", error);
-    }
-  }, [token]);
-  
   useEffect(() => {
     fetchBlogs();
-  },[fetchBlogs]);
-  
-  // Xử lý xóa blog
+  }, []);
+
+  const fetchBlogs = async (search = "") => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      const url = search
+        ? `http://localhost:8000/blog/search-blog?search=${search}`
+        : "http://localhost:8000/blog/blogs";
+
+      const response = await axios.get(url, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      setBlogs(response.data);
+    } catch (error) {
+      console.error("Error fetching blogs:", error);
+    }
+  };
+
   const handleDelete = async (id) => {
     const result = await Swal.fire({
       title: "Do you want to delete this blog?",
@@ -39,34 +41,36 @@ function ManageBlog() {
       confirmButtonText: "Delete",
       cancelButtonText: "Cancel",
     });
-  
+
     if (!result.isConfirmed) return;
-  
+
     try {
       await axios.delete(`http://localhost:8000/blog/delete-blog/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setBlogs(blogs.filter((blog) => blog._id !== id));
-  
-      Swal.fire("Đã xóa!", "Blog đã được xóa thành công.", "success");
+
+      setBlogs((prevBlogs) => prevBlogs.filter((blog) => blog._id !== id));
+
+      Swal.fire("Deleted!", "Blog has been deleted successfully.", "success");
     } catch (error) {
-      console.error("Lỗi khi xóa blog", error);
-      Swal.fire("Lỗi!", "Không thể xóa blog.", "error");
+      console.error("Error deleting blog", error);
+      Swal.fire("Error!", "Unable to delete blog.", "error");
     }
   };
 
-  // Xử lý tìm kiếm blog theo tiêu đề
-  const handleSearchChange = (e) => {
-    setSearchQuery(e.target.value);
+  const handleSearch = () => {
+    fetchBlogs(searchQuery);
   };
 
-  const filteredBlogs = blogs.filter((blog) =>
-    blog.Title.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const handleKeyDown = (event) => {
+    if (event.key === "Enter") {
+      handleSearch();
+    }
+  };
 
   return (
     <div className={styles.body}>
-        <Menu />
+      <Menu />
       <div className={styles.container}>
         <h2>Manage blogs</h2>
         <div className={styles.main}>
@@ -77,12 +81,12 @@ function ManageBlog() {
             <div className={styles.search}>
               <input
                 type="text"
-                placeholder="Find blog"
-                className={styles.searchInput}
+                placeholder="Search for blog"
                 value={searchQuery}
-                onChange={handleSearchChange}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={handleKeyDown}
               />
-              <i className="fa-solid fa-magnifying-glass"></i>
+              <i onClick={handleSearch} className="fa-solid fa-magnifying-glass"></i>
             </div>
           </div>
           <div className={styles.table}>
@@ -99,7 +103,7 @@ function ManageBlog() {
                 </tr>
               </thead>
               <tbody>
-                {filteredBlogs.map((blog) => (
+                {blogs.map((blog) => (
                   <tr key={blog._id}>
                     <td className={styles.titleColumn}>{blog.Title}</td>
                     <td>{blog.User?.Fullname || "N/A"}</td>
@@ -110,7 +114,8 @@ function ManageBlog() {
                     <td className={styles.button}>
                       <button
                         className={styles.btnDelete}
-                        onClick={() => handleDelete(blog._id)}>
+                        onClick={() => handleDelete(blog._id)}
+                      >
                         <i className="fa-solid fa-trash"></i>
                       </button>
                     </td>
