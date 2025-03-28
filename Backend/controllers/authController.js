@@ -168,7 +168,7 @@ const authController = {
 
             // Tạo accessToken cho người dùng
             const accessToken = jwt.sign(
-                { id: user._id, Role: user.Role },
+                { id: user._id, Role: user.Role, firstLogin: user.firstLogin },
                 process.env.JWT_SECRET,
                 { expiresIn: "1d" }
             );

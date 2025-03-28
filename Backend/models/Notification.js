@@ -1,7 +1,11 @@
 const mongoose = require('mongoose');
-const notiSchema = new mongoose.Schema({
-    MessContent:{type:String, required: true},
-    User:{type: mongoose.Schema.Types.ObjectId, ref:"User"}
-}, {timestamps: true});
-const Notification = mongoose.model('Notification', notiSchema, "notifications");
-module.exports = Notification;
+
+const notificationSchema = new mongoose.Schema({ 
+    type: { type: String, enum: [ 'MEETING_REQUEST', 'MEETING_ACCEPTED', 'MEETING_REJECTED', 'SCHEDULE_CREATED', 'SCHEDULE_UPDATED', 'MESSAGE' ], required: true },
+    sender: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    receiver: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    message: { type: String, required: true },
+    isRead: { type: Boolean, default: false }
+  }, { timestamps: true }
+);
+module.exports = mongoose.model('Notification', notificationSchema, 'notifications');

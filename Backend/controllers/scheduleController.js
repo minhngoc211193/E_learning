@@ -1,6 +1,16 @@
 const Schedule = require('../models/Schedule');
 const Class = require('../models/Class');
 const User = require('../models/User');
+const nodemailer = require('nodemailer');
+require('dotenv').config();
+
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+    }
+});
 
 const scheduleController = {
     createSchedule: async (req, res) => {
@@ -71,6 +81,7 @@ const scheduleController = {
             classData.Slots -= 1;  // Trừ đi 1 Slot
             await classData.save();
 
+
             const students = classData.Student;  // Lấy danh sách sinh viên trong lớp
             const teacher = classData.Teacher;  // Lấy giáo viên của lớp
 
@@ -94,13 +105,58 @@ const scheduleController = {
 
             await Promise.all(attendancePromises);
 
+            // ============== THÊM PHẦN GỬI MAIL ==============
+            const teacher = await User.findById(classData.Teacher);
+            const students = await User.find({ _id: { $in: classData.Student } });
+
+            // Định dạng ngày để gửi mail (VD: 24/03/2025)
+            const formattedDate = new Date(Day).toLocaleDateString();
+
+            // 1) Gửi email cho giáo viên
+            if (teacher) {
+                const mailOptionsTeacher = {
+                    from: process.env.EMAIL_USER,
+                    to: teacher.Email,
+                    subject: "Lịch học mới được tạo",
+                    text: `Xin chào thầy/cô ${teacher.Fullname},
+
+Lịch học mới đã được tạo cho lớp: ${classData.Classname}.
+- Phòng học: ${Address}
+- Slot: ${Slot}
+- Ngày: ${formattedDate}
+
+Vui lòng kiểm tra lại hệ thống để theo dõi chi tiết.
+
+Trân trọng,
+Ban Quản trị`
+                };
+                await transporter.sendMail(mailOptionsTeacher);
+            }
+
+            // 2) Gửi email cho từng sinh viên trong lớp
+            for (const stu of students) {
+                const mailOptionsStudent = {
+                    from: process.env.EMAIL_USER,
+                    to: stu.Email,
+                    subject: "Lịch học mới được tạo",
+                    text: `Xin chào ${stu.Fullname}, Bạn có lịch học mới cho lớp: ${classData.Classname}.
+- Phòng học: ${Address}
+- Slot: ${Slot}
+- Ngày: ${formattedDate}
+
+Vui lòng kiểm tra lại hệ thống để theo dõi chi tiết.
+
+Trân trọng,
+Ban Quản trị`
+                };
+                await transporter.sendMail(mailOptionsStudent);
+            }
+
             res.status(201).json(savedSchedule);
         } catch (err) {
             res.status(500).json({ message: "Tạo lịch học thất bại", error: err.message });
         }
     },
-
-
 
     updateSchedule: async (req, res) => {
         try {
@@ -154,12 +210,59 @@ const scheduleController = {
                 return res.status(404).json({ message: "Không tìm thấy lịch học" });
             }
 
+            // ============== THÊM PHẦN GỬI MAIL ==============
+            // Tương tự như createSchedule, gửi thông báo cho giáo viên & sinh viên
+            const teacher = await User.findById(classData.Teacher);
+            const students = await User.find({ _id: { $in: classData.Student }});
+            const formattedDate = new Date(Day).toLocaleDateString();
+
+            // 1) Gửi email cho giáo viên
+            if (teacher) {
+                const mailOptionsTeacher = {
+                    from: process.env.EMAIL_USER,
+                    to: teacher.Email,
+                    subject: "Lịch học đã được cập nhật",
+                    text: `Xin chào thầy/cô ${teacher.Fullname},
+
+Lịch học của lớp: ${classData.Classname} đã được cập nhật.
+- Phòng học: ${Address}
+- Slot: ${Slot}
+- Ngày: ${formattedDate}
+
+Vui lòng kiểm tra lại hệ thống để theo dõi chi tiết.
+
+Trân trọng,
+Ban Quản trị`
+                };
+                await transporter.sendMail(mailOptionsTeacher);
+            }
+
+            // 2) Gửi email cho từng sinh viên
+            for (const stu of students) {
+                const mailOptionsStudent = {
+                    from: process.env.EMAIL_USER,
+                    to: stu.Email,
+                    subject: "Lịch học đã được cập nhật",
+                    text: `Xin chào ${stu.Fullname},
+
+Lịch học của lớp: ${classData.Classname} đã được cập nhật.
+- Phòng học: ${Address}
+- Slot: ${Slot}
+- Ngày: ${formattedDate}
+
+Vui lòng kiểm tra lại hệ thống để theo dõi chi tiết.
+
+Trân trọng,
+Ban Quản trị`
+                };
+                await transporter.sendMail(mailOptionsStudent);
+            }
+
             res.status(200).json(updatedSchedule);
         } catch (err) {
             res.status(500).json({ message: "Cập nhật lịch học thất bại", error: err.message });
         }
     },
-
 
 
     getScheduleByUserId: async (req, res) => {
@@ -217,11 +320,55 @@ const scheduleController = {
                 return res.status(404).json({ message: "Lịch học không tồn tại" });
             }
 
-            // Cập nhật lại Slots cho lớp học (tăng lên khi xóa lịch học)
+            // Cập nhật Slots cho lớp học (tăng lên khi xóa lịch học)
             const classData = await Class.findById(schedule.Class);
             if (classData) {
                 classData.Slots += 1;
                 await classData.save();
+
+                // ============== THÊM PHẦN GỬI MAIL ==============
+                // Lấy giáo viên & sinh viên
+                const teacher = await User.findById(classData.Teacher);
+                const students = await User.find({ _id: { $in: classData.Student }});
+                // Biến schedule.Day là Date object, format lại
+                const formattedDate = schedule.Day.toLocaleDateString();
+
+                // 1) Gửi email cho giáo viên
+                if (teacher) {
+                    const mailOptionsTeacher = {
+                        from: process.env.EMAIL_USER,
+                        to: teacher.Email,
+                        subject: "Lịch học đã bị xóa",
+                        text: `Xin chào thầy/cô ${teacher.Fullname},
+
+Lịch học của lớp: ${classData.Classname} vào ngày ${formattedDate} (Slot ${schedule.Slot}, Phòng ${schedule.Address}) đã bị xóa.
+
+Vui lòng kiểm tra lại hệ thống để theo dõi chi tiết.
+
+Trân trọng,
+Ban Quản trị`
+                    };
+                    await transporter.sendMail(mailOptionsTeacher);
+                }
+
+                // 2) Gửi email cho từng sinh viên
+                for (const stu of students) {
+                    const mailOptionsStudent = {
+                        from: process.env.EMAIL_USER,
+                        to: stu.Email,
+                        subject: "Lịch học đã bị xóa",
+                        text: `Xin chào ${stu.Fullname},
+
+Lịch học của lớp: ${classData.Classname} vào ngày ${formattedDate} (Slot ${schedule.Slot}, Phòng ${schedule.Address}) đã bị xóa.
+
+Vui lòng kiểm tra lại hệ thống nếu có thắc mắc.
+
+Trân trọng,
+Ban Quản trị`
+                    };
+                    await transporter.sendMail(mailOptionsStudent);
+                }
+                // ============== KẾT THÚC PHẦN GỬI MAIL ==============
             }
 
             res.status(200).json({ message: "Xóa lịch học thành công" });
@@ -267,10 +414,11 @@ const scheduleController = {
     getScheduleById: async (req, res) => {
         try {
             const schedule = await Schedule.findById(req.params.id)
-            .populate({
-                path:"Class", select:"Classname", 
-                populate:{path:"Subject", select:"Name"}, 
-                populate:{path:"Teacher", select:"Fullname"}});
+                .populate({
+                    path: "Class", select: "Classname",
+                    populate: { path: "Subject", select: "Name" },
+                    populate: { path: "Teacher", select: "Fullname" }
+                });
             if (!schedule) {
                 return res.status(404).json({ message: "Không tìm thấy lịch học" });
             }

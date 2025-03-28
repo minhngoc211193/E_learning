@@ -17,16 +17,16 @@ const Major = () => {
           try {
               const decodedToken = JSON.parse(atob(token.split(".")[1])); // Giải mã token
               if (decodedToken.Role !== "admin") {
-                  alert("You have to login!");
-                  navigate("/home"); // Chuyển hướng về trang chủ
+                  alert("You have to login with admin role!");
+                  navigate("/"); // Chuyển hướng về trang chủ
               }
           } catch (err) {
               console.error("Token không hợp lệ", err);
-              navigate("/"); // Chuyển hướng nếu token lỗi
+              navigate("/home"); 
           }
       } else {
           alert("Bạn cần đăng nhập trước!");
-          navigate("/home"); // Chuyển hướng đến trang login nếu chưa có token
+          navigate("/"); // Chuyển hướng đến trang login nếu chưa có token
       }
   }, [navigate]);
     useEffect(() => {

@@ -6,22 +6,27 @@ import UpdateUser from './page/EditUser';
 import ManageUser from "./page/ManageUser";
 import Login from "./page/Login";
 import Home from "./page/Home";
-import Major from "./page/Major";
 import Subject from "./page/Subject";
 import CreateBLog from './page/CreateBlog';
 import EditBlog from './page/EditBlog';
 import BlogDetail from "./page/BlogDetail";
 import ManageBlog from './page/ManageBlog';
+import CreateMeet from './page/CreateMeet';
 
 import ManageClass from './page/ManageClass';
+import Major from "./page/Major";
 import Document from './page/Document';
 import EditClass from './page/EditClass';
+import DetailClass from './page/DetailClass';
 import CreateClass from './page/CreateClass';
 import FirstLogin from './page/Password/FirstLogin';
 import ChangePassword from './page/Password/ChangePassword';
 import ResetPassword from './page/Password/ResetPassword';
 import Profile from './page/Profile';
 import UpdateInformationUser from './page/UpdateInformationUser';
+import Messenger from './page/Messenger';
+import ManageMeet from './page/ManageMeet';
+import Notification from './page/Notification';
 import './App.css';
 
 function checkToken() {
@@ -53,10 +58,13 @@ function App() {
           <Route path="/subject" element={checkToken() ? <Subject /> : <Navigate to="/"/>} />
           <Route path="/manageclass" element={checkToken() ? <ManageClass /> : <Navigate to="/"/>} />
           <Route path="/document" element={checkToken() ? <Document /> : <Navigate to="/"/>}/>
-          <Route path="/update-class/:id" element={checkToken() ? <EditClass /> : <Navigate to="/"/>}/>
-          <Route path="/detail-class/:id" element={checkToken()? <EditClass /> : <Navigate to="/"/>}/>
-          <Route path="/createclass" element={checkToken()? <CreateClass /> : <Navigate to="/"/>}/>
-          
+          <Route path="/update-class/:classId" element={checkToken() ? <EditClass /> : <Navigate to="/"/>}/>
+          <Route path="/detail-class/:id" element={checkToken()? <DetailClass /> : <Navigate to="/"/>}/>
+          <Route path="/create-class" element={checkToken()? <CreateClass /> : <Navigate to="/"/>}/>
+          <Route path ="/messenger" element = {checkToken()? <Messenger /> : <Navigate to="/"/>}/>
+          <Route path="/createmeeting" element={checkToken()? <CreateMeet/> : <Navigate to="/"/>}/>
+          <Route path ="/managemeet" element= {checkToken()? <ManageMeet/> : <Navigate to="/"/>}/>
+          <Route path="/noti" element={checkToken()? <Notification/> : <Navigate to="/"/>}/>
         </Routes>
       </div>
     </Router>

@@ -5,11 +5,22 @@ const Document = require('../models/Document');
 const User = require('../models/User');
 const Major = require('../models/Major');
 
+const nodemailer = require('nodemailer');
+require('dotenv').config();
+
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.EMAIL_USER, // Email của bạn
+        pass: process.env.EMAIL_PASS  // Mật khẩu ứng dụng
+    }
+});
+
 const classController = {
     // Tạo lớp học mới
     createClass: async (req, res) => {
         try {
-            const { Classname, subjectId, Teacher, Student, Slots} = req.body;
+            const { Classname, subjectId, Teacher, Student, Slots } = req.body;
 
             // Kiểm tra xem Subject có tồn tại không
             const subjectExists = await Subject.findById(subjectId).populate('Major');
@@ -57,6 +68,38 @@ const classController = {
 
             // Lưu Class vào database
             const savedClass = await newClass.save();
+
+            // ===== Gửi email cho giáo viên =====
+            const teacherInfo = await User.findById(Teacher);
+            if (teacherInfo) {
+                const mailOptions = {
+                    from: process.env.EMAIL_USER,
+                    to: teacherInfo.Email, // Email của teacher
+                    subject: "Thông báo: Bạn vừa được phân công giảng dạy lớp mới",
+                    text: `Xin chào ${teacherInfo.Fullname},\n\n` +
+                        `Bạn vừa được phân công giảng dạy lớp: ${Classname}.\n` +
+                        `Vui lòng kiểm tra hệ thống để biết thêm chi tiết.\n\n` +
+                        `Trân trọng,`
+                };
+                await transporter.sendMail(mailOptions);
+            }
+
+            // ===== Gửi email cho từng học sinh =====
+            for (const studentId of Student) {
+                const studentInfo = await User.findById(studentId);
+                if (studentInfo) {
+                    const mailOptions = {
+                        from: process.env.EMAIL_USER,
+                        to: studentInfo.Email,
+                        subject: "Thông báo: Bạn vừa được thêm vào lớp mới",
+                        text: `Xin chào ${studentInfo.Fullname},\n\n` +
+                            `Bạn vừa được thêm vào lớp: ${Classname}.\n` +
+                            `Vui lòng kiểm tra hệ thống để biết thêm chi tiết.\n\n` +
+                            `Trân trọng,`
+                    };
+                    await transporter.sendMail(mailOptions);
+                }
+            }
 
             // Cập nhật lại danh sách các lớp trong Subject
             subjectExists.Classes.push(savedClass._id);
@@ -117,7 +160,7 @@ const classController = {
             // .populate("Teacher")
             // .populate("Student")
             // .populate("Schedules")
- 
+
             // .populate("Documents");
             if (classes.length === 0) {
                 return res.status(404).json({ message: "Không có lớp nào trong môn này" });
@@ -147,95 +190,134 @@ const classController = {
         }
     },
 
-    // Cập nhật thông tin lớp học theo ID
     updateClass: async (req, res) => {
         try {
-            const { Classname, subjectId, Teacher, Student, Slots } = req.body;
-            const classId = req.params.id; // ID lớp cần cập nhật
-    
-            // Tìm lớp học cần cập nhật
-            const updatedClass = await Class.findById(classId);
-            if (!updatedClass) {
-                return res.status(404).json({ message: "Không tìm thấy lớp học" });
-            }
-    
-            // Kiểm tra xem Subject có tồn tại không
-            const subjectExists = await Subject.findById(subjectId).populate('Major');
-            if (!subjectExists) {
-                return res.status(404).json({ message: "Không tìm thấy Subject" });
-            }
-    
-            // Kiểm tra giáo viên có thuộc ngành của môn học không
-            const teacher = await User.findById(Teacher).populate('Major');
-            if (!teacher || !teacher.Major || teacher.Major._id.toString() !== subjectExists.Major._id.toString()) {
-                return res.status(400).json({ message: "Giáo viên phải thuộc ngành của môn học này" });
-            }
-    
-            // Kiểm tra học sinh có thuộc ngành môn học này không và chưa tham gia lớp này
-            for (const studentId of Student) {
-                const student = await User.findById(studentId).populate('Major');
-                if (!student || !student.Major || student.Major._id.toString() !== subjectExists.Major._id.toString()) {
-                    return res.status(400).json({ message: `Học sinh ${student.Fullname} không thuộc ngành của môn học này` });
-                }
-            }
-    
-            // Kiểm tra chỉ các học sinh mới được thêm vào lớp mà chưa có trong lớp này
-            const newStudents = Student.filter(studentId => !updatedClass.Student.includes(studentId));
-    
-            // Kiểm tra xem học sinh mới đã tham gia lớp học của môn này chưa
-            for (const studentId of newStudents) {
-                const existingClass = await Class.findOne({
-                    Subject: subjectExists._id,
-                    Student: studentId
-                });
-    
-                if (existingClass) {
-                    return res.status(400).json({ message: `Học sinh với ID ${studentId} đã tham gia lớp học môn này` });
-                }
-            }
-    
-            // Cập nhật thông tin lớp học
-            updatedClass.Classname = Classname;
-            updatedClass.Subject = subjectId;
-            updatedClass.Teacher = Teacher;
-            updatedClass.Student = Student;
-            updatedClass.Slots = Slots;
-    
-            // Lưu lại lớp học sau khi cập nhật
-            const savedClass = await updatedClass.save();
-    
-            // Cập nhật các học sinh mới vào các lớp của họ
-            for (const studentId of newStudents) {
-                const student = await User.findById(studentId);
-                if (!student) {
-                    return res.status(404).json({ message: `Không tìm thấy học sinh với ID ${studentId}` });
-                }
-    
-                student.Classes.push(savedClass._id);
-                await student.save();
-    
-                // Tạo attendance cho học sinh mới trong các lịch học của lớp
-                await addAttendanceForNewStudent(savedClass._id, studentId); // Tạo attendance cho học sinh
-            }
-    
-            res.status(200).json(savedClass);
+          const { Classname, subjectId, Teacher, Student, Slots } = req.body;
+const classId = req.params.id; // ID lớp cần cập nhật
+
+// Tìm lớp học cần cập nhật
+const updatedClass = await Class.findById(classId).populate("Teacher").populate("Student");
+if (!updatedClass) {
+    return res.status(404).json({ message: "Không tìm thấy lớp học" });
+}
+
+// Lưu lại thông tin trước khi cập nhật
+const oldTeacherId = updatedClass.Teacher?._id.toString() || null;
+const oldStudentIds = updatedClass.Student.map(s => s._id.toString());
+
+// Kiểm tra Subject
+const subjectExists = await Subject.findById(subjectId).populate('Major');
+if (!subjectExists) {
+    return res.status(404).json({ message: "Không tìm thấy Subject" });
+}
+
+// Kiểm tra giáo viên hợp lệ
+const teacher = await User.findById(Teacher).populate('Major');
+if (!teacher || !teacher.Major || teacher.Major._id.toString() !== subjectExists.Major._id.toString()) {
+    return res.status(400).json({ message: "Giáo viên phải thuộc ngành của môn học này" });
+}
+
+// Kiểm tra học sinh hợp lệ
+for (const studentId of Student) {
+    const student = await User.findById(studentId).populate('Major');
+    if (!student || !student.Major || student.Major._id.toString() !== subjectExists.Major._id.toString()) {
+        return res.status(400).json({ message: `Học sinh ${student.Fullname} không thuộc ngành của môn học này` });
+    }
+}
+
+// Xác định học sinh mới
+const newStudents = Student.filter(studentId => !updatedClass.Student.includes(studentId));
+for (const studentId of newStudents) {
+    const existingClass = await Class.findOne({ Subject: subjectExists._id, Student: studentId });
+    if (existingClass) {
+        return res.status(400).json({ message: `Học sinh với ID ${studentId} đã tham gia lớp học môn này` });
+    }
+}
+
+// Cập nhật lớp học
+updatedClass.Classname = Classname;
+updatedClass.Subject = subjectId;
+updatedClass.Teacher = Teacher;
+updatedClass.Student = Student;
+updatedClass.Slots = Slots;
+const savedClass = await updatedClass.save();
+
+// Kiểm tra thay đổi giáo viên
+const newTeacherId = savedClass.Teacher?._id.toString() || null;
+if (newTeacherId !== oldTeacherId) {
+    if (newTeacherId) {
+        const newTeacher = await User.findById(newTeacherId);
+        await transporter.sendMail({
+            from: process.env.EMAIL_USER,
+            to: newTeacher.Email,
+            subject: "Thông báo: Bạn vừa được phân công vào lớp mới",
+            text: `Xin chào ${newTeacher.Fullname},\n\nBạn vừa được phân công giảng dạy lớp: ${savedClass.Classname}.\nVui lòng kiểm tra hệ thống.`
+        });
+    }
+    if (oldTeacherId) {
+        const oldTeacher = await User.findById(oldTeacherId);
+        if (oldTeacher) {
+            await transporter.sendMail({
+                from: process.env.EMAIL_USER,
+                to: oldTeacher.Email,
+                subject: "Thông báo: Bạn vừa bị gỡ khỏi lớp",
+                text: `Xin chào ${oldTeacher.Fullname},\n\nBạn vừa bị gỡ khỏi lớp: ${savedClass.Classname}.`
+            });
+        }
+    }
+}
+
+// Kiểm tra thay đổi học sinh
+const newStudentIds = savedClass.Student.map(s => s._id.toString());
+const addedStudentIds = newStudentIds.filter(id => !oldStudentIds.includes(id));
+const removedStudentIds = oldStudentIds.filter(id => !newStudentIds.includes(id));
+
+for (const addedId of addedStudentIds) {
+    const addedStudent = await User.findById(addedId);
+    if (addedStudent) {
+        await transporter.sendMail({
+            from: process.env.EMAIL_USER,
+            to: addedStudent.Email,
+            subject: "Thông báo: Bạn vừa được thêm vào lớp",
+            text: `Xin chào ${addedStudent.Fullname},\n\nBạn vừa được thêm vào lớp: ${savedClass.Classname}.`
+        });
+    }
+}
+
+for (const removedId of removedStudentIds) {
+    const removedStudent = await User.findById(removedId);
+    if (removedStudent) {
+        await transporter.sendMail({
+            from: process.env.EMAIL_USER,
+            to: removedStudent.Email,
+            subject: "Thông báo: Bạn vừa bị gỡ khỏi lớp",
+            text: `Xin chào ${removedStudent.Fullname},\n\nBạn vừa bị gỡ khỏi lớp: ${savedClass.Classname}.`
+        });
+    }
+}
+
+res.status(200).json(savedClass);
+
+
+            
         } catch (err) {
             res.status(500).json({ message: "Cập nhật lớp thất bại", error: err.message });
         }
     },
+    
 
     // Xóa lớp học theo ID
     deleteClass: async (req, res) => {
         try {
             const classData = await Class.findByIdAndDelete(req.params.id);
-    
+
             if (!classData) {
                 return res.status(404).json({ message: "Lớp học không tồn tại" });
             }
 
             // Xóa tất cả các Schedules, Assignments, và Documents có liên quan đến lớp học
             await Schedule.deleteMany({ Class: classData._id });
-    
+
             await Document.deleteMany({ Class: classData._id });
 
             await Subject.deleteMany({ Class: classData._id });
@@ -243,7 +325,7 @@ const classController = {
             await User.deleteMany({ Class: classData._id });
             // Xóa lớp học
             // await Class.findByIdAndDelete(req.params.id);
-    
+
             res.status(200).json({ message: "Xóa lớp và các đối tượng liên quan thành công" });
         } catch (err) {
             res.status(500).json({ message: "Xóa thất bại", error: err.message });
@@ -252,19 +334,19 @@ const classController = {
 
     searchClass: async (req, res) => {
         try {
-            const {search} = req.query;
-            if(!search) {
-                return res.status(400).json({message: "Vui lòng nhập từ khóa tìm kiếm"});
+            const { search } = req.query;
+            if (!search) {
+                return res.status(400).json({ message: "Vui lòng nhập từ khóa tìm kiếm" });
             }
-            const classes = await Class.find({Classname: {$regex: search, $options: "i"}});
-            if(classes.length === 0) {
-                return res.status(404).json({message: "Không tìm thấy lớp học"});
+            const classes = await Class.find({ Classname: { $regex: search, $options: "i" } });
+            if (classes.length === 0) {
+                return res.status(404).json({ message: "Không tìm thấy lớp học" });
             }
             res.status(200).json(classes);
         } catch (err) {
             res.status(500).json({ message: "Tìm kiếm lớp học thất bại", error: err.message });
+        }
     }
-}
 };
 
 module.exports = classController;
