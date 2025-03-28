@@ -75,9 +75,35 @@ const scheduleController = {
             // Lưu lịch học vào database
             const savedSchedule = await newSchedule.save();
 
+            // Lấy danh sách học sinh trong lớp để tạo attendance cho mỗi học sinh
+            
             // Cập nhật lại Slots của lớp
             classData.Slots -= 1;  // Trừ đi 1 Slot
             await classData.save();
+
+
+            const students = classData.Student;  // Lấy danh sách sinh viên trong lớp
+            const teacher = classData.Teacher;  // Lấy giáo viên của lớp
+
+            const attendancePromises = students.map(async (student) => {
+                const attendanceExists = await Attendance.findOne({
+                    Schedule: savedSchedule._id,
+                    Student: student,
+                });
+    
+                // Nếu chưa có Attendance cho học sinh này, tạo mới
+                if (!attendanceExists) {
+                    await Attendance.create({
+                        Schedule: savedSchedule._id,
+                        Teacher: teacher,
+                        Student: student,
+                        IsPresent: 'pending', // Mặc định là pending
+                        Date: savedSchedule.Day
+                    });
+                }
+            });
+
+            await Promise.all(attendancePromises);
 
             // ============== THÊM PHẦN GỬI MAIL ==============
             const teacher = await User.findById(classData.Teacher);

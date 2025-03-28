@@ -9,18 +9,6 @@ const validateRegister = [
         .matches(/^[a-zA-Z\s]+$/).withMessage('Fullname chỉ được chứa chữ cái và khoảng trắng, không có ký tự đặc biệt')
         .not().matches(/\d/).withMessage('Fullname không được chứa số'),
 
-    body('Username')
-        .notEmpty().withMessage('Username không được để trống')
-        .isLength({ min: 3, max: 20 }).withMessage('Username phải có ít nhất 3 ký tự và tối đa 20 ký tự')
-        .matches(/^[a-zA-Z0-9]+$/).withMessage('Username chỉ được chứa chữ cái và số, không có ký tự đặc biệt')
-        .matches(/^\S*$/).withMessage('Username không được chứa khoảng trắng')
-        .custom(async (value) => {
-            const existingUser = await User.findOne({ Username: value });
-            if (existingUser) {
-                throw new Error('Username đã tồn tại');
-            }
-        }),
-
     body('Email')
         .notEmpty().withMessage('Email không được để trống')
         .isEmail().withMessage('Email không hợp lệ')
