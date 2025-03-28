@@ -101,6 +101,7 @@ const sendMessage = async (req, res) => {
   try {
     const { conversationId, text } = req.body;
     const userId = req.user.id;
+    const user = await User.findById(userId);
 
     const conversation = await Conversation.findById(conversationId);
     if (!conversation) {
@@ -135,8 +136,9 @@ const sendMessage = async (req, res) => {
       userId, 
       receiverId, 
       'MESSAGE', 
-      `Bạn có tin nhắn mới từ ${req.user.Fullname}`
+      `Bạn có tin nhắn mới từ ${user.Fullname}`
     );
+    console.log(notification);
 
     const io = req.app.get('io');
     
@@ -151,6 +153,8 @@ const sendMessage = async (req, res) => {
 
     // Gửi thông báo real-time nếu có
     if (notification) {
+      console.log(`Emitting notification to user: ${receiverId}`);
+      // io.emit('new notification', notification);
       io.to(receiverId.toString()).emit('new notification', notification);
     }
 

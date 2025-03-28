@@ -6,6 +6,7 @@ var mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const socketIo = require('socket.io'); // Import Socket.IO
+const userSocketMap = new Map();
 
 
 dotenv.config();
@@ -25,15 +26,17 @@ const scheduleRouter = require('./routes/schedule');
 
 const messagesRouter = require('./routes/messenger');
 const googleMeetRoutes = require('./routes/meet');
-const notificationRoutes = require('./routes/notification')
+const notificationRoutes = require('./routes/notification');
+
 
 // Cấu hình CORS
-app.use(cors({
-    origin: "http://localhost:3000", // Cho phép frontend từ localhost:3000
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Các phương thức cho phép
-    allowedHeaders: ["Content-Type", "Authorization"], // Các header cần thiết
-    credentials: true,  // Nếu sử dụng cookie hoặc xác thực qua session
-}));
+// app.use(cors({
+//     origin: "http://localhost:3000", // Cho phép frontend từ localhost:3000
+//     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Các phương thức cho phép
+//     allowedHeaders: ["Content-Type", "Authorization"], // Các header cần thiết
+//     credentials: true,  // Nếu sử dụng cookie hoặc xác thực qua session
+// }));
+app.use(cors())
 
 // Xử lý preflight OPTIONS cho tất cả các route
 app.options('*', cors());
@@ -83,7 +86,11 @@ app.set('io', io);
 
 io.on("connection", (socket) => {
   console.log("Connected to socket.io");
-
+  socket.on('register', (userId) => {
+    console.log(`User ${userId} registered with socket ID: ${socket.id}`);
+    userSocketMap.set(userId.toString(), socket.id);
+  });
+  
   socket.on("setup", (userData) => {
     if (!userData || !userData._id) return;
     socket.join(userData._id);
@@ -116,7 +123,8 @@ io.on("connection", (socket) => {
       if (!notification || !notification.receiverId) {
         return console.log("Invalid notification data");
       }
-      socket.to(notification.receiverId.toString()).emit('receive notification', notification);
+      // Trực tiếp gửi thông báo đến người nhận
+      io.to(notification.receiverId.toString()).emit('new notification', notification);
     } catch (error) {
       console.error('Error handling new notification:', error);
     }
@@ -130,11 +138,12 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("disconnect", () => {
-    console.log("User Disconnected");
-    const userData = socket.handshake.query.userData;
-    if (userData && userData._id) {
-      socket.leave(userData._id);
+  socket.on('disconnect', () => {
+    for (let [userId, socketId] of userSocketMap.entries()) {
+      if (socketId === socket.id) {
+        userSocketMap.delete(userId);
+        break;
+      }
     }
   });
 });
