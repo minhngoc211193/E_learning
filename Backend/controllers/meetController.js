@@ -44,7 +44,7 @@ async function requestMeeting(req, res) {
     console.error(err);
     res.status(500).json({ message: 'Đã có lỗi xảy ra, vui lòng thử lại.' });
   }
-}
+};
 
 const getMeetings = async (req, res) => {
   const userId = req.user.id; 
@@ -291,7 +291,7 @@ async function updateMeetingRequest(req, res) {
     console.error(err);
     res.status(500).json({ message: 'Có lỗi xảy ra, vui lòng thử lại sau.' });
   }
-}
+};
 
 module.exports = { requestMeeting, getMeetings, respondToMeetingRequest, searchMeetings, deleteMeetingRequest, updateMeetingRequest };
 

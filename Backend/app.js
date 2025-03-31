@@ -5,8 +5,8 @@ const dotenv = require('dotenv');
 var mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
-const socketIo = require('socket.io'); // Import Socket.IO
-
+const socketIo = require('socket.io'); 
+const userSocketMap = new Map();
 dotenv.config();
 const app = express();
 
@@ -66,7 +66,11 @@ app.set('io', io);
 
 io.on("connection", (socket) => {
   console.log("Connected to socket.io");
-
+  socket.on('register', (userId) => {
+    console.log(`User ${userId} registered with socket ID: ${socket.id}`);
+    userSocketMap.set(userId.toString(), socket.id);
+  });
+  
   socket.on("setup", (userData) => {
     if (!userData || !userData._id) return;
     socket.join(userData._id);
@@ -94,6 +98,19 @@ io.on("connection", (socket) => {
     socket.to(receiverId).emit("message received", newMessageRecieved);
   });
 
+  socket.on('new notification', async (notification) => {
+    try {
+      if (!notification || !notification.receiverId) {
+        return console.log("Invalid notification data");
+      }
+      
+      // Trực tiếp gửi thông báo đến người nhận
+      io.to(notification.receiverId.toString()).emit('new notification', notification);
+    } catch (error) {
+      console.error('Error handling new notification:', error);
+    }
+  });
+
   socket.on('mark notification read', async (notificationId) => {
     try {
       await Notification.findByIdAndUpdate(notificationId, { isRead: true });
@@ -102,11 +119,12 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("disconnect", () => {
-    console.log("User Disconnected");
-    const userData = socket.handshake.query.userData;
-    if (userData && userData._id) {
-      socket.leave(userData._id);
+  socket.on('disconnect', () => {
+    for (let [userId, socketId] of userSocketMap.entries()) {
+      if (socketId === socket.id) {
+        userSocketMap.delete(userId);
+        break;
+      }
     }
   });
 });
