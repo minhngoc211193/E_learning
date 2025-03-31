@@ -122,15 +122,15 @@ io.on("connection", (socket) => {
     socket.to(receiverId).emit("message received", newMessageRecieved);
   });
 
-  socket.on('new notification', async (notification) => {
+  socket.on('receive notification', async (notification) => {
     try {
       if (!notification || !notification.receiverId) {
         return console.log("Invalid notification data");
       }
       // Trực tiếp gửi thông báo đến người nhận
-      io.to(notification.receiverId.toString()).emit('new notification', notification);
+      io.to(notification.receiverId.toString()).emit('receive notification', notification);
     } catch (error) {
-      console.error('Error handling new notification:', error);
+      console.error('Error handling receive notification:', error);
     }
   });
 

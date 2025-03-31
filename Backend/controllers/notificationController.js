@@ -12,7 +12,7 @@ const createNotification = async (senderId, receiverId, type, message) => {
     });
     
     const savedNotification = await newNotification.save();
-    io.emit('new notification', savedNotification);
+    io.to(receiverId.toString()).emit('receive notification', savedNotification);
 
     // Trả về thông báo để sử dụng trong socket
     return savedNotification;

@@ -16,7 +16,7 @@ function createSocket () {
   socket.on("disconnect", () => {
     console.log("Đã ngắt kết nối khỏi server");
   });
-  socket.on('new notification', (notification) => {
+  socket.on('receive notification', (notification) => {
     console.log('Received Notification:', notification);
     // Xử lý notification
     socket.emit('receive notification', notification);

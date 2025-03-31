@@ -20,9 +20,10 @@ const EditUser = () => {
   });
 
   const [majors, setMajors] = useState([]);
+  const token = localStorage.getItem("accessToken");
 
   const fetchUserInfo = async () => {
-    const token = localStorage.getItem("accessToken");
+    
     try {
         const decoded = jwtDecode(token);
         if(decoded.Role!== "admin"){
@@ -57,7 +58,9 @@ useEffect(() => {
     fetchUserInfo();
 },[]);
 useEffect(() => {
-    axios.get("http://localhost:8000/major/majors").then((res) => {
+    axios.get("http://localhost:8000/major/majors", {
+      headers: {Authorization: `Bearer ${token}`}
+    }).then((res) => {
       setMajors(res.data);
     });
   }, []);
@@ -93,7 +96,8 @@ useEffect(() => {
 
     try {
       const response = await axios.put(`http://localhost:8000/user/update-user/${id}`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+        headers: { Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data' },
 
       });
 

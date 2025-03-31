@@ -17,36 +17,6 @@ const Notifications = () => {
   const userId = decoded.id;
   const socket = createSocket();
 
-  useEffect(() => {
-    if (userId) {
-      socket.emit('register', userId);
-    }
-    fetchNotifications();
-
-    // Lắng nghe sự kiện socket khi có thông báo mới
-    socket.on("receive notification", (newNotification) => {
-      console.log("📩 Nhận thông báo mới:", newNotification);
-      setNotifications((prevNotifications) => {
-        return [newNotification, ...prevNotifications];  // Thêm thông báo mới vào đầu danh sách
-      });
-    });
-    socket.on('connect', () => {
-      console.log('Socket connected');
-      if (userId) {
-        socket.emit('register', userId);
-      }
-    });
-
-    socket.on('connect_error', (error) => {
-      console.error('Socket connection error:', error);
-    });
-    return () => {
-      socket.off("receive notification");
-      socket.off('connect');
-      socket.off('connect_error');
-    };
-  }, [userId]);
-
   const fetchNotifications = async () => {
     try {
       const response = await axios.get("http://localhost:8000/notification/noti", {
@@ -59,6 +29,43 @@ const Notifications = () => {
       if (error.response?.status === 401) navigate("/");
     }
   };
+
+  useEffect(() => {
+    if (userId) {
+      socket.emit('register', userId);  // Đảm bảo socket đã đăng ký với đúng userId
+    }
+    
+    fetchNotifications();  // Lấy thông báo ban đầu
+  
+    // Lắng nghe sự kiện 'receive notification'
+    socket.on("receive notification", (newNotification) => {
+      console.log("📩 Nhận thông báo mới:", newNotification);
+      setNotifications((prevNotifications) => {
+        return [newNotification, ...prevNotifications];  // Thêm thông báo mới vào đầu danh sách
+      });
+    });
+  
+    // Lắng nghe sự kiện 'connect' để đảm bảo socket luôn kết nối
+    socket.on('connect', () => {
+      console.log('Socket connected');
+      if (userId) {
+        socket.emit('register', userId);  // Đảm bảo đăng ký lại nếu socket mất kết nối
+      }
+    });
+  
+    // Lắng nghe sự kiện 'connect_error' nếu có lỗi khi kết nối
+    socket.on('connect_error', (error) => {
+      console.error('Socket connection error:', error);
+    });
+  
+    return () => {
+      socket.off("receive notification");
+      socket.off('connect');
+      socket.off('connect_error');
+    };
+  }, [socket,fetchNotifications,userId]);
+
+
 
   return (
     <div className="w-96 p-4 bg-white rounded-lg shadow-md">

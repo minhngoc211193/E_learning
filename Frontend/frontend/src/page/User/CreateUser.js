@@ -54,7 +54,8 @@ function CreateUser({ setActiveTab }) {
         Role: "",   
         Gender: "",   
         DateOfBirth: "",
-        Major: "",
+        MajorId: "",
+
     });
 
     const handleChange = (e) => {
@@ -82,7 +83,7 @@ function CreateUser({ setActiveTab }) {
                 Role: "",   
                 Gender: "",   
                 DateOfBirth: "",
-                Major: "",
+                MajorId: "",
             });
             setActiveTab("all");
         } catch (e) {
@@ -106,7 +107,6 @@ function CreateUser({ setActiveTab }) {
 
                         <div className={styles.formGrid}>
                             <input type="text" name="Fullname" placeholder="Full Name" value={userData.Fullname} onChange={handleChange} className={styles.input} required />
-                            <input type="text" name="Username" placeholder="Username" value={userData.Username} onChange={handleChange} className={styles.input} required />
                             <input type="email" name="Email" placeholder="Email" value={userData.Email} onChange={handleChange} className={styles.input} required />
                             <input type="tel" name="PhoneNumber" placeholder="Phone Number" value={userData.PhoneNumber} onChange={handleChange} className={styles.input} required />
                             <select name="Role" value={userData.Role} onChange={handleChange} className={styles.Select} required>
@@ -117,7 +117,8 @@ function CreateUser({ setActiveTab }) {
                             </select>
 
                             {userData.Role === "student" || userData.Role === "teacher" ? (
-                                <select name="Major" value={userData.Major || ""} onChange={handleChange} className={styles.Select}>
+                                <select name="MajorId" value={userData.MajorId || ""} onChange={handleChange} className={styles.Select} required>
+                                    <option value="">Select Major</option>
                                     {majors.map((major) => (
                                         <option key={major._id} value={major._id}>{major.Name}</option>
                                     ))}

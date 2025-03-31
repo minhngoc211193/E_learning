@@ -1,7 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import { useNavigate} from "react-router-dom";
 import axios from "axios";
-import styles from "./ManageClass.module.css";
 function ManageClass (){
     const [classes, setClasses] = useState([]);
     const [search, setSearch] = useState("");
@@ -39,43 +38,54 @@ function ManageClass (){
     };
 
     return (
-        <div className={styles.container}>
-            <div className={styles.header}>
-                <h1>All Class</h1>
-                <button className={styles["create-btn"]} onClick={() => navigate("/create-class")}>
-                    Create new class
-                </button>
-            </div>
-            <div>
-                <input
-                    type="text"
-                    placeholder="Enter here..."
-                    value={search}
-                    onChange={handleSearch}
-                    className={styles["search-box"]}
-                />
-            </div>
-            <div className={styles["grid-container"]}>
-                {filteredClasses.map((classItem) => (
-                    <div key={classItem._id} className={styles["class-card"]}>
-                        <h2 className={styles["class-title"]}>{classItem.Classname}</h2>
-                        <p>{classItem.Subject?.Name}</p>
-                        <div className={styles.avatar}>👤</div>
-                        <div className={styles["button-group"]}>
-                            <button
-                                className={styles["edit-btn"]}
+        <div className="container mx-auto p-6">
+        <div className="flex justify-between items-center mb-6">
+            <h1 className="text-3xl font-bold">All Class</h1>
+            <button 
+                className="px-4 py-2 bg-blue-500 text-white rounded-lg"
+                onClick={() => navigate("/create-class")}
+            >
+                Create new class
+            </button>
+        </div>
+        <div className="mb-4">
+            <input 
+                type="text" 
+                placeholder="Enter here..." 
+                value={search} 
+                onChange={handleSearch}
+                className="border p-2 rounded w-full"
+            />
+        </div>
+        <div className="grid grid-cols-3 gap-4">
+            {filteredClasses.map((classItem) => (
+                <div key={classItem._id} className="bg-gray-200 p-4 rounded-lg shadow-md">
+                    <h2 className="text-lg font-semibold">{classItem.Classname}</h2>
+                    <p>{classItem.Subject?.Name}</p>
+                    <div className="mt-4 flex items-center">
+                        <div className="w-12 h-12 bg-gray-400 rounded-full flex justify-center items-center">
+                            <span className="text-white">👤</span>
+                        </div>
+                        {/* <p className="ml-2">{classItem.Teacher?.Fullname}</p> */}
+                    </div>
+                    <div className="mt-4 flex justify-end space-x-2">
+                            <button 
+                                className="px-3 py-1 bg-green-500 text-white rounded" 
                                 onClick={() => navigate(`/update-class/${classItem._id}`)}
                             >
                                 Edit
                             </button>
-                            <button className={styles["delete-btn"]} onClick={() => handleDelete(classItem._id)}>
+                            <button 
+                                className="px-3 py-1 bg-red-500 text-white rounded" 
+                                onClick={() => handleDelete(classItem._id)}
+                            >
                                 Delete
                             </button>
-                        </div>
-                    </div>
-                ))}
-            </div>
+                    </div>  
+                </div>
+            ))}
         </div>
+    </div>
 
     );
 
