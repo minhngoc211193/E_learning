@@ -11,8 +11,11 @@ const documentController = {
             const file = req.file;
             const userId = req.user.id;
         
-            if (!file) {
-                return res.status(404).json({ message: 'Không thấy tài liệu' });
+            if (file) {
+                const maxSize = 5 * 1024 * 1024; // 3MB
+                if (file.size > maxSize) {
+                    return res.status(400).json({ message: 'Kích thước file vượt quá giới hạn (3MB)' });
+                }
             }
         
             const mimeType = mime.lookup(file.originalname);  // Lấy loại MIME của tệp từ tên tệp
@@ -122,7 +125,9 @@ const documentController = {
 
             const document = await Document.findById(documentId);
             const classData = await Class.findById(document.Class);
-
+            if (!classData) {
+                return res.status(404).json({ message: 'Lớp học không tồn tại' });
+            }
             if (!document) {
                 return res.status(404).json({ message: 'Tài liệu không tồn tại' });
             }
@@ -134,6 +139,26 @@ const documentController = {
 
             document.Tittle = Tittle || document.Tittle;
             document.Description = Description || document.Description;
+
+            if (req.file) {
+                const maxSize = 5 * 1024 * 1024; // 3MB
+                if (req.file.size > maxSize) {
+                    return res.status(400).json({ message: 'Kích thước file vượt quá giới hạn (3MB)' });
+                }
+    
+                const mimeType = mime.lookup(req.file.originalname);
+                if (!mimeType) {
+                    return res.status(400).json({ message: 'Không thể xác định loại tệp' });
+                }
+    
+                // Cập nhật lại file mới cho tài liệu
+                document.File = {
+                    data: req.file.buffer,  // Lưu trữ dữ liệu file dưới dạng Buffer
+                    mimeType,               // Lưu trữ loại MIME của tệp
+                    originalName: req.file.originalname  // Lưu tên gốc của tệp
+                };
+            }
+
 
             await document.save();
             return res.status(200).json({ message: 'Cập nhật tài liệu thành công' });

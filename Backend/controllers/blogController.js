@@ -10,8 +10,18 @@ const blogController = {
         try {
             const { Title, Content, User } = req.body;
             const file = req.file;
-            if (!file) {
-                return res.status(400).json({ message: "Vui lòng thêm ảnh" });
+            if (file) {
+                // Kiểm tra loại file ảnh
+                const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+                if (!allowedTypes.includes(file.mimetype)) {
+                    return res.status(400).json({ message: 'Bạn chỉ có thể tải lên file (jpg, jpeg, png)' });
+                }
+    
+                // Kiểm tra kích thước file (3MB) trong controller
+                const maxSize = 3 * 1024 * 1024; // 3MB
+                if (file.size > maxSize) {
+                    return res.status(400).json({ message: 'Kích thước file vượt quá giới hạn (3MB)' });
+                }
             }
 
             if (!User) return res.status(400).json({ message: "Không có UserId" });
@@ -131,7 +141,17 @@ const blogController = {
 
             const file = req.file;
             if (file) {
-                updateData.Image = file.buffer;
+                // Kiểm tra loại file ảnh
+                const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+                if (!allowedTypes.includes(file.mimetype)) {
+                    return res.status(400).json({ message: 'Bạn chỉ có thể tải lên file (jpg, jpeg, png)' });
+                }
+    
+                // Kiểm tra kích thước file (3MB) trong controller
+                const maxSize = 3 * 1024 * 1024; // 3MB
+                if (file.size > maxSize) {
+                    return res.status(400).json({ message: 'Kích thước file vượt quá giới hạn (3MB)' });
+                }
             }
 
             // Cập nhật blog
@@ -198,7 +218,8 @@ const blogController = {
             if (!search) {
                 return res.status(400).json({ message: "Vui lòng cung cấp từ khóa tìm kiếm" });
             }
-            const blogs = await Blog.find({ Title: { $regex: search, $options: "i" } });
+            const blogs = await Blog.find({ Title: { $regex: search, $options: "i" } })
+                .populate("User", "Fullname Role Email");
             if (blogs.length === 0) {
                 return res.status(404).json({ message: "KHông tìm thấy Blog nào" });
             }

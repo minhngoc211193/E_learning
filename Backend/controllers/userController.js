@@ -5,6 +5,7 @@ const Meeting = require('../models/Meeting');
 const Notification = require('../models/Notification');
 const mime = require('mime-types');
 const Major = require('../models/Major');
+const Attendance = require('../models/Attendance');
 
 const userController = {
     getUser: async (req, res) => {
@@ -67,7 +68,17 @@ const userController = {
             // Xử lý trường hợp file ảnh (nếu có)
             const file = req.file;
             if (file) {
-                updateData.Image = file.buffer;
+                // Kiểm tra loại file ảnh
+                const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+                if (!allowedTypes.includes(file.mimetype)) {
+                    return res.status(400).json({ message: 'Bạn chỉ có thể tải lên file (jpg, jpeg, png)' });
+                }
+    
+                // Kiểm tra kích thước file (3MB) trong controller
+                const maxSize = 3 * 1024 * 1024; // 3MB
+                if (file.size > maxSize) {
+                    return res.status(400).json({ message: 'Kích thước file vượt quá giới hạn (3MB)' });
+                }
             }
 
             // Cập nhật người dùng trong cơ sở dữ liệu
@@ -100,6 +111,14 @@ const userController = {
 
             // Xóa các Notifications liên quan đến người dùng
             await Notification.deleteMany({ _id: { $in: user.Notifications } });
+
+            // Xóa tất cả các điểm danh (Attendance) của người dùng
+            await Attendance.deleteMany({
+                $or: [
+                    { Student: userId },  // Nếu người dùng là sinh viên, xóa tất cả Attendance với Student là userId
+                    { Teacher: userId }    // Nếu người dùng là giáo viên, xóa tất cả Attendance với Teacher là userId
+                ]
+            });
 
             // Xóa người dùng khỏi các lớp (Classes) của họ
             await User.updateMany(
@@ -158,29 +177,29 @@ const userController = {
         try {
             const { id } = req.params;
             const { Role } = req.query;  // role sẽ được truyền qua query string (ví dụ: /users-by-major/:majorId?role=teacher)
-    
+
             // Kiểm tra xem role có phải là "teacher" hoặc "student" không
             if (Role && !['teacher', 'student'].includes(Role)) {
                 return res.status(400).json({ message: 'Role không hợp lệ. Chỉ chấp nhận teacher hoặc student.' });
             }
-    
+
             // Tìm Major để xác định các User trong Major này
             const major = await Major.findById(id);
             if (!major) {
                 return res.status(404).json({ message: 'Không tìm thấy Major này' });
             }
-    
+
             // Tìm người dùng theo Major và Role
             const users = await User.find({
                 Major: id,  // Tìm theo Major
                 Role: Role || { $in: ['teacher', 'student'] }  // Nếu role không được truyền vào thì tìm tất cả các teacher và student
             });
-    
+
             // Nếu không có người dùng nào
             if (users.length === 0) {
                 return res.status(404).json({ message: 'Không có người dùng nào trong Major này với Role đã chọn' });
             }
-    
+
             // Xử lý ảnh cho từng người dùng nếu có
             const usersWithImage = users.map(user => {
                 let imageBase64 = null;
@@ -188,21 +207,21 @@ const userController = {
                     const mimeType = mime.lookup(user.Image) || 'image/png';  // Lấy loại ảnh
                     imageBase64 = `data:${mimeType};base64,${user.Image.toString('base64')}`;
                 }
-    
+
                 return {
                     ...user.toObject(),
                     Image: imageBase64  // Thêm trường Image vào response
                 };
             });
-    
+
             res.status(200).json(usersWithImage);
-    
+
         } catch (err) {
             console.error(err);
             res.status(500).json({ message: 'Lỗi khi truy vấn dữ liệu', error: err.message });
         }
     },
-    
+
 
     searchUser: async (req, res) => {
         try {
