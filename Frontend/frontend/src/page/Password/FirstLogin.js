@@ -86,7 +86,7 @@ function FirstLogin() {
                     />
                     {error && <p className={styles.errorMessage}>{error}</p>}
                     {success && <p className={styles.successMessage}>{success}</p>}
-                    <button type="submit">Save</button>
+                    <button className={styles.btnSave} type="submit">Save</button>
                 </form>
                 <div className={styles.imageSection}>
                     <img src={img} className={styles.image} alt="Study illustration" />

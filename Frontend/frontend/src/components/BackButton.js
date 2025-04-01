@@ -6,8 +6,8 @@ function BackButton(){
     const navigate  = useNavigate();
 
     return(
-        <div className={styles.backButton}>
-            <span onClick={() => navigate("/home")}><i class="fa-solid fa-arrow-left"></i></span>
+        <div className={styles.backButton} onClick={() => navigate("/home")}>
+            <span><i class="fa-solid fa-arrow-left"></i></span>
         </div>
     )
 }

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import styles from "./Login.module.css";
 import studyImg from "../assets/study.jpg";
 import axios from "axios";
+import { jwtDecode } from "jwt-decode";
 
 function Login() {
     const [email, setEmail] = useState("");
@@ -17,25 +18,21 @@ function Login() {
     
             // Lưu token & chuyển hướng
             localStorage.setItem("accessToken", res.data.accessToken);
-            window.location.href = "/home";
+            const token = localStorage.getItem("accessToken");
+            const decoded = jwtDecode(token);
+            const userRole = decoded.Role;
+            if(userRole === "admin") {
+                window.location.href = "/dashboard";
+            } else {
+                window.location.href = "/home";
+            }
     
         } catch (err) {
             if (err.response) {
-                // 🟢 Xử lý lỗi từ validateLogin (lỗi nhập liệu)
                 if (err.response.data.errors) {
                     setError(err.response.data.errors[0].msg);
-                }
-                // 🟡 Xử lý lỗi từ authController
-                else if (err.response.data.message) {
+                } else if (err.response.data.message) {
                     setError(err.response.data.message);
-    
-                    // 🔴 Nếu là lần đầu đăng nhập, chuyển hướng sang trang đổi mật khẩu
-                    if (err.response.data.firstLogin) {
-                        alert("Đây là lần đầu tiên bạn đăng nhập, vui lòng đổi mật khẩu!");
-                        setTimeout(() => {
-                            window.location.href = "/firstlogin";
-                        }, 1000);
-                    }
                 }
             } else {
                 setError("Đăng nhập thất bại. Vui lòng thử lại!");
@@ -47,18 +44,18 @@ function Login() {
             <div className={styles.content}>
                 <form onSubmit={handleLogin}>
                     <h1>Sign in</h1>
-                    <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)}/>
-                    <input type="password" value={password} placeholder="Password" onChange={(e) => setPassword(e.target.value)}/>
+                    <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
+                    <input type="password" value={password} placeholder="Password" onChange={(e) => setPassword(e.target.value)} />
                     {error && <p className={styles.errorMessage} style={{ visibility: error ? "visible" : "hidden" }}>{error}</p>}
                     <a href="/resetpassword">Forgot your password?</a>
-                    <button type="submit">Sign In</button>
+                    <button className={styles.btnSignIn} type="submit">Sign In</button>
                 </form>
                 <div className={styles.imageSection}>
-                    <img src={studyImg} className={styles.image} alt=""/>
+                    <img src={studyImg} className={styles.image} alt="" />
                 </div>
             </div>
         </div>
-      );
+    );
 }
 
 export default Login;

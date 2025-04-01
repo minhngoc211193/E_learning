@@ -1,4 +1,4 @@
-import React, { useState} from "react";
+import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
@@ -13,6 +13,7 @@ function ChangePassword() {
     const navigate = useNavigate();
     const [fullname, setFullname] = useState("");
     const [email, setEmail] = useState("");
+    const [image, setImage] = useState("");
 
     const fetchUserInfo = async () => {
         const token = localStorage.getItem("accessToken");
@@ -28,6 +29,7 @@ function ChangePassword() {
             });
             setFullname(res.data.Fullname);
             setEmail(res.data.Email);
+            setImage(res.data.Image);
         } catch (err) {
             setError("Không thể lấy thông tin người dùng.");
         }
@@ -63,12 +65,8 @@ function ChangePassword() {
                 setError("Bạn chưa đăng nhập!");
                 return;
             }
-
-            // Giải mã token để lấy userId (giả sử userId được lưu ở key "id")
             const decoded = jwtDecode(token);
             const userId = decoded.id;
-
-            // Gửi yêu cầu thay đổi mật khẩu tới backend
             await axios.post(
                 "http://localhost:8000/auth/reset-password",
                 { userId, oldPassword, newPassword },
@@ -88,8 +86,11 @@ function ChangePassword() {
 
     return (
         <div className={styles.body}>
+            <div className={styles.backButton} onClick={() => navigate("/profile")}>
+                <span><i class="fa-solid fa-arrow-left"></i></span>
+            </div>
             <div className={styles.profile}>
-                <span><i className="fa-solid fa-user"></i></span>
+                <img src={image} alt="Avatar" />
                 <h2>{fullname}</h2>
                 <h2>{email}</h2>
             </div>
