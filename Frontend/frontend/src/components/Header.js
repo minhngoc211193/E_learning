@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styles from './Header.module.css';
 import logo from "../assets/Greenwich.png";
+import ProfileImg from "../assets/profile.jpg";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate } from 'react-router-dom';
 import axios from "axios";
@@ -9,6 +10,7 @@ function Header() {
   const navigate = useNavigate();
   const [fullname, setFullname] = useState("");
   const [image, setImage] = useState("");
+  const [role, setRole] = useState("");
 
   const fetchUserInfo = async () => {
     const token = localStorage.getItem("accessToken");
@@ -24,6 +26,7 @@ function Header() {
       });
       setFullname(res.data.Fullname);
       setImage(res.data.Image);
+      setRole(res.data.Role);
     } catch (err) {
       console.error("Không thể lấy thông tin người dùng.");
     }
@@ -41,18 +44,25 @@ function Header() {
       </div>
       <div className={styles.rightSection}>
         <nav className={styles.nav}>
-          <ul>
-            <li onClick={() => navigate('/myclass')} className={styles.navItem}>Class</li>
-            <li onClick={() => navigate('/schedule')} className={styles.navItem}>Schedule</li>
-            <li onClick={() => navigate('/createblog')} className={styles.navItem}>Create blog</li>
-          </ul>
+          {role === "admin" ? (
+            <ul className={styles.navAdmin}>
+              <li onClick={() => navigate('/dashboard')} className={styles.navItem}>Dashboard</li>
+              <li onClick={() => navigate('/createblog')} className={styles.navItem}>Create blog</li>
+            </ul>
+          ) : (
+            <ul className={styles.navUser}>
+              <li onClick={() => navigate('/myclass')} className={styles.navItem}>Class</li>
+              <li onClick={() => navigate('/schedule')} className={styles.navItem}>Schedule</li>
+              <li onClick={() => navigate('/createblog')} className={styles.navItem}>Create blog</li>
+            </ul>
+          )}
         </nav>
         {/* Thông tin người dùng */}
         <div className={styles.notification}>
           <i class="fa-regular fa-bell"></i>
         </div>
         <div className={styles.userInfo} onClick={() => navigate('/profile')}>
-          <img alt="avatar" src={image} className={styles.avatar} />
+          <img alt="avatar" src={image || ProfileImg} className={styles.avatar} />
           <span className={styles.username}>{fullname}</span>
         </div>
         <div>

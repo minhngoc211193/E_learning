@@ -12,9 +12,7 @@ import CreateBLog from './page/CreateBlog';
 import EditBlog from './page/EditBlog';
 import BlogDetail from "./page/BlogDetail";
 import ManageBlog from './page/ManageBlog';
-
 import CreateMeet from './page/CreateMeet';
-
 import ManageClass from './page/ManageClass';
 import Major from "./page/Major";
 import Document from './page/Document';
@@ -74,7 +72,7 @@ function App() {
                 : <Navigate to="/" />
             } />
           <Route path="/changepassword" element={renderProtected(ChangePassword)} />
-          <Route path="/resetpassword" element={renderProtected(ResetPassword)} />
+          <Route path="/resetpassword" element={<ResetPassword />} />
           <Route path="/profile" element={renderProtected(Profile)} />
           <Route path="/updateinformationuser" element={renderProtected(UpdateInformationUser)} />
           <Route path="/createuser" element={renderProtected(CreateUser)} />

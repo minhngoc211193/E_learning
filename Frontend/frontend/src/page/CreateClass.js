@@ -14,7 +14,7 @@ function CreateClass() {
         Student: [],
         Schedule: "",
         Document: "",
-        Slot:""
+        Slot: ""
     });
 
     const [students, setStudents] = useState([]);
@@ -79,17 +79,17 @@ function CreateClass() {
     };
 
     const fetchTeachers = async (majorId) => {
-        try{
+        try {
             const decoded = jwtDecode(token);
             const userRole = "teacher"
-            if(!classData.Major) return;
+            if (!classData.Major) return;
             const response = await axios.get(`http://localhost:8000/user/users-by-major/${majorId}?Role=${userRole}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             console.log(response.data);
             // const teacherList = response.data.filter(user => user.role === "teacher");
             setTeachers(response.data);
-        }catch(e){
+        } catch (e) {
             console.error("Error fetching teachers", e);
         }
     };
@@ -119,9 +119,9 @@ function CreateClass() {
     };
 
     const handleTeacher = (teacher) => {
-        setClassData (prev => ({
+        setClassData(prev => ({
             ...prev,
-            Student: teacher._id
+            Teacher: teacher._id
         }));
     };
     const handleMajorChange = (e) => {
@@ -147,7 +147,13 @@ function CreateClass() {
                 Teacher: classData.Teacher,
                 Slots: classData.Slot,
             };
-            console.log("form gửi đi:"+ simplifiedClassData);
+            console.log({
+                Classname: classData.Classname,
+                subjectId: classData.Subject,
+                Teacher: classData.Teacher,
+                Student: classData.Student,
+                Slots: classData.Slot,
+            });
 
             await axios.post("http://localhost:8000/class/create-class", simplifiedClassData, {
                 headers: { Authorization: `Bearer ${token}` }
@@ -168,8 +174,8 @@ function CreateClass() {
                         <input type="text" placeholder="Name" value={classData.Classname}
                             onChange={(e) => setClassData({ ...classData, Classname: e.target.value })}
                             className="border p-2 w-full" />
-                        <br/>
-                        <br/>
+                        <br />
+                        <br />
                         <label className="block mt-4">Slot</label>
                         <input type="text" placeholder="Slot" value={classData.Slot}
                             onChange={(e) => setClassData({ ...classData, Slot: e.target.value })}
@@ -181,8 +187,8 @@ function CreateClass() {
                                 <option key={major._id} value={major._id}>{major.Name}</option>
                             ))}
                         </select>
-                        <br/>
-                        <br/>
+                        <br />
+                        <br />
                         <label className="block mt-4">Subject</label>
                         <select value={classData.Subject} onChange={handleSubjectChange}
                             className="border p-2 w-full" disabled={!classData.Major}>
@@ -191,18 +197,24 @@ function CreateClass() {
                                 <option key={subject._id} value={subject._id}>{subject.Name}</option>
                             ))}
                         </select>
-                        <br/>
-                        <br/>
+                        <br />
+                        <br />
                         <label className="block mt-4">Teacher</label>
-                        <select value={classData.Teacher} onChange={(e) => setClassData({ ...classData, Teacher: e.target.value })}
-                            className="border p-2 w-full" disabled={!classData.Major}>
+                        <select
+                            value={classData.Teacher}
+                            onChange={(e) => setClassData({ ...classData, Teacher: e.target.value })}
+                            className="border p-2 w-full"
+                            disabled={!classData.Major}
+                        >
                             <option value="">Select Teacher</option>
                             {teachers.map((teacher) => (
-                                <option onClick={() => handleTeacher(teacher)}  key={teacher._id} value={teacher._id}>{teacher.Fullname}</option>
+                                <option key={teacher._id} value={teacher._id}>
+                                    {teacher.Fullname}
+                                </option>
                             ))}
                         </select>
-                        <br/>
-                        <br/>
+                        <br />
+                        <br />
                         <button onClick={handleNext} className="mt-4 px-4 py-2 bg-blue-500 text-white">Next</button>
                     </div>
                 ) : (
@@ -211,7 +223,7 @@ function CreateClass() {
                             onChange={(e) => setSearch(e.target.value)} className="border p-2 w-full" />
 
 
-                    <div className="mt-2">
+                        <div className="mt-2">
                             {students.filter(s => s.Fullname.toLowerCase().includes(search.toLowerCase())).map(student => (
                                 <div key={student._id} className="flex justify-between border p-2 mt-2">
                                     <span>{student.Fullname}</span>

@@ -4,6 +4,7 @@ import Logo from "../assets/Greenwich.png";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate } from 'react-router-dom';
 import axios from "axios";
+import ProfileImg from "../assets/profile.jpg";
 
 function Menu() {
     const navigate = useNavigate();
@@ -37,7 +38,7 @@ function Menu() {
     return (
         <div className={styles.sidebar}>
             <div className={styles.top}>
-                <img src={Logo} alt="Logo" className={styles.logo} />
+                <img src={Logo} alt="Logo" className={styles.logo} onClick={() => navigate('/home')}/>
                 <div className={styles.menu}>
                     <a href="/dashboard"><i className="fa-solid fa-desktop" style={{ color: "rgb(62, 149, 255)" }}></i> Dashboard</a>
                     <a href="/manageclass"><i class="fa-solid fa-book" style={{ color: "rgb(255, 113, 47)" }}></i> Manage class</a>
@@ -51,7 +52,7 @@ function Menu() {
             </div>
             <div className={styles.bottom}>
                 <div className={styles.user} onClick={() => navigate("/profile")}>
-                    <img src={image} alt="User" className={styles.userImage} />
+                    <img src={image || ProfileImg} alt="User" className={styles.userImage} />
                     <span className={styles.userName}>{fullname}</span>
                 </div>
                 <div className={styles.logout} onClick={handleLogout}><i class="fa-solid fa-right-from-bracket" style={{ color: "rgb(0, 0, 0)" }}></i> Log out</div>

@@ -85,6 +85,7 @@ function ManageBlog() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={handleKeyDown}
+                className={styles.searchInput}
               />
               <i onClick={handleSearch} className="fa-solid fa-magnifying-glass"></i>
             </div>

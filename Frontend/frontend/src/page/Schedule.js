@@ -92,21 +92,10 @@ const handleAttendance = async (scheduleId) => {
   try {
     // Gửi yêu cầu lấy dữ liệu điểm danh cho lịch học
     const res = await axios.get(
-      `http://localhost:8000/attendance/get-attendance/${scheduleId}`,
+      `http://localhost:8000/attendance/get-attendance-by-schedule/${scheduleId}`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
-
-    // Kiểm tra xem dữ liệu điểm danh có thành công không
-    if (res.data && res.data.success) {
-      // Nếu thành công, chuyển hướng đến trang điểm danh
       window.location.href = `/attendance/${scheduleId}`;
-    } else {
-      // Nếu không thành công, hiển thị thông báo lỗi
-      setNotifData({
-        type: "error",
-        detailMessage: "Không thể lấy dữ liệu điểm danh. Vui lòng thử lại sau!",
-      });
-    }
   } catch (err) {
     // Hiển thị thông báo lỗi nếu gặp lỗi khi gọi API
     setNotifData({

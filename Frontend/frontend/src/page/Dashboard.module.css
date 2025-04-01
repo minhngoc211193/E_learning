@@ -123,3 +123,54 @@
 .bottom h2 {
   margin: 0;
 }
+
+.chartContainer {
+  padding: 20px;
+  display: flex;
+  gap: 70px;
+  justify-content: center;
+}
+
+.chart1 {
+  padding: 20px;
+  height: 500px !important;
+  width: auto !important;
+  background: #ffffff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.chart2 {
+  padding: 20px;
+  height: 500px !important;
+  width: auto !important;
+  background: #ffffff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.chart3 {
+  padding: 20px;
+  height: 500px !important;
+  width: auto !important;
+  background: #ffffff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.chart4 {
+  padding: 20px;
+  height: 500px !important;
+  width: auto !important;
+  background: #ffffff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}

@@ -5,6 +5,7 @@
   top: 0;
   align-self: flex-start;
   height: 100vh;
+  font-size: 13px;
 }
 
 .sidebar i {
@@ -39,8 +40,9 @@
   border-radius: 8px;
 }
 
-.sidebar img {
+.logo {
   width: 200px;
+  cursor: pointer;
 }
 
 .bottom {

@@ -43,6 +43,7 @@
 .main {
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     border-radius: 10px;
+padding: 20px;
 }
 
 .main form {
@@ -57,7 +58,18 @@
 }
 
 .main input {
-    margin-top: 2px;
+    width: 90%;
+    padding: 12px;
+    margin: 0 15px 15px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    outline: none;
+    transition: border 0.3s;
+}
+
+.main input:focus {
+    border-color: #007bff;
 }
 
 .mainForm {

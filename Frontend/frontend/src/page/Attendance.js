@@ -48,7 +48,7 @@ function Attendance() {
     };
 
     fetchAttendance();
-  }, [scheduleId]);
+  }, [scheduleId, token]);
 
   // Hàm cập nhật trạng thái điểm danh trong state
   const handleStatusChange = (studentId, status) => {
@@ -64,7 +64,7 @@ function Attendance() {
     try {
       const updatedAttendance = attendanceData.map((record) => ({
         studentId: record.Student._id,
-        isPresent: record.IsPresent,
+        isPresent: record.IsPresent  || "absent",
         comment: record.Comment || "",
       }));
       await axios.put(
@@ -90,7 +90,7 @@ function Attendance() {
         <div className={styles.backButton} onClick={() => navigate("/schedule")}>
           <span><i className="fa-solid fa-arrow-left"></i></span>
         </div>
-        <h1 className={styles.header}>Danh sách điểm danh lớp: </h1>
+        <h1 className={styles.header}>Danh sách điểm danh lớp:</h1>
         <h3 className={styles.header}>Ngày: </h3>
         <div className={styles.tableContainer}>
           <table className={styles.table}>
