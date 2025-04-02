@@ -4,8 +4,10 @@ const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 require('dotenv').config();
 const Major = require('../models/Major');
-const fs = require ('fs');
-const path = require ('path');
+
+const fs = require('fs');
+const path = require('path');
+
 
 // Hàm tạo mật khẩu ngẫu nhiên
 const generateRandomPassword = () => {
@@ -106,9 +108,9 @@ const authController = {
                     Username = `admin0001`;  // Username đầu tiên cho quản trị viên
                 }
             }
+            const imagePath = path.join(__dirname, '../public/images/avatar.png');
+            const defautImage = fs.readFileSync(imagePath);
 
-            const imagePath = path.join(__dirname, '../public/Image/user_image.png');
-            const defaultImage = fs.readFileSync(imagePath);
             // ✅ 2. Lưu user vào database
             const newUser = new User({
                 Fullname,
@@ -121,7 +123,7 @@ const authController = {
                 Email,
                 SchoolYear: (Role === 'student') ? SchoolYear : null,
                 PhoneNumber,
-                Image: defaultImage,
+                Image: defautImage,
                 firstLogin: true // Đánh dấu chưa đổi mật khẩu
             });
 

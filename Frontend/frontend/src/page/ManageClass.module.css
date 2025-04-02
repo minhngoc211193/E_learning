@@ -1,0 +1,100 @@
+.container {
+    max-width: 1200px;
+    margin: auto;
+    padding: 24px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.header h1 {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.create-btn {
+    padding: 8px 16px;
+    background-color: #3b82f6;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    border: none;
+}
+
+.create-btn:hover {
+    background-color: #2563eb;
+}
+
+.search-box {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.class-card {
+    background-color: #e5e7eb;
+    padding: 16px;
+    border-radius: 8px;
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.class-title {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.avatar {
+    width: 48px;
+    height: 48px;
+    background-color: #9ca3af;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 24px;
+}
+
+.button-group {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+.edit-btn {
+    padding: 6px 12px;
+    background-color: #10b981;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    border: none;
+}
+
+.edit-btn:hover {
+    background-color: #059669;
+}
+
+.delete-btn {
+    padding: 6px 12px;
+    background-color: #ef4444;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    border: none;
+}
+
+.delete-btn:hover {
+    background-color: #dc2626;
+}

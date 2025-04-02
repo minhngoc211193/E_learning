@@ -297,6 +297,8 @@ const handleUser = async(user) =>{
                   placeholder="Nhập tin nhắn..."
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
+                  onKeyDown={handleTyping}
+                  onKeyUp={handleStopTyping}
                 />
                 <button className={styles["send-button"]} onClick={sendMessage}>
                   <FaPaperPlane />

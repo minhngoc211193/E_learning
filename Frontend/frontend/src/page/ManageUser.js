@@ -113,6 +113,7 @@ function ManageUser (){
                             {major.Name}
                         </option>
                     ))}
+                    <option value=""></option>
                 </select>
                 <span className={activeTab ==="create"? styles.activeTab : styles.inactiveTab}
                         onClick={() => setActiveTab("create")} >

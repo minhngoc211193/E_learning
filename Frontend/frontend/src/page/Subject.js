@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 function Subject() {
-    const [subjectData, setSubjectData] = useState({ Name: "", Description: "", MajorId:"" });
+    const [subjectData, setSubjectData] = useState({ Name: "", Description: "", MajorId:"", CodeSubject:"" });
     const [userRole, setUserRole] = useState(null);
     const [majors, setMajors] = useState([]);
     const [userMajor, setUserMajor] = useState(null);
@@ -12,9 +12,9 @@ function Subject() {
     const [editId, setEditId] = useState(null);
     const [selectedMajor, setSelectedMajor] = useState("");
     const navigate = useNavigate();
+    const token = localStorage.getItem("accessToken");
 
     useEffect(() => {
-        const token = localStorage.getItem("accessToken");
         if (token) {
             try {
                 const decodedToken = JSON.parse(atob(token.split(".")[1])); 
@@ -43,12 +43,16 @@ function Subject() {
 
     useEffect(() => {
         fetchMajors();
+
     }, []);
 
     const fetchMajors = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/major/majors');
+            const response = await axios.get('http://localhost:8000/major/majors',{
+                headers: { Authorization: `Bearer ${token}` },
+            });
             setMajors(response.data);
+            console.log(response.data);
         } catch (error) {
             console.error("Error fetching majors", error);
         }
@@ -56,7 +60,6 @@ function Subject() {
 
     const fetchSubjects = async () => {
         try {
-            const token = localStorage.getItem("accessToken");
             let response;
             if (userRole === "student" || userRole === "teacher") {
                 response = await axios.get(`http://localhost:8000/subject/get-subjects-by-major/${userMajor}`, {
@@ -84,7 +87,8 @@ function Subject() {
         const requestData = {
             Name: subjectData.Name,
             Description: subjectData.Description,
-            MajorId: subjectData.MajorId 
+            MajorId: subjectData.MajorId,
+            CodeSubject: subjectData.CodeSubject 
         };
         
         try {
@@ -98,7 +102,7 @@ function Subject() {
                     headers: { Authorization: `Bearer ${token}` },
                 });
             }
-            setSubjectData({ Name: "", Description: "", MajorId: "" });
+            setSubjectData({ Name: "", Description: "", MajorId: "", CodeSubject: "" });
             setEditId(null);
             fetchSubjects();
         } catch (error) {
@@ -111,7 +115,8 @@ function Subject() {
         setSubjectData({ 
             Name: subject.Name, 
             Description: subject.Description, 
-            MajorId: subject.Major ? subject.Major._id: "" 
+            MajorId: subject.Major ? subject.Major._id: "",
+            CodeSubject:  subject.CodeSubject
         });
         setEditId(subject._id);
 
@@ -153,6 +158,7 @@ function Subject() {
                 <form onSubmit={handleSubmit} className={styles.subjectForm}>
                     <input type="text" name="Name" value={subjectData.Name} onChange={handleChange} placeholder="Subject Name" required className={styles.formControl} />
                     <input type="text" name="Description" value={subjectData.Description} onChange={handleChange} placeholder="Description" required className={styles.formControl} />
+                    <input type="text" name="CodeSubject" value={subjectData.CodeSubject} onChange={handleChange} placeholder="Subject Code" required className={styles.formControl} />
                     <select
                         name="MajorId"
                         value={subjectData.MajorId}
@@ -179,6 +185,7 @@ function Subject() {
                                 <th>#</th>
                                 <th>Name</th>
                                 <th>Major</th>
+                                <th>Code Subject</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -189,6 +196,7 @@ function Subject() {
                                         <td>{index + 1}</td>
                                         <td>{subject.Name}</td>
                                         <td>{subject.Major ? subject.Major.Name : "No Major"}</td>
+                                        <td>{subject.CodeSubject}</td>
                                         <td>
                                             <button className={`${styles.btn} ${styles.btnWarning} ${styles.me2}`} onClick={() => handleEdit(subject)}>Edit</button>
                                             <button className={`${styles.btn} ${styles.btnDanger}`} onClick={() => handleDelete(subject._id)}>Delete</button>

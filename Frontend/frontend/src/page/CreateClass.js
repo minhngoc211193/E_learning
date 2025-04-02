@@ -121,7 +121,7 @@ function CreateClass() {
     const handleTeacher = (teacher) => {
         setClassData (prev => ({
             ...prev,
-            Student: teacher._id
+            Teacher: teacher._id
         }));
     };
     const handleMajorChange = (e) => {
