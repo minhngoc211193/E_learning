@@ -2,14 +2,16 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import {jwtDecode} from 'jwt-decode';
 
-function CreateMeet({ selectedConversation, token, onClose }) {
+function CreateMeet({ selectedConversationId, onClose }) {
   const [meeting, setMeeting] = useState({
     reason: "",
     meetingType: "online",
     time: "",
     address: "",
   });
-
+  console.log("selected id", selectedConversationId)
+  console.log("id teacher", selectedConversationId?.teacherId?._id)
+  const accessToken = localStorage.getItem("accessToken");
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setMeeting((prevForm) => ({
@@ -17,21 +19,21 @@ function CreateMeet({ selectedConversation, token, onClose }) {
       [name]: value,
     }));
   };
-
+console.log("token", accessToken)
   const handleCreateMeeting = async () => {
     const { reason, meetingType, time, address } = meeting;
-    const decodedToken = jwtDecode(token);
+    const decodedToken = jwtDecode(accessToken);
     const studentId = decodedToken.id; // Lấy ID của học sinh từ token
     const role = decodedToken.Role;
     const MeetingData = {
-        teacherName: selectedConversation?.teacherId?.Fullname || "Giáo viên chưa xác định", // Kiểm tra sự tồn tại của teacherName
+        teacherId: selectedConversationId?.teacherId?._id, 
         reason,
         meetingType,
         time,
-        address: meetingType === "offline" ? address : null,
-        studentId, 
+        address: meetingType === "offline" ? address : "không có",
+        // studentId, 
     };
-
+    console.log("meeting data", MeetingData);
     // Kiểm tra nếu lý do cuộc họp hoặc thời gian trống
     if (!reason || !time) {
       alert("Vui lòng điền đầy đủ lý do và thời gian cuộc họp.");
@@ -46,10 +48,7 @@ function CreateMeet({ selectedConversation, token, onClose }) {
       return;
     }
 
-    // Giải mã token để lấy thông tin người dùng
     try {
-
-
       // Kiểm tra role là 'student'
       if (role !== 'student') {
         alert("Bạn không có quyền tạo cuộc họp. Chỉ học sinh mới có thể thực hiện.");
@@ -59,9 +58,8 @@ function CreateMeet({ selectedConversation, token, onClose }) {
       // Gửi yêu cầu tạo cuộc họp
       const res = await axios.post(
         "http://localhost:8000/meet/request-meeting", MeetingData ,
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${accessToken}` } }
       );
-
       alert(res.data.message); // Hiển thị thông báo khi tạo thành công
       onClose(); // Đóng form
     } catch (error) {
@@ -73,7 +71,7 @@ function CreateMeet({ selectedConversation, token, onClose }) {
   return (
     <div className="p-4 bg-white border-t">
       <h3 className="font-bold">
-        Tạo cuộc họp với {selectedConversation?.teacherId?.Fullname || "Giáo viên chưa xác định"}
+        Tạo cuộc họp với {selectedConversationId?.teacherId?.Fullname || "Giáo viên chưa xác định"}
       </h3>
 
       {/* Form nhập lý do cuộc họp */}

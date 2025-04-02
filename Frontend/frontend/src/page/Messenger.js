@@ -10,7 +10,7 @@ import styles from "./Messenger.module.css";
 function Messenger() {
   const messagesEndRef = useRef(null);
   const [conversations, setConversations] = useState([]);
-  const [selectedConversationId, setSelectedConversationId] = useState(null);
+  const [selectedConversationId, setSelectedConversationId] = useState([]);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [searchResults, setSearchResults] = useState([]);
@@ -74,6 +74,16 @@ function Messenger() {
         }
     }
 };
+useEffect(() => {
+  if (selectedConversationId) {
+    console.log("Selected Conversation ID in Messenger:", selectedConversationId);
+    fetchMessages(selectedConversationId); // Fetch messages khi ID thay đổi
+
+    if (socket) {
+      socket.emit("join chat", selectedConversationId); // Emit "join chat" khi ID thay đổi
+    }
+  }
+}, [selectedConversationId, socket]); // Chạy effect khi selectedConversationId hoặc socket thay đổi
 
 const handleUser = async(user) =>{
   try{
@@ -125,7 +135,7 @@ const handleUser = async(user) =>{
           "Content-Type": "application/json",
         },
       });
-      console.log(res.data);
+      console.log("conversation", res.data);
       setConversations(res.data || []);
     } catch (error) {
       console.error("Lỗi khi lấy hội thoại:", error);
@@ -134,13 +144,16 @@ const handleUser = async(user) =>{
 
   // Khi click vào hội thoại
   const handleConversationClick = (conversationId) => {
+    const selectedConversation = conversations.find(conv => conv._id === selectedConversationId);
     setSelectedConversationId(conversationId);
-    console.log(conversationId);
+    console.log("selected id", conversationId);
     fetchMessages(conversationId);
+
     if (socket) {
       socket.emit("join chat", conversationId);
     }
   };
+  console.log("Selected Conversation ID: ", selectedConversationId);
 
   // Lấy tin nhắn của hội thoại đã chọn
   const fetchMessages = async (conversationId) => {
@@ -312,7 +325,12 @@ const handleUser = async(user) =>{
                 </button>
               )}
   
-              {isMeetingFormVisible && <CreateMeet conversationId={selectedConversationId} />}
+  {isMeetingFormVisible && 
+  <CreateMeet 
+    selectedConversationId={conversations.find(conv => conv._id === selectedConversationId)} 
+  />
+}
+
             </>
           ) : (
             <div className={styles["chat-placeholder"]}>Chọn hội thoại để bắt đầu chat</div>
