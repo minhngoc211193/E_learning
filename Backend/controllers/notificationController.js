@@ -1,7 +1,7 @@
 const Notification = require('../models/Notification');
 const User = require('../models/User');
 
-const createNotification = async (senderId, receiverId, type, message) => {
+const createNotification = async (req, senderId, receiverId, type, message) => {
   try {
     const newNotification = new Notification({
       type: type,
@@ -11,6 +11,8 @@ const createNotification = async (senderId, receiverId, type, message) => {
     });
 
     const savedNotification = await newNotification.save();
+    const io = req.app.get('io');
+    io.to(receiverId.toString()).emit('receive notification', savedNotification);
 
     return savedNotification;
   } catch (error) {

@@ -1,6 +1,7 @@
 const User = require('../models/User'); 
 const Meeting = require('../models/Meeting'); 
 const { authorize, createSpace } = require('../services/meetService');
+const { createNotification } = require('./notificationController');
 
 async function requestMeeting(req, res) {
   try {
@@ -35,6 +36,18 @@ async function requestMeeting(req, res) {
     teacher.Meeting.push(newMeeting._id);
     await student.save();
     await teacher.save();
+
+    const notification = await createNotification(
+      studentId,          
+      teacher._id,       
+      'MEETING_REQUEST', 
+      `Bạn có một yêu cầu meeting mới từ học sinh: ${student.Fullname}`
+    );
+
+    const io = req.app.get('io');
+    if (notification && io) {
+      io.to(teacher._id.toString()).emit('new notification', notification);
+    }
 
     res.status(201).json({
       message: 'Yêu cầu meeting đã được gửi thành công!',
@@ -81,7 +94,6 @@ const respondToMeetingRequest = async (req, res) => {
     const teacherId = req.user.id; 
 
     const meetingRequest = await Meeting.findById(meetingId);
-
     if (!meetingRequest) {
       return res.status(404).json({ message: 'Không tìm thấy yêu cầu cuộc họp.' });
     }
@@ -94,10 +106,26 @@ const respondToMeetingRequest = async (req, res) => {
       return res.status(400).json({ message: 'Yêu cầu cuộc họp này đã được phản hồi trước đó.' });
     }
 
+    const teacher = await User.findById(teacherId);
+    const studentId = meetingRequest.studentId;
+
+    const io = req.app.get('io'); 
+
     if (action === 'reject') {
       meetingRequest.status = 'Rejected';
       meetingRequest.rejectionReason = rejectionReason; 
       await meetingRequest.save();
+
+      const notification = await createNotification(
+        teacherId, 
+        studentId,  
+        'MEETING_REJECTED',
+        `Yêu cầu cuộc họp của bạn đã bị từ chối bởi ${teacher.Fullname}. Lý do: ${rejectionReason || 'Không có'}`
+      );
+
+      if (io && notification) {
+        io.to(studentId.toString()).emit('new notification', notification);
+      }
 
       return res.status(200).json({
         message: 'Yêu cầu cuộc họp đã bị từ chối.',
@@ -115,8 +143,22 @@ const respondToMeetingRequest = async (req, res) => {
       } else if (meetingRequest.meetingType === 'offline') {
         meetingRequest.meetingUrl = null; 
       }
-
       await meetingRequest.save();
+
+      const linkMessage = meetingRequest.meetingType === 'online' 
+        ? `Link Google Meet: ${meetingRequest.meetingUrl}` 
+        : 'Hình thức là offline, không có link gôgle mêt.';
+      
+      const notification = await createNotification(
+        teacherId,  
+        studentId,  
+        'MEETING_ACCEPTED',
+        `Yêu cầu cuộc họp của bạn đã được chấp nhận bởi ${teacher.Fullname}. ${linkMessage}`
+      );
+
+      if (io && notification) {
+        io.to(studentId.toString()).emit('new notification', notification);
+      }
 
       return res.status(200).json({
         message: 'Yêu cầu cuộc họp đã được chấp nhận.',

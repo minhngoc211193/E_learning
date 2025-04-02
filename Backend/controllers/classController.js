@@ -259,7 +259,6 @@ const classController = {
     
             // ==================== 2. Kiểm tra thay đổi danh sách Student ====================
             const newStudentIds = updatedClass.Student.map(s => s._id.toString());
-    
             // Tìm các student được thêm
             const addedStudentIds = newStudentIds.filter(id => !oldStudentIds.includes(id));
             // Tìm các student bị xóa
@@ -306,7 +305,6 @@ const classController = {
         }
     },
     
-
     // Xóa lớp học theo ID
     deleteClass: async (req, res) => {
         try {

@@ -22,7 +22,8 @@ const documentRouter = require('./routes/document');
 const scheduleRouter = require('./routes/schedule');
 const messagesRoutes = require('./routes/messenger');
 const googleMeetRoutes = require('./routes/meet');
-const notificationRoutes = require('./routes/notification')
+const notificationRoutes = require('./routes/notification');
+const dashboardRoutes = require('./routes/dashboard');
 
 // Cấu hình middlewares
 app.use(cors());
@@ -45,6 +46,7 @@ app.use('/schedule', scheduleRouter);
 app.use('/messenger', messagesRoutes);
 app.use('/meet', googleMeetRoutes);
 app.use('/notification', notificationRoutes);
+app.use('/dashboard',dashboardRoutes );
 
 const connectToMongo = async () => {
   await mongoose.connect(process.env.MONGODB_URL);
@@ -98,16 +100,16 @@ io.on("connection", (socket) => {
     socket.to(receiverId).emit("message received", newMessageRecieved);
   });
 
-  socket.on('new notification', async (notification) => {
+  socket.on('receive notification', async (notification) => {
     try {
       if (!notification || !notification.receiverId) {
         return console.log("Invalid notification data");
       }
       
       // Trực tiếp gửi thông báo đến người nhận
-      io.to(notification.receiverId.toString()).emit('new notification', notification);
+      io.to(notification.receiverId.toString()).emit('receive notification', notification);
     } catch (error) {
-      console.error('Error handling new notification:', error);
+      console.error('Error handling receive notification:', error);
     }
   });
 
