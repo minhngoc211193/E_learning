@@ -130,8 +130,6 @@ const sendMessage = async (req, res) => {
     // Cập nhật tin nhắn cuối cùng của cuộc trò chuyện
     conversation.lastMessage = savedMessage._id;
     await conversation.save();
-
-    // Tạo thông báo
     const notification = await createNotification(
       userId, 
       receiverId, 
@@ -150,7 +148,6 @@ const sendMessage = async (req, res) => {
       messageId: savedMessage._id, 
       status: 'delivered' 
     });
-
 
     // Gửi thông báo real-time nếu có
     if (notification) {

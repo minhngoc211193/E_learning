@@ -7,7 +7,6 @@ const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const socketIo = require('socket.io'); // Import Socket.IO
 const userSocketMap = new Map();
-
 dotenv.config();
 const app = express();
 
@@ -31,23 +30,17 @@ const dashboardRoutes = require('./routes/dashboard');
 
 
 
+
 const messagesRouter = require('./routes/messenger');
 const googleMeetRoutes = require('./routes/meet');
 const notificationRoutes = require('./routes/notification');
 
+const dashboardRoutes = require('./routes/dashboard');
 
-// Cấu hình CORS
-// app.use(cors({
-//     origin: "http://localhost:3000", // Cho phép frontend từ localhost:3000
-//     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Các phương thức cho phép
-//     allowedHeaders: ["Content-Type", "Authorization"], // Các header cần thiết
-//     credentials: true,  // Nếu sử dụng cookie hoặc xác thực qua session
-// }));
 app.use(cors())
 
 // Xử lý preflight OPTIONS cho tất cả các route
 app.options('*', cors());
-
 
 app.use(logger('dev'));
 app.use(express.json());
