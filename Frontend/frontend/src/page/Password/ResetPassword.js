@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import styles from "./ResetPassword.module.css";
 import { useNavigate } from "react-router-dom";
+import { Spin } from "antd";
 
 function ResetPassword() {
   const [step, setStep] = useState(1);
@@ -12,6 +13,7 @@ function ResetPassword() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [timeLeft, setTimeLeft] = useState(300);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   // Hiệu ứng chỉ chạy ở bước 2 để đếm ngược thời gian OTP
@@ -46,6 +48,7 @@ function ResetPassword() {
       setError("Vui lòng nhập email");
       return;
     }
+    setLoading(true);
     try {
       const res = await axios.post("http://localhost:8000/auth/forgot-password", { Email: email });
       setSuccess(res.data.message);
@@ -53,6 +56,8 @@ function ResetPassword() {
       setTimeLeft(300); // reset bộ đếm thời gian
     } catch (err) {
       setError(err.response?.data?.message || "Lỗi khi gửi OTP");
+    } finally {
+      setLoading(false); // Tắt loading sau khi hoàn thành
     }
   };
 
@@ -113,7 +118,13 @@ function ResetPassword() {
               onChange={(e) => setEmail(e.target.value)}
             />
           </div>
-          <button onClick={handleSendOTP}>Send OTP</button>
+          {loading ? (
+            <div className={styles.loading}>
+              <Spin tip="Đang gửi OTP..." />
+            </div>
+          ) : (
+            <button onClick={handleSendOTP}>Send OTP</button>
+          )}
           {error && <p className={styles.errorMessage}>{error}</p>}
           {success && <p className={styles.successMessage}>{success}</p>}
         </div>

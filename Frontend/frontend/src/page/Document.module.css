@@ -1,0 +1,135 @@
+/* Container chính */
+.container {
+    display: flex;
+    height: 100vh;
+    background-color: #f4f4f4;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 20%;
+    background-color: #d1d5db;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+}
+
+.class-button {
+    width: 100%;
+    text-align: left;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    border-radius: 5px;
+    background-color: #e5e7eb;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.class-button.selected {
+    background-color: #9ca3af;
+    font-weight: bold;
+}
+
+/* Nội dung chính */
+.content {
+    width: 80%;
+    padding: 2rem;
+}
+
+.class-header {
+    background-image: url("https://i.pinimg.com/736x/d4/45/05/d44505e26211ad5093bf4fe5c3a7293d.jpg");
+    background-size: cover;
+    background-position: center;
+    color: black;
+    padding: 1.5rem;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+}
+
+.class-title {
+    font-size: 1.75rem;
+    font-weight: bold;
+}
+
+/* Form tài liệu */
+.document-form {
+    background-color: white;
+    padding: 1rem;
+    border-radius: 5px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1rem;
+}
+
+.document-form input {
+    display: block;
+    width: 100%;
+    padding: 0.5rem;
+    margin-bottom: 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.upload-button,
+.update-button {
+    background-color: #3b82f6;
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.update-button {
+    background-color: #10b981;
+}
+
+/* Danh sách tài liệu */
+.document-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+}
+
+.document-list {
+    list-style: none;
+    padding: 0;
+}
+
+.document-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #e5e7eb;
+    padding: 0.75rem;
+    border-radius: 5px;
+    margin-bottom: 0.5rem;
+}
+
+.download-link {
+    color: #3b82f6;
+    text-decoration: none;
+}
+
+.edit-button {
+    background-color: #fbbf24;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 5px;
+    margin-left: 0.5rem;
+    cursor: pointer;
+}
+
+.delete-button {
+    background-color: #ef4444;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 5px;
+    margin-left: 0.5rem;
+    cursor: pointer;
+}

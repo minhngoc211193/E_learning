@@ -2,6 +2,7 @@ const Schedule = require('../models/Schedule');
 const Class = require('../models/Class');
 const User = require('../models/User');
 const nodemailer = require('nodemailer');
+const Attendance = require('../models/Attendance');
 require('dotenv').config();
 
 const transporter = nodemailer.createTransport({
@@ -75,13 +76,37 @@ const scheduleController = {
             // Lưu lịch học vào database
             const savedSchedule = await newSchedule.save();
 
+            // Lấy danh sách học sinh trong lớp để tạo attendance cho mỗi học sinh
+
             // Cập nhật lại Slots của lớp
             classData.Slots -= 1;  // Trừ đi 1 Slot
             await classData.save();
 
-            // ============== THÊM PHẦN GỬI MAIL ==============
-            const teacher = await User.findById(classData.Teacher);
+
             const students = await User.find({ _id: { $in: classData.Student } });
+            const teacher = await User.findById(classData.Teacher);
+
+            const attendancePromises = students.map(async (student) => {
+                const attendanceExists = await Attendance.findOne({
+                    Schedule: savedSchedule._id,
+                    Student: student,
+                });
+
+                // Nếu chưa có Attendance cho học sinh này, tạo mới
+                if (!attendanceExists) {
+                    await Attendance.create({
+                        Schedule: savedSchedule._id,
+                        Teacher: teacher,
+                        Student: student,
+                        IsPresent: 'pending', // Mặc định là pending
+                        Date: savedSchedule.Day
+                    });
+                }
+            });
+
+            await Promise.all(attendancePromises);
+
+            // ============== THÊM PHẦN GỬI MAIL ==============
 
             // Định dạng ngày để gửi mail (VD: 24/03/2025)
             const formattedDate = new Date(Day).toLocaleDateString();
@@ -187,7 +212,7 @@ Ban Quản trị`
             // ============== THÊM PHẦN GỬI MAIL ==============
             // Tương tự như createSchedule, gửi thông báo cho giáo viên & sinh viên
             const teacher = await User.findById(classData.Teacher);
-            const students = await User.find({ _id: { $in: classData.Student }});
+            const students = await User.find({ _id: { $in: classData.Student } });
             const formattedDate = new Date(Day).toLocaleDateString();
 
             // 1) Gửi email cho giáo viên
@@ -299,21 +324,22 @@ Ban Quản trị`
             if (classData) {
                 classData.Slots += 1;
                 await classData.save();
+            }
+            await Attendance.deleteMany({ Schedule: schedule._id });
+            // ============== THÊM PHẦN GỬI MAIL ==============
+            // Lấy giáo viên & sinh viên
+            const teacher = await User.findById(classData.Teacher);
+            const students = await User.find({ _id: { $in: classData.Student } });
+            // Biến schedule.Day là Date object, format lại
+            const formattedDate = schedule.Day.toLocaleDateString();
 
-                // ============== THÊM PHẦN GỬI MAIL ==============
-                // Lấy giáo viên & sinh viên
-                const teacher = await User.findById(classData.Teacher);
-                const students = await User.find({ _id: { $in: classData.Student }});
-                // Biến schedule.Day là Date object, format lại
-                const formattedDate = schedule.Day.toLocaleDateString();
-
-                // 1) Gửi email cho giáo viên
-                if (teacher) {
-                    const mailOptionsTeacher = {
-                        from: process.env.EMAIL_USER,
-                        to: teacher.Email,
-                        subject: "Lịch học đã bị xóa",
-                        text: `Xin chào thầy/cô ${teacher.Fullname},
+            // 1) Gửi email cho giáo viên
+            if (teacher) {
+                const mailOptionsTeacher = {
+                    from: process.env.EMAIL_USER,
+                    to: teacher.Email,
+                    subject: "Lịch học đã bị xóa",
+                    text: `Xin chào thầy/cô ${teacher.Fullname},
 
 Lịch học của lớp: ${classData.Classname} vào ngày ${formattedDate} (Slot ${schedule.Slot}, Phòng ${schedule.Address}) đã bị xóa.
 
@@ -321,9 +347,9 @@ Vui lòng kiểm tra lại hệ thống để theo dõi chi tiết.
 
 Trân trọng,
 Ban Quản trị`
-                    };
-                    await transporter.sendMail(mailOptionsTeacher);
-                }
+                };
+                await transporter.sendMail(mailOptionsTeacher);
+
 
                 // 2) Gửi email cho từng sinh viên
                 for (const stu of students) {

@@ -2,31 +2,32 @@ import React, {useState, useEffect} from 'react';
 import { useNavigate } from "react-router-dom";
 import axios from 'axios';
 
-const Major = () => {
+function Major () {
     const[majorData, setMajorData] = useState({
             Name:"",
-            Description:"",  
+            Description:"",
+            CodeMajor: ""  
         });
     const [majors, setMajors] = useState([]);
     const [editingId, setEditingId] = useState(null);
     const navigate = useNavigate();
+    const token = localStorage.getItem("accessToken");
 
     useEffect(() => {
-        const token = localStorage.getItem("accessToken");
       if (token) {
           try {
               const decodedToken = JSON.parse(atob(token.split(".")[1])); // Giải mã token
               if (decodedToken.Role !== "admin") {
-                  alert("You have to login!");
-                  navigate("/home"); // Chuyển hướng về trang chủ
+                  alert("You have to login with admin role!");
+                  navigate("/"); // Chuyển hướng về trang chủ
               }
           } catch (err) {
               console.error("Token không hợp lệ", err);
-              navigate("/"); // Chuyển hướng nếu token lỗi
+              navigate("/home"); 
           }
       } else {
           alert("Bạn cần đăng nhập trước!");
-          navigate("/home"); // Chuyển hướng đến trang login nếu chưa có token
+          navigate("/"); // Chuyển hướng đến trang login nếu chưa có token
       }
   }, [navigate]);
     useEffect(() => {
@@ -35,7 +36,9 @@ const Major = () => {
 
     const fetchMajors = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/major/majors');
+            const response = await axios.get('http://localhost:8000/major/majors', {
+                headers: { Authorization: `Bearer ${token}` },
+            });
             setMajors(response.data);
         } catch (error) {
             console.error("Error fetching majors", error);
@@ -50,11 +53,16 @@ const Major = () => {
         e.preventDefault();
         try {
             if (editingId) {
-                await axios.put(`http://localhost:8000/major/update-major/${editingId}`, majorData);
+                await axios.put(`http://localhost:8000/major/update-major/${editingId}`, majorData, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
             } else {
-                await axios.post('http://localhost:8000/major/create-major', majorData);
+                await axios.post('http://localhost:8000/major/create-major', majorData, {
+                    headers: { Authorization: `Bearer ${token}` }, 
+                });
             }
-            setMajorData({ Name: "", Description: "" });
+            console.log(majorData);
+            setMajorData({ Name: "", Description: "", CodeMajor: "" });
             setEditingId(null);
             fetchMajors();
         } catch (error) {
@@ -63,13 +71,15 @@ const Major = () => {
     };
 
     const handleEdit = (major) => {
-        setMajorData({ Name: major.Name, Description: major.Description });
+        setMajorData({ Name: major.Name, Description: major.Description, CodeMajor: major.CodeMajor });
         setEditingId(major._id);
     };
 
     const handleDelete = async (_id) => {
         try {
-            await axios.delete(`http://localhost:8000/major/delete-major/${_id}`);
+            await axios.delete(`http://localhost:8000/major/delete-major/${_id}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
             fetchMajors();
         } catch (error) {
             console.error("Error deleting major", error);
@@ -82,12 +92,13 @@ const Major = () => {
             <form onSubmit={handleSubmit}>
                 <input type="text" name="Name" value={majorData.Name} onChange={handleChange} placeholder="Major Name" required />
                 <input type="text" name="Description" value={majorData.Description} onChange={handleChange} placeholder="Description" required />
+                <input type="text" name="CodeMajor" value={majorData.CodeMajor} onChange={handleChange} placeholder="Code Major" required />
                 <button type="submit">{editingId ? "Update" : "Create"} Major</button>
             </form>
             <ul>
                 {majors.map((major) => (
                     <li key={major._id}>
-                        {major.Name} - {major.Description}
+                        {major.Name} - {major.Description} - {major.CodeMajor}
                         <button onClick={() => handleEdit(major)}>Edit</button>
                         <button onClick={() => handleDelete(major._id)}>Delete</button>
                     </li>

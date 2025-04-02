@@ -6,18 +6,18 @@ const mime = require('mime-types');
 
 const searchUser = async (req, res) => {
   try {
-    const { searchText } = req.body;
+    const { searchText } = req.query;
     const userId = req.user.id;
     const userRole = req.user.Role;
 
     let userToSearch;
     if (userRole === 'student') {
-      userToSearch = await User.findOne({ 
+      userToSearch = await User.find({ 
         Role: 'teacher', 
         Fullname: { $regex: searchText, $options: 'i' } 
       });
     } else if (userRole === 'teacher') {
-      userToSearch = await User.findOne({ 
+      userToSearch = await User.find({ 
         Role: 'student', 
         Fullname: { $regex: searchText, $options: 'i' } 
       });
@@ -38,46 +38,70 @@ const searchUser = async (req, res) => {
 
 const createConversation = async (req, res) => {
   try {
-    const { searchedUserId } = req.body;
+    const { searchUserId } = req.body; // Sửa lại tên trường để match với frontend
     const userId = req.user.id;
     const userRole = req.user.Role;
 
-    const userToSearch = await User.findById(searchedUserId);
+    // Validate input
+    if (!searchUserId) {
+      return res.status(400).json({ message: 'User ID is required' });
+    }
+
+    const userToSearch = await User.findById(searchUserId);
     if (!userToSearch) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    let existingConversation = await Conversation.findOne({
-      $or: [
-        { studentId: userId, teacherId: searchedUserId },
-        { studentId: searchedUserId, teacherId: userId },
-      ],
-    });
-
-    if (!existingConversation) {
-      const newConversation = new Conversation({
-        studentId: userRole === 'student' ? userId : searchedUserId,
-        teacherId: userRole === 'teacher' ? userId : searchedUserId,
-        // Lấy ảnh của cả student và teacher
-        studentImage: userRole === 'student' ? req.user.Image : userToSearch.Image,
-        teacherImage: userRole === 'teacher' ? req.user.Image : userToSearch.Image
-      });
-
-      const savedConversation = await newConversation.save();
-      return res.status(201).json(savedConversation);
+    // Kiểm tra xem vai trò của người dùng có phù hợp không
+    if (userRole === 'student' && userToSearch.Role !== 'teacher') {
+      return res.status(403).json({ message: 'Can only create conversation with a teacher' });
     }
 
-    return res.status(200).json(existingConversation);
+    if (userRole === 'teacher' && userToSearch.Role !== 'student') {
+      return res.status(403).json({ message: 'Can only create conversation with a student' });
+    }
+
+    // Tìm conversation đã tồn tại
+    let existingConversation = await Conversation.findOne({
+      $or: [
+        { studentId: userId, teacherId: searchUserId },
+        { studentId: searchUserId, teacherId: userId },
+      ],
+    })
+    .populate('studentId', 'Fullname Image')
+    .populate('teacherId', 'Fullname Image');
+
+    // Nếu conversation đã tồn tại, trả về conversation đó
+    if (existingConversation) {
+      return res.status(200).json(existingConversation);
+    }
+
+    // Tạo conversation mới
+    const newConversation = new Conversation({
+      studentId: userRole === 'student' ? userId : searchUserId,
+      teacherId: userRole === 'teacher' ? userId : searchUserId,
+    });
+
+    const savedConversation = await newConversation.save();
+
+    // Populate conversation với thông tin user
+    const populatedConversation = await Conversation.findById(savedConversation._id)
+      .populate('studentId', 'Fullname Image')
+      .populate('teacherId', 'Fullname Image');
+
+    return res.status(201).json(populatedConversation);
+
   } catch (err) {
     console.error(err);
-    return res.status(500).json({ message: 'Server error', error: err });
+    return res.status(500).json({ message: 'Server error', error: err.message });
   }
 };
 
 const sendMessage = async (req, res) => {
   try {
-    const { conversationId, text } = req.body; 
-    const userId = req.user.id; 
+
+    const { conversationId, text } = req.body;
+    const userId = req.user.id;
     const user = await User.findById(userId);
 
     const conversation = await Conversation.findById(conversationId);
@@ -85,9 +109,11 @@ const sendMessage = async (req, res) => {
       return res.status(404).json({ message: 'Conversation not found' });
     }
 
+    // Kiểm tra xem người dùng có được phép gửi tin nhắn trong cuộc trò chuyện này không
     if (conversation.studentId.toString() !== userId && conversation.teacherId.toString() !== userId) {
       return res.status(403).json({ message: 'You are not authorized to send messages in this conversation' });
     }
+    // Xác định receiverId là người còn lại trong cuộc trò chuyện
 
     const receiverId = userId === conversation.studentId.toString() 
       ? conversation.teacherId 
@@ -95,17 +121,16 @@ const sendMessage = async (req, res) => {
 
     const newMessage = new Messenger({
       conversationId: conversation._id,
-      senderId: userId,
-      receiverId: receiverId,
+      senderId: userId, // ID của người gửi
+      receiverId: receiverId, // ID của người nhận
       text,
     });
 
     const savedMessage = await newMessage.save();
 
+    // Cập nhật tin nhắn cuối cùng của cuộc trò chuyện
     conversation.lastMessage = savedMessage._id;
     await conversation.save();
-
-    // Thông báo từ bên notifiControllernotifiController
     const notification = await createNotification(
       userId, 
       receiverId, 
@@ -114,12 +139,23 @@ const sendMessage = async (req, res) => {
     );
     console.log('Created Notification:', notification);
 
-    const io = req.app.get('io'); 
-    io.to(conversationId).emit('new message', savedMessage);
-    io.to(conversationId).emit('message delivered', { messageId: savedMessage._id, status: 'delivered' });
 
+    const io = req.app.get('io');
+    
+    // Gửi tin nhắn mới đến cuộc trò chuyện
+    io.to(conversationId).emit('new message', savedMessage);
+    
+    // Xác nhận tin nhắn đã được gửi
+    io.to(conversationId).emit('message delivered', { 
+      messageId: savedMessage._id, 
+      status: 'delivered' 
+    });
+
+    // Gửi thông báo real-time nếu có
     if (notification) {
       console.log(`Emitting notification to user: ${receiverId}`);
+      // io.emit('new notification', notification);
+
       io.to(receiverId.toString()).emit('new notification', notification);
     }
 

@@ -5,28 +5,38 @@ const dotenv = require('dotenv');
 var mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
-const socketIo = require('socket.io'); 
+
+const socketIo = require('socket.io'); // Import Socket.IO
 const userSocketMap = new Map();
 dotenv.config();
 const app = express();
 
-// Router
+
 const authRouter = require('./routes/auth');
 const majorRouter = require('./routes/major');
 const blogRouter = require('./routes/blog');
+
+const attendanceRouter = require('./routes/attendance');
+
 const commentRouter = require('./routes/comment');
 const subjectRouter = require('./routes/subject');
 const classRouter = require('./routes/class');
 const userRouter = require('./routes/users');
 const documentRouter = require('./routes/document');
 const scheduleRouter = require('./routes/schedule');
-const messagesRoutes = require('./routes/messenger');
+
+
+const messagesRouter = require('./routes/messenger');
 const googleMeetRoutes = require('./routes/meet');
 const notificationRoutes = require('./routes/notification');
+
 const dashboardRoutes = require('./routes/dashboard');
 
-// Cấu hình middlewares
-app.use(cors());
+app.use(cors())
+
+// Xử lý preflight OPTIONS cho tất cả các route
+app.options('*', cors());
+
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -43,11 +53,16 @@ app.use('/class', classRouter);
 app.use('/user', userRouter);
 app.use('/document', documentRouter);
 app.use('/schedule', scheduleRouter);
-app.use('/messenger', messagesRoutes);
+app.use('/attendance', attendanceRouter);
+
+
+
+app.use('/messenger', messagesRouter);
 app.use('/meet', googleMeetRoutes);
 app.use('/notification', notificationRoutes);
 app.use('/dashboard',dashboardRoutes );
 
+// Kết nối MongoDB
 const connectToMongo = async () => {
   await mongoose.connect(process.env.MONGODB_URL);
   console.log("Connected to MongoDB");
@@ -105,7 +120,6 @@ io.on("connection", (socket) => {
       if (!notification || !notification.receiverId) {
         return console.log("Invalid notification data");
       }
-      
       // Trực tiếp gửi thông báo đến người nhận
       io.to(notification.receiverId.toString()).emit('receive notification', notification);
     } catch (error) {
@@ -132,3 +146,4 @@ io.on("connection", (socket) => {
 });
 
 module.exports = server;
+
