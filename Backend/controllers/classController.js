@@ -338,8 +338,6 @@ const classController = {
             res.status(500).json({ message: "Cập nhật lớp thất bại", error: err.message });
         }
     },
-
-
     // Xóa lớp học theo ID
     deleteClass: async (req, res) => {
         try {
