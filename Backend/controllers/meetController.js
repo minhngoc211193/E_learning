@@ -27,6 +27,7 @@ async function requestMeeting(req, res) {
       time,
       address: meetingType === 'offline' ? address : null,  
       status: 'Pending',
+      meetingUrl: ""
     };
 
     const newMeeting = new Meeting(meetingRequest);
@@ -352,6 +353,11 @@ module.exports = { requestMeeting, getMeetings, respondToMeetingRequest, searchM
 //         .populate('teacherId', 'Fullname')
 //         .select('teacherId reason status time meetingType');
 
+    // res.status(200).json({
+    //   message: 'Danh sách yêu cầu cuộc họp của giáo viên:',
+    //   meetings
+    // });
+
 //       // Tìm kiếm trong tất cả các trường của meeting
 //       const filteredMeetings = meetings.filter(meeting =>
 //         meeting.teacherId.Fullname.match(regex) || 
@@ -359,6 +365,7 @@ module.exports = { requestMeeting, getMeetings, respondToMeetingRequest, searchM
 //         meeting.status.match(regex) ||
 //         meeting.meetingType.match(regex)
 //       );
+
 
 //       res.status(200).json({ meetings: filteredMeetings });
 

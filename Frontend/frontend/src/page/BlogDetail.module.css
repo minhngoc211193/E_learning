@@ -1,189 +1,280 @@
-html, body {
+html,
+body {
     margin: 0;
     padding: 0;
     width: 100%;
     height: 100%;
+    -webkit-font-smoothing: antialiased;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
 }
 
-.headerPicture{
+.headerPicture {
     width: 100%;
     height: 500px;
+    position: relative;
 }
 
-.headerPicture img{
+.headerPicture img {
     width: 100%;
     height: 100%;
 }
 
-.containerContent{
-    background-color: rgb(231, 231, 231);
+.containerContent {
+    background-color: rgb(255, 255, 255);
     padding: 80px 300px 30px 300px;
+    border-radius: 8px;
 }
 
-.containerContent h1{
+.containerContent h1 {
     margin: 0;
     font-size: 50px;
     padding: 20px 0 40px 20px;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
 }
 
-.containerContent p{
+.containerContent p {
     padding: 0 40px;
     margin-top: -20px;
     font-size: 20px;
     padding-bottom: 30px;
     white-space: pre-line;
     text-indent: 2em;
+    line-height: 1.2;
 }
 
-.mainContent{
+.mainContent {
     background-color: white;
     box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
     border-radius: 5px;
 }
 
-.authorProfile{
+.authorProfile {
     padding: 0 300px;
     background-color: white;
-    
+    margin-top: 30px;
+
 }
 
-.authorInfo{
-    display: flex;
-}
-
-.authorInfo span{
+.authorInfo {
     display: flex;
     align-items: center;
-    padding: 0 40px 0 70px;
-    font-size: 50px;
 }
 
-.authorAvar h2{
+.authorInfoImage{
+    padding: 0 30px 0 30px;
+    width: 100px;
+    height: auto;
+    border-radius: 50%;
+}
+
+.authorAvar h2 {
     padding-top: 5px;
     margin: 0;
 }
 
-.authorAvar h4{
+.authorAvar h4 {
     margin-top: 5px;
     padding-left: 10px;
 }
 
-.date{
+.date {
     text-align: end;
     font-size: 14px;
     margin-top: -30px;
     border-bottom: 1px solid rgb(211, 211, 211);
     padding-bottom: 30px;
+    color: #555;
 }
 
-.commentContainer{
+.commentContainer {
     padding: 0 300px;
+    margin-top: 30px;
 }
 
-.mainComment{
+.mainComment {
     padding: 0 40px;
+    margin-bottom: 20px; /* Added: Khoảng cách giữa các comment */
+    border-bottom: 1px solid #ddd; /* Added: Đường kẻ phân cách comment */
+    padding-bottom: 15px;
 }
 
-.userComment{
+.userComment {
     display: flex;
     align-items: center;
     justify-content: space-between;
 }
 
-.userComentLeft{
+.userComentLeft {
     display: flex;
     align-items: center;
     padding: 0 10px;
 }
 
-.userComentLeft h3{
+.userComentLeftImage{
+    width: 45px;
+    height: auto;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.userComentLeft h3 {
     margin: 15px 0;
 }
 
-.options{
+.options {
     cursor: pointer;
+    display: flex; /* Added: Canh đều các icon */
+    gap: 10px;
 }
 
-.trash{
+.trash {
     color: red;
 }
 
-.edit{
+.edit {
     color: green;
 }
 
-.optionsHidden{
+.optionsHidden {
     display: none;
 }
 
-.userComment span{
+.userComment span {
     font-size: 18px;
     padding: 0 10px;
 }
 
-.commentContent{
+.commentContent {
     padding: 0 30px;
 }
 
-.commentContent p{
+.commentContent p {
+    margin: 10px 0 0 45px;
+}
+
+
+.dateComment p {
     margin: 0;
-}
-
-.dateComment{
-    border-bottom: 1px solid rgb(211, 211, 211);
-}
-
-.dateComment p{
-    margin-top: 0;
     font-size: 12px;
     text-align: end;
+    color: #888;
 }
 
-.yourComment{
+.yourComment {
     padding: 30px 300px 80px 300px;
     display: flex;
     align-items: center;
 }
 
-.yourComment button{
+.yourComment button {
     margin: 0;
     width: 70px;
 }
 
-.yourComment input{
-    margin: 0 20px 0 30px;
+.yourComment input {
+    margin: 0 20px 0 5px;
 }
 
-.editCommentHidden{
+.yourComment img{
+    width: 45px;
+    height: auto;
+    border-radius: 50%;
+    border: 2px solid #007bff;
+}
+
+.editCommentHidden {
     display: none;
 }
 
-.editComment{
+.editComment {
     display: flex;
     margin-bottom: 5px;
 }
 
-.editComment input{
+.editComment input {
+    width: 90%;
+    padding: 12px;
     margin: 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    outline: none;
+    transition: border 0.3s;
 }
 
-.saveComment{
+.editComment input:focus {
+    border-color: #007bff;
+}
+
+.saveComment {
     width: 50px;
     padding: 10px 5px;
     margin: 0 5px 0 20px;
     border-radius: 10px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    background-color: blue;
+    color: white;
 }
 
-.cancelComment{
+.saveComment:hover {
+    background-color: rgb(0, 0, 167);
+    transform: translateY(-2px);
+}
+
+.cancelComment {
     width: 70px;
     padding: 10px 5px;
     background-color: rgb(236, 0, 0);
     border-radius: 10px;
     margin: 0;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    color: white;
 }
 
-.cancelComment:hover{
-    background-color: rgb(186, 0, 0);
+.cancelComment:hover {
+    background-color: rgb(196, 0, 0);
+    transform: translateY(-2px);
 }
 
+.submitComment {
+    background: linear-gradient(135deg, #007bff, #00c6ff);
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    padding: 12px 12px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
 
+.submitComment:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+  
+.submitComment:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.yourCommentText{
+    width: 90%;
+    padding: 12px;
+    margin: 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    outline: none;
+    transition: border 0.3s;
+}
+
+.yourCommentText:focus {
+    border-color: #007bff;
+}

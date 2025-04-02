@@ -5,11 +5,11 @@ const {verifyToken, verifyAdmin} = require('../middlewares/authMiddleware');
 const router = express.Router();
 
 
-router.post("/create-major", verifyToken, majorController.createMajor);
-router.get("/majors", verifyToken, majorController.getAllMajors);
-router.get("/detail-major/:id", verifyToken, majorController.getMajorById);
-router.put("/update-major/:id", verifyToken, majorController.updateMajor);
-router.delete("/delete-major/:id", verifyToken, majorController.deleteMajor);
-router.get("/search-major", verifyToken, majorController.searchMajor);
+router.post("/create-major", verifyAdmin, majorController.createMajor);
+router.get("/majors", verifyAdmin, majorController.getAllMajors);
+router.get("/detail-major/:id", verifyAdmin, majorController.getMajorById);
+router.put("/update-major/:id", verifyAdmin, majorController.updateMajor);
+router.delete("/delete-major/:id", verifyAdmin, majorController.deleteMajor);
+router.get("/search-major", verifyAdmin, majorController.searchMajor);
 
 module.exports = router;

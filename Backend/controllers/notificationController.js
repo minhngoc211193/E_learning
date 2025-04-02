@@ -7,9 +7,10 @@ const createNotification = async (req, senderId, receiverId, type, message) => {
       type: type,
       sender: senderId,
       receiver: receiverId,
-      message: message
-    });
+      message: message,
 
+    });
+    
     const savedNotification = await newNotification.save();
     const io = req.app.get('io');
     io.to(receiverId.toString()).emit('receive notification', savedNotification);
@@ -76,3 +77,4 @@ const markNotificationAsRead = async (req, res) => {
 };
 
 module.exports = { createNotification, getAllNotifications, markNotificationAsRead };
+

@@ -45,7 +45,7 @@ function FirstLogin() {
             const decoded = jwtDecode(token);
             const userId = decoded.id;
             await axios.post(
-                "http://localhost:8000/auth/reset-password",
+                "http://localhost:8000/auth/change-password",
                 { userId, oldPassword, newPassword },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
@@ -86,7 +86,7 @@ function FirstLogin() {
                     />
                     {error && <p className={styles.errorMessage}>{error}</p>}
                     {success && <p className={styles.successMessage}>{success}</p>}
-                    <button type="submit">Save</button>
+                    <button className={styles.btnSave} type="submit">Save</button>
                 </form>
                 <div className={styles.imageSection}>
                     <img src={img} className={styles.image} alt="Study illustration" />

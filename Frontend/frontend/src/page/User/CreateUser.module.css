@@ -1,48 +1,142 @@
-.input{
-    width: 100%;        /* w-full */
-    padding: 8px;       /* p-2 (1rem = 16px, p-2 = 8px) */
-    margin-bottom: 8px; /* mb-2 */
-    border: 1px solid #ccc; /* border */
-    border-radius: 4px; 
+/* 🔹 Input & Select */
+.input, .Select {
+    width: 100%;
+    padding: 10px; /* Tăng padding để input to hơn */
+    margin-bottom: 16px; /* Tăng khoảng cách giữa các input */
+    border: 1px solid #ccc;
+    border-radius: 6px;
 }
-.form{
-    background-color: white; /* bg-white */
-    padding: 24px; /* p-6 (1rem = 16px, p-6 = 24px) */
+
+/* 🔹 Form chính */
+.form {
+    background-color: white;
+    padding: 40px;
+    width: 100%;
+    max-width: 90%;
     box-shadow: 0px 10px 15px -3px rgba(0, 0, 0, 0.1), 
-                0px 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-lg */
-    width: 40rem;
+                0px 4px 6px -2px rgba(0, 0, 0, 0.05);
+    border-radius: 8px;
 }
-.formGrid{
+
+/* 🌟 Chia form thành 2 cột */
+.formGrid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
+    grid-template-columns: 1fr 1fr; /* Chia thành 2 cột */
+    gap: 24px;
 }
-.createPage{
-    display: flex;           /* flex */
-    align-items: center;     /* items-center */
-    justify-content: center; /* justify-center */
-    min-height: 100vh;       /* min-h-screen */
-    background: url("https://i.pinimg.com/736x/27/d9/f7/27d9f760978c30b9118665485f8f82b5.jpg");
-}
-.title {
-    font-size: 1.25rem;  /* text-xl (≈ 20px) */
-    font-weight: bold;   /* font-bold */
-    margin-bottom: 16px; /* mb-4 (1rem = 16px) */
-}
-.Select{
-    width: 100%;          /* w-full */
-    padding: 8px;         /* p-2 (1rem = 16px, p-2 = 8px) */
-    margin-bottom: 8px;   /* mb-2 */
-    border: 1px solid #ccc; /* border */
-    border-radius: 4px;   /* rounded */
-}
-.Create{
-    width: 100%;              /* w-full */
-    padding: 8px;             /* p-2 */
-    background-color: #22c55e; /* bg-green-500 */
-    color: white;             /* text-white */
-    border-radius: 4px;       /* rounded */
+
+/* 🔹 Nút tạo */
+.Create {
+    width: 100%;
+    padding: 10px;
+    background-color: #22c55e;
+    color: white;
+    border-radius: 4px;
     border: none;
     cursor: pointer;
-    transition: background-color 0.2s ease-in-out;
+    transition: background-color 0.2s ease-in-out, transform 0.2s;
+}
+.Create:hover {
+    background-color: #1e9c4e;
+    transform: scale(1.05);
+}
+
+/* 🔹 Trang chính */
+.createPage {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background: url("https://i.pinimg.com/736x/27/d9/f7/27d9f760978c30b9118665485f8f82b5.jpg");
+    background-size: cover;
+}
+
+/* 🔹 Tiêu đề */
+.title {
+    font-size: 1.25rem;
+    font-weight: bold;
+    margin-bottom: 16px;
+}
+
+/* 🔥 Modal Overlay */
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+/* 🔥 Nội dung Modal */
+.modalContent {
+    background: white;
+    padding: 24px;
+    border-radius: 12px;
+    height: 70%;
+    width: 80%;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    
+    /* 🔥 Thêm thanh cuộn */
+    overflow-y: auto;  
+    max-height: 80vh; /* Giới hạn chiều cao */
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Tùy chỉnh thanh cuộn */
+.modalContent::-webkit-scrollbar {
+    width: 8px; /* Độ rộng thanh cuộn */
+}
+
+.modalContent::-webkit-scrollbar-track {
+    background: #f1f1f1; /* Màu nền */
+    border-radius: 10px;
+}
+
+.modalContent::-webkit-scrollbar-thumb {
+    background: #888; /* Màu thanh cuộn */
+    border-radius: 10px;
+}
+
+.modalContent::-webkit-scrollbar-thumb:hover {
+    background: #555; /* Màu khi hover */
+}
+
+.closeButton {
+    position: absolute;
+    top: 5px;  /* Giảm khoảng cách */
+    right: 5px; /* Giảm khoảng cách */
+    background: none;
+    border: none;
+    font-size: 20px;  /* Nhỏ hơn */
+
+    color: darkred;
+
+    width: 40px;   /* Kích thước nhỏ hơn */
+    height: 40px;  /* Kích thước nhỏ hơn */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease-in-out;
+}
+
+/* 🎯 Hover hiệu ứng */
+.closeButton:hover {
+    color: black;
+    background: rgba(0, 0, 0, 0.1);
+    transform: scale(1.1);
+}
+
+/* 💡 Hiệu ứng xuất hiện */
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
 }
