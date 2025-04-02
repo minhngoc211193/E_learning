@@ -4,18 +4,7 @@ const {verifyToken, verifyAdmin} = require('../middlewares/authMiddleware');
 
 const multer = require('multer');
 const storage = multer.memoryStorage();
-const upload = multer({
-    storage: storage,
-    limits: { fileSize: 3 * 1024 * 1024 }, // Giới hạn kích thước file là 1MB (1MB = 1 * 1024 * 1024 bytes)
-    fileFilter: (req, file, cb) => {
-        // Kiểm tra loại file là ảnh (jpg, jpeg, png)
-        const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
-        if (!allowedTypes.includes(file.mimetype)) {
-            return cb(new Error('Bạn chỉ có thể tải lên file (jpg, jpeg, png)'));
-        }
-        cb(null, true); // Tiếp tục nếu đúng loại file
-    }
-});
+const upload = multer({ storage: storage });
 
 
 
