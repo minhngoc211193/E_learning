@@ -3,12 +3,14 @@ import styles from './Header.module.css';
 import logo from "../assets/Greenwich.png";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate } from 'react-router-dom';
+import Notifications from '../page/Notification';
 import axios from "axios";
 
 function Header() {
   const navigate = useNavigate();
   const [fullname, setFullname] = useState("");
   const [image, setImage] = useState("");
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
 
   const fetchUserInfo = async () => {
     const token = localStorage.getItem("accessToken");
@@ -33,6 +35,9 @@ function Header() {
     localStorage.removeItem("accessToken");
     navigate('/');
   };
+  const handleBellClick = () => {
+    setIsNotificationOpen(prevState => !prevState);
+  };
 
   return (
     <header className={styles.header}>
@@ -48,9 +53,10 @@ function Header() {
           </ul>
         </nav>
         {/* Thông tin người dùng */}
-        <div className={styles.notification}>
+        <div className={styles.notification} onClick={handleBellClick}>
           <i class="fa-regular fa-bell"></i>
         </div>
+        {isNotificationOpen && <Notifications />}
         <div className={styles.userInfo} onClick={() => navigate('/profile')}>
           <img alt="avatar" src={image} className={styles.avatar} />
           <span className={styles.username}>{fullname}</span>

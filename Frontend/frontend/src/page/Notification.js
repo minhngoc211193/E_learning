@@ -63,9 +63,7 @@ const Notifications = () => {
       socket.off('connect');
       socket.off('connect_error');
     };
-  }, [socket,fetchNotifications,userId]);
-
-
+  }, [userId]);
 
   return (
     <div className="w-96 p-4 bg-white rounded-lg shadow-md">

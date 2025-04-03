@@ -1,0 +1,52 @@
+.create-meet-container {
+    padding: 1rem;
+    background-color: white;
+    border-top: 1px solid #ccc;
+  }
+  
+  .create-meet-title {
+    font-weight: bold;
+  }
+  
+  .create-meet-input {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    margin-top: 0.5rem;
+  }
+  
+  .create-meet-radio-group {
+    margin-top: 0.5rem;
+  }
+  
+  .create-meet-radio-group label {
+    margin-right: 1rem;
+  }
+  
+  .create-meet-button {
+    background-color: #3b82f6; /* Màu xanh */
+    color: white;
+    padding: 0.5rem;
+    border-radius: 6px;
+    margin-top: 1rem;
+    cursor: pointer;
+  }
+  
+  .create-meet-button:hover {
+    background-color: #2563eb;
+  }
+  
+  .create-meet-cancel {
+    background-color: #6b7280; /* Màu xám */
+    color: white;
+    padding: 0.5rem;
+    border-radius: 6px;
+    margin-left: 0.5rem;
+    cursor: pointer;
+  }
+  
+  .create-meet-cancel:hover {
+    background-color: #4b5563;
+  }
+  

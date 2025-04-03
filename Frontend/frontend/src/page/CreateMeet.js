@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import {jwtDecode} from 'jwt-decode';
-
-function CreateMeet({ selectedConversationId, onClose }) {
+import styles from './CreateMeet.module.css';
+function CreateMeet({ selectedConversationId}) {
+  const [isVisible, setIsVisible] = useState(true);
+  const handleClose = () => {
+    setIsVisible(false);
+  };
   const [meeting, setMeeting] = useState({
     reason: "",
     meetingType: "online",
@@ -61,16 +65,17 @@ console.log("token", accessToken)
         { headers: { Authorization: `Bearer ${accessToken}` } }
       );
       alert(res.data.message); // Hiển thị thông báo khi tạo thành công
-      onClose(); // Đóng form
+      handleClose(); // Đóng form
     } catch (error) {
       console.error("Lỗi khi tạo cuộc họp:", error);
       alert("Đã có lỗi xảy ra khi tạo cuộc họp.");
     }
   };
+  if (!isVisible) return null;
 
   return (
-    <div className="p-4 bg-white border-t">
-      <h3 className="font-bold">
+    <div className={styles["create-meet-container"]}>
+      <h3 className={styles["create-meet-title-bold"]}>
         Tạo cuộc họp với {selectedConversationId?.teacherId?.Fullname || "Giáo viên chưa xác định"}
       </h3>
 
@@ -81,7 +86,7 @@ console.log("token", accessToken)
         placeholder="Lý do cuộc họp"
         value={meeting.reason}
         onChange={handleInputChange}
-        className="w-full p-2 border rounded-md mt-2"
+        className={styles["create-meet-input"]}
       />
 
       {/* Form chọn thời gian cuộc họp */}
@@ -90,11 +95,11 @@ console.log("token", accessToken)
         name="time"
         value={meeting.time}
         onChange={handleInputChange}
-        className="w-full p-2 border rounded-md mt-2"
+        className={styles["create-meet-input"]}
       />
 
-    <div className="mt-2">
-        <label className="mr-4">
+    <div className={styles["create-meet-radio-group"]}>
+        <label>
           <input
             type="radio"
             name="meetingType"
@@ -123,22 +128,22 @@ console.log("token", accessToken)
           placeholder="Nhập địa chỉ cuộc họp"
           value={meeting.address}
           onChange={handleInputChange}
-          className="w-full p-2 border rounded-md mt-2"
+          className={styles["wcreate-meet-input"]}
         />
       )}
 
       {/* Nút gửi yêu cầu tạo cuộc họp */}
       <button
         onClick={handleCreateMeeting}
-        className="bg-blue-500 text-white p-2 rounded-md mt-4"
+        className={styles["create-meet-button"]}
       >
         Gửi yêu cầu
       </button>
 
       {/* Nút hủy form */}
       <button
-        onClick={onClose}
-        className="ml-2 bg-gray-500 text-white p-2 rounded-md mt-4"
+        onClick={handleClose}
+        className={styles["create-meet-cancel"]}
       >
         Hủy
       </button>
