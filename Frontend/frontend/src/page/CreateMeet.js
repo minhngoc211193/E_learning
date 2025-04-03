@@ -15,7 +15,7 @@ function CreateMeet({ selectedConversationId}) {
   });
   console.log("selected id", selectedConversationId)
   console.log("id teacher", selectedConversationId?.teacherId?._id)
-  const accessToken = localStorage.getItem("accessToken");
+  const token = localStorage.getItem("accessToken");
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setMeeting((prevForm) => ({
@@ -23,10 +23,10 @@ function CreateMeet({ selectedConversationId}) {
       [name]: value,
     }));
   };
-console.log("token", accessToken)
+console.log("token", token)
   const handleCreateMeeting = async () => {
     const { reason, meetingType, time, address } = meeting;
-    const decodedToken = jwtDecode(accessToken);
+    const decodedToken = jwtDecode(token);
     const studentId = decodedToken.id; // Lấy ID của học sinh từ token
     const role = decodedToken.Role;
     const MeetingData = {
@@ -62,7 +62,7 @@ console.log("token", accessToken)
       // Gửi yêu cầu tạo cuộc họp
       const res = await axios.post(
         "http://localhost:8000/meet/request-meeting", MeetingData ,
-        { headers: { Authorization: `Bearer ${accessToken}` } }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
       alert(res.data.message); // Hiển thị thông báo khi tạo thành công
       handleClose(); // Đóng form

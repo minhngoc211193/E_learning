@@ -222,10 +222,10 @@ const classController = {
             }
     
             // Check if Classname already exists (unique constraint check)
-            const existingClass = await Class.findOne({ Classname });
-            if (existingClass) {
-                return res.status(400).json({ message: `Classname '${Classname}' already exists` });
-            }
+            // const existingClass = await Class.findOne({ Classname });
+            // if (existingClass) {
+            //     return res.status(400).json({ message: `Classname '${Classname}' already exists` });
+            // }
 
             // Tìm lớp học cần cập nhật
             const updatedClass = await Class.findById(classId).populate("Teacher").populate("Student");

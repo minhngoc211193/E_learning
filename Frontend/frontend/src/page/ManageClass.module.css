@@ -1,85 +1,85 @@
 .container {
     max-width: 1200px;
-    margin: auto;
-    padding: 24px;
+    margin: 0 auto;
+    padding: 1.5rem;
 }
 
 .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 24px;
+    margin-bottom: 1.5rem;
 }
 
-.header h1 {
-    font-size: 24px;
+.title {
+    font-size: 1.875rem; /* text-3xl */
     font-weight: bold;
 }
 
 .create-btn {
-    padding: 8px 16px;
-    background-color: #3b82f6;
+    padding: 0.5rem 1rem;
+    background-color: #3b82f6; /* bg-blue-500 */
     color: white;
-    border-radius: 8px;
-    cursor: pointer;
+    border-radius: 0.5rem;
     border: none;
+    cursor: pointer;
 }
 
 .create-btn:hover {
-    background-color: #2563eb;
+    background-color: #2563eb; /* Darker blue */
 }
 
-.search-box {
+.search-bar {
+    margin-bottom: 1rem;
     width: 100%;
-    padding: 8px;
+    padding: 0.5rem;
     border: 1px solid #ccc;
-    border-radius: 4px;
+    border-radius: 0.5rem;
 }
 
-.grid-container {
+.class-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
+    gap: 1rem;
 }
 
 .class-card {
-    background-color: #e5e7eb;
-    padding: 16px;
-    border-radius: 8px;
-    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+    background-color: #e5e7eb; /* bg-gray-200 */
+    padding: 1rem;
+    border-radius: 0.5rem;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .class-title {
-    font-size: 18px;
+    font-size: 1.125rem; /* text-lg */
     font-weight: 600;
 }
 
 .avatar {
-    width: 48px;
-    height: 48px;
-    background-color: #9ca3af;
-    border-radius: 50%;
+    width: 3rem;
+    height: 3rem;
+    background-color: #9ca3af; /* bg-gray-400 */
+    border-radius: 9999px;
     display: flex;
     justify-content: center;
     align-items: center;
     color: white;
-    font-size: 24px;
 }
 
-.button-group {
+.admin-actions {
+    margin-top: 1rem;
     display: flex;
     justify-content: flex-end;
-    gap: 8px;
-    margin-top: 16px;
+    gap: 0.5rem;
 }
 
 .edit-btn {
-    padding: 6px 12px;
-    background-color: #10b981;
+    padding: 0.25rem 0.75rem;
+    background-color: #10b981; /* bg-green-500 */
     color: white;
-    border-radius: 4px;
-    cursor: pointer;
+    border-radius: 0.375rem;
     border: none;
+    cursor: pointer;
 }
 
 .edit-btn:hover {
@@ -87,12 +87,12 @@
 }
 
 .delete-btn {
-    padding: 6px 12px;
-    background-color: #ef4444;
+    padding: 0.25rem 0.75rem;
+    background-color: #ef4444; /* bg-red-500 */
     color: white;
-    border-radius: 4px;
-    cursor: pointer;
+    border-radius: 0.375rem;
     border: none;
+    cursor: pointer;
 }
 
 .delete-btn:hover {

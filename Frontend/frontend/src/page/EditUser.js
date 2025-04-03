@@ -118,7 +118,7 @@ useEffect(() => {
 
       <div className={styles.avatarContainer}>
         <div className={styles.avatarWrapper}>
-          <img src={userData.PreviewImage || "default-avatar.png"} alt="User Avatar" className={styles.avatar} />
+          <img src={userData.Image || "avatar.png"} alt="User Avatar" className={styles.avatar} />
           
           {/* Nút chọn ảnh (icon camera) */}
           <label className={styles.cameraIcon}>

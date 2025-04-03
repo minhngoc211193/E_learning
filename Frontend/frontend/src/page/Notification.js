@@ -5,17 +5,18 @@ import { useNavigate } from "react-router-dom";
 import io from "socket.io-client"; // ✅ Import socket.io-client
 import createSocket from "./Socket";
 import {jwtDecode} from 'jwt-decode';
+import styles from './Notification.module.css';
 
 
  // 🔄 Kết nối với server socket
 
 const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
+  const [socket, setSocket] = useState(null);
   const navigate = useNavigate();
   const token = localStorage.getItem("accessToken");
   const decoded = jwtDecode(token);
   const userId = decoded.id;
-  const socket = createSocket();
 
   const fetchNotifications = async () => {
     try {
@@ -31,57 +32,54 @@ const Notifications = () => {
   };
 
   useEffect(() => {
-    if (userId) {
-      socket.emit('register', userId);  // Đảm bảo socket đã đăng ký với đúng userId
-    }
-    
-    fetchNotifications();  // Lấy thông báo ban đầu
-  
-    // Lắng nghe sự kiện 'receive notification'
-    socket.on("receive notification", (newNotification) => {
+    if (!userId) return;
+
+    const newSocket = createSocket();  // ✅ Chỉ tạo socket một lần
+    setSocket(newSocket);
+
+    newSocket.emit("register", userId);  // Đăng ký user với socket server
+    fetchNotifications();  // Lấy danh sách thông báo ban đầu
+
+    newSocket.on("receive notification", (newNotification) => {
       console.log("📩 Nhận thông báo mới:", newNotification);
-      setNotifications((prevNotifications) => {
-        return [newNotification, ...prevNotifications];  // Thêm thông báo mới vào đầu danh sách
-      });
+      setNotifications((prev) => [newNotification, ...prev]);
     });
-  
-    // Lắng nghe sự kiện 'connect' để đảm bảo socket luôn kết nối
-    socket.on('connect', () => {
-      console.log('Socket connected');
-      if (userId) {
-        socket.emit('register', userId);  // Đảm bảo đăng ký lại nếu socket mất kết nối
-      }
+
+    newSocket.on("connect", () => {
+      console.log("✅ Socket connected");
+      newSocket.emit("register", userId);
     });
-  
-    // Lắng nghe sự kiện 'connect_error' nếu có lỗi khi kết nối
-    socket.on('connect_error', (error) => {
-      console.error('Socket connection error:', error);
+
+    newSocket.on("connect_error", (error) => {
+      console.error("❌ Socket connection error:", error);
     });
-  
+
     return () => {
-      socket.off("receive notification");
-      socket.off('connect');
-      socket.off('connect_error');
+      newSocket.off("receive notification");
+      newSocket.off("connect");
+      newSocket.off("connect_error");
+      newSocket.disconnect();  // ✅ Ngắt kết nối khi unmount
     };
   }, [userId]);
 
+
   return (
-    <div className="w-96 p-4 bg-white rounded-lg shadow-md">
-      <h2 className="text-xl font-semibold flex items-center gap-2">
-        <Bell className="w-5 h-5 text-yellow-500" /> Thông báo
+    <div className={styles["notification-container"]}>
+      <h2 className={styles["notification-header"]}>
+        <Bell className={styles["notification-icon"]} /> Thông báo
       </h2>
-      <div className="mt-4 space-y-2">
+      <div className={styles["notification-list"]}>
         {notifications.length > 0 ? (
-          notifications.map((notification) => (
-            <div key={notification._id} className="p-3 border rounded flex justify-between items-center">
+          notifications.slice(0, 4).map((notification) => (
+            <div key={notification._id} className={styles["notification-item"]}>
               <div>
-                <p className="font-medium">{notification.message}</p>
-                <p className="text-sm text-gray-500">Từ: {notification.sender?.Fullname}</p>
+                <p className={styles["notification-message"]}>{notification.message}</p>
+                <p className={styles["notification-sender"]}>Từ: {notification.sender?.Fullname}</p>
               </div>
             </div>
           ))
         ) : (
-          <p className="text-gray-500">Không có thông báo nào</p>
+          <p className={styles["no-notifications"]}>Không có thông báo nào</p>
         )}
       </div>
     </div>

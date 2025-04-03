@@ -1,0 +1,51 @@
+.notification-container {
+    width: 24rem;
+    padding: 1rem;
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .notification-header {
+    font-size: 1.25rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .notification-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    color: #facc15; /* Màu vàng */
+  }
+  
+  .notification-list {
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .notification-item {
+    padding: 0.75rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.375rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .notification-message {
+    font-weight: 500;
+  }
+  
+  .notification-sender {
+    font-size: 0.875rem;
+    color: #6b7280; /* Màu xám */
+  }
+  
+  .no-notifications {
+    color: #6b7280;
+  }
+  

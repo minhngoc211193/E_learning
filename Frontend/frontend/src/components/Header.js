@@ -47,16 +47,22 @@ function Header() {
       <div className={styles.rightSection}>
         <nav className={styles.nav}>
           <ul>
-            <li onClick={() => navigate('/myclass')} className={styles.navItem}>Class</li>
+            <li onClick={() => navigate('/manageclass')} className={styles.navItem}>Class</li>
             <li onClick={() => navigate('/schedule')} className={styles.navItem}>Schedule</li>
             <li onClick={() => navigate('/createblog')} className={styles.navItem}>Create blog</li>
           </ul>
         </nav>
         {/* Thông tin người dùng */}
-        <div className={styles.notification} onClick={handleBellClick}>
-          <i class="fa-regular fa-bell"></i>
+        <div className={styles.notificationWrapper}>
+          <div className={styles.notification} onClick={handleBellClick}>
+            <i className="fa-regular fa-bell"></i>
+          </div>
+          {isNotificationOpen && (
+            <div className={styles.notificationDropdown}>
+              <Notifications />
+            </div>
+          )}
         </div>
-        {isNotificationOpen && <Notifications />}
         <div className={styles.userInfo} onClick={() => navigate('/profile')}>
           <img alt="avatar" src={image} className={styles.avatar} />
           <span className={styles.username}>{fullname}</span>
