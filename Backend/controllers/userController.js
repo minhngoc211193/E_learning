@@ -80,6 +80,7 @@ const userController = {
                     return res.status(400).json({ message: 'Kích thước file vượt quá giới hạn (3MB)' });
                 }
             }
+            updateData.Image = file.buffer;
 
             // Cập nhật người dùng trong cơ sở dữ liệu
             const updatedUser = await User.findByIdAndUpdate(userId, updateData, { new: true }).select('-Password');

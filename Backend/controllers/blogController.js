@@ -152,6 +152,7 @@ const blogController = {
                 if (file.size > maxSize) {
                     return res.status(400).json({ message: 'Kích thước file vượt quá giới hạn (3MB)' });
                 }
+                updateData.Image = file.buffer;
             }
 
             // Cập nhật blog
