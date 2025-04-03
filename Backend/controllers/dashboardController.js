@@ -10,9 +10,11 @@ const getStudentCountByMajor = async (req, res) => {
             return res.status(403).json({ message: 'Access denied' });
         }
 
-
+        const { days = 7 } = req.query; 
+        const dateLimit = new Date();
+        dateLimit.setDate(dateLimit.getDate() - parseInt(days)); 
         const result = await User.aggregate([
-            { $match: { Role: "student", Major: { $ne: null } } },
+            { $match: { Role: "student", Major: { $ne: null }, createdAt: { $gte: dateLimit } } },
             {
                 $group: {
                     _id: "$Major",
@@ -51,8 +53,12 @@ const getTeacherCountByMajor = async (req, res) => {
             return res.status(403).json({ message: 'Access denied' });
         }
 
+        const { days = 7 } = req.query; // Tham số ngày (7 hoặc 28 ngày)
+        const dateLimit = new Date();
+        dateLimit.setDate(dateLimit.getDate() - parseInt(days)); // Xác định ngày bắt đầu
+
         const result = await User.aggregate([
-            { $match: { Role: "teacher", Major: { $ne: null } } },
+            { $match: { Role: "teacher", Major: { $ne: null }, createdAt: { $gte: dateLimit } } },
             {
                 $group: {
                     _id: "$Major",
@@ -91,8 +97,12 @@ const getClassCountBySubject = async (req, res) => {
             return res.status(403).json({ message: 'Access denied' });
         }
 
+        const { days = 7 } = req.query; // Tham số ngày (7 hoặc 28 ngày)
+        const dateLimit = new Date();
+        dateLimit.setDate(dateLimit.getDate() - parseInt(days)); // Xác định ngày bắt đầu
+
         const result = await Class.aggregate([
-            { $match: { Subject: { $ne: null } } },
+            { $match: { Subject: { $ne: null }, createdAt: { $gte: dateLimit } } },
             {
                 $group: {
                     _id: "$Subject",
@@ -131,8 +141,12 @@ const getSubjectCountByMajor = async (req, res) => {
             return res.status(403).json({ message: "Access denied" });
         }
 
+        const { days = 7 } = req.query; // Tham số ngày (7 hoặc 28 ngày)
+        const dateLimit = new Date();
+        dateLimit.setDate(dateLimit.getDate() - parseInt(days)); // Xác định ngày bắt đầu
+
         const result = await Subject.aggregate([
-            { $match: { Major: { $ne: null } } },
+            { $match: { Major: { $ne: null }, createdAt: { $gte: dateLimit } } },
             {
                 $group: {
                     _id: "$Major",

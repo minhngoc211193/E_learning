@@ -23,19 +23,11 @@ const classRouter = require('./routes/class');
 const userRouter = require('./routes/users');
 const documentRouter = require('./routes/document');
 const scheduleRouter = require('./routes/schedule');
-const messagesRoutes = require('./routes/messenger');
-const googleMeetRoutes = require('./routes/meet');
-const notificationRoutes = require('./routes/notification');
-const dashboardRoutes = require('./routes/dashboard');
-
-
-
-
 const messagesRouter = require('./routes/messenger');
 const googleMeetRoutes = require('./routes/meet');
 const notificationRoutes = require('./routes/notification');
-
 const dashboardRoutes = require('./routes/dashboard');
+
 
 app.use(cors())
 
@@ -59,9 +51,6 @@ app.use('/user', userRouter);
 app.use('/document', documentRouter);
 app.use('/schedule', scheduleRouter);
 app.use('/attendance', attendanceRouter);
-
-
-
 app.use('/messenger', messagesRouter);
 app.use('/meet', googleMeetRoutes);
 app.use('/notification', notificationRoutes);
@@ -87,7 +76,6 @@ const io = socketIo(server, {
 app.set('io', io);
 
 io.on("connection", (socket) => {
-  console.log("Connected to socket.io");
   socket.on('register', (userId) => {
     console.log(`User ${userId} registered with socket ID: ${socket.id}`);
     userSocketMap.set(userId.toString(), socket.id);
@@ -138,6 +126,26 @@ io.on("connection", (socket) => {
     } catch (error) {
       console.error('Error marking notification as read:', error);
     }
+  });
+
+  socket.on("newBlog", (blog) => {
+    console.log("New blog created: ", blog);
+  });
+
+  socket.on("newClass", (classs) => {
+    console.log("New class created: ", classs);
+  });
+
+  socket.on("newMajor", (major) => {
+    console.log("New major created: ", major);
+  });
+
+  socket.on("newSubject", (subject) => {
+    console.log("New subject created: ", subject);
+  });
+
+  socket.on("newUser", (user) => {
+    console.log("New user created: ", user);
   });
 
   socket.on('disconnect', () => {

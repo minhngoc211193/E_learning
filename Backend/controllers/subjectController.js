@@ -49,6 +49,10 @@ const subjectController = {
 
             const newSubject = new Subject({ Name, Description, Major: MajorId, Classes: ClassId, CodeSubject });
             const savedSubject = await newSubject.save();
+
+            const io = req.app.get('io');
+            io.emit('newSubject', savedSubject);
+
             res.status(201).json(savedSubject);
         } catch (err) {
             res.status(500).json({ message: "Failed to create subject", error: err.message });

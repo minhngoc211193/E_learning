@@ -27,6 +27,10 @@ const blogController = {
             if (!User) return res.status(400).json({ message: "Không có UserId" });
             const newBlog = new Blog({ Title, Content, User, Image: file.buffer });
             const savedBlog = await newBlog.save();
+
+            const io = req.app.get('io');
+            io.emit('newBlog', savedBlog);
+
             res.status(201).json(savedBlog);
         } catch (err) {
             res.status(500).json({ message: "Failed to create blog", error: err.message });
