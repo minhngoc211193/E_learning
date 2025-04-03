@@ -297,7 +297,7 @@ Ban Quản trị`
                         { path: 'Subject', select: 'Name' },  // Lấy tên môn học
                         { path: 'Teacher', select: 'Fullname' }  // Lấy tên giáo viên
                     ]
-                });
+                }).populate({path: 'Attendance', select:'IsPresent'});
 
             if (schedules.length === 0) {
                 return res.status(404).json({ message: 'Không có lịch học cho các lớp này' });
