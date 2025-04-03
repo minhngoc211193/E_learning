@@ -11,6 +11,10 @@ const majorController = {
             const { Name, Description, CodeMajor } = req.body;
             const newMajor = new Major({ Name, Description, CodeMajor });
             const savedMajor = await newMajor.save();
+
+            const io = req.app.get('io');
+            io.emit('newMajor', savedMajor);
+
             res.status(201).json(savedMajor);
         } catch (err) {
             res.status(500).json({ message: "Failed to create major", error: err.message });

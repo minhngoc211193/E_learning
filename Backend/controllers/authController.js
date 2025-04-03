@@ -127,7 +127,10 @@ const authController = {
                 firstLogin: true // Đánh dấu chưa đổi mật khẩu
             });
 
-            await newUser.save();
+            const savedUser = await newUser.save();
+
+            const io = req.app.get('io');
+            io.emit('newUser', savedUser);
 
             // ✅ 3. Gửi email thông tin đăng nhập cho user
             const mailOptions = {
