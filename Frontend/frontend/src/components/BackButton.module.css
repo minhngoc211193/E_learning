@@ -19,3 +19,10 @@
 .backButton:hover {
     background-color: #afafaf;
 }
+
+@media (max-width: 768px) {
+    .backButton {
+        left: 10px;
+        top: 20px;
+    }
+}

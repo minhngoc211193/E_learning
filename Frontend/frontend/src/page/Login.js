@@ -41,7 +41,7 @@ function Login() {
                     <button className={styles.btnSignIn} type="submit">Sign In</button>
                 </form>
                 <div className={styles.imageSection}>
-                    <img src={studyImg} className={styles.image} alt="" />
+                    <img src={studyImg} alt="" />
                 </div>
             </div>
         </div>

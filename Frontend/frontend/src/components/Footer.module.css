@@ -37,3 +37,42 @@
     text-align: center;
     margin-top: 50px;
 }
+
+/* Tablet (≤ 1024px) - Hiển thị 2 cột */
+@media (max-width: 1024px) {
+    .footer {
+        padding: 40px 50px 10px 50px;
+    }
+    
+    .footerContent {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .system2 {
+        margin-top: 0; /* Bỏ margin để căn đều */
+    }
+}
+
+/* Mobile (≤ 768px) - Hiển thị 1 cột */
+@media (max-width: 768px) {
+    .footer {
+        padding: 30px 20px 10px 20px;
+    }
+    
+    .footerContent {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .aboutUs, .system1, .system2, .contact {
+        grid-column: span 1;
+    }
+
+    .footerContent h2 {
+        font-size: 20px;
+    }
+
+    .footerContent p {
+        font-size: 14px;
+    }
+}

@@ -4,6 +4,7 @@ import styles from "./Attendance.module.css";
 import { useParams } from "react-router-dom";
 import { notification } from "antd";
 import { useNavigate } from "react-router-dom";
+import ProfileImg from "../assets/profile.jpg";
 
 function Attendance() {
   const [attendanceData, setAttendanceData] = useState([]);
@@ -40,6 +41,7 @@ function Attendance() {
           { headers: { Authorization: `Bearer ${token}` } }
         );
         setAttendanceData(response.data.usersWithImage);
+        console.log(response.data.usersWithImage);
       } catch (err) {
         setError("Không thể lấy dữ liệu điểm danh.");
       } finally {
@@ -64,7 +66,7 @@ function Attendance() {
     try {
       const updatedAttendance = attendanceData.map((record) => ({
         studentId: record.Student._id,
-        isPresent: record.IsPresent  || "absent",
+        isPresent: record.IsPresent === "pending" ? "absent" : record.IsPresent,
         comment: record.Comment || "",
       }));
       await axios.put(
@@ -90,8 +92,7 @@ function Attendance() {
         <div className={styles.backButton} onClick={() => navigate("/schedule")}>
           <span><i className="fa-solid fa-arrow-left"></i></span>
         </div>
-        <h1 className={styles.header}>Danh sách điểm danh lớp:</h1>
-        <h3 className={styles.header}>Ngày: </h3>
+        <h1 className={styles.header}>Danh sách điểm danh</h1>
         <div className={styles.tableContainer}>
           <table className={styles.table}>
             <thead>
@@ -108,7 +109,7 @@ function Attendance() {
                 <tr key={record.Student._id}>
                   <td>
                     <img
-                      src={record.Student.Image}
+                      src={record.Student.Image || ProfileImg}
                       alt="avatar"
                       className={styles.avatar}
                     />
@@ -140,7 +141,7 @@ function Attendance() {
                     </div>
                   </td>
                   <td>
-                    <input type="text" value={record.Comment || ""} onChange={(e) => {
+                    <input className={styles.comment} type="text" value={record.Comment || ""} onChange={(e) => {
                       const updatedData = attendanceData.map((data) =>
                         data.Student._id === record.Student._id
                           ? { ...data, Comment: e.target.value }

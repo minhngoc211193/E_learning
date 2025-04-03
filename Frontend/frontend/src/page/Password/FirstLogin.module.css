@@ -97,3 +97,18 @@
     color: green;
     font-size: 11px;
 }
+
+@media (max-width: 768px) {
+    .content {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .content form {
+        padding: 20px;
+    }
+
+    .imageSection {
+        display: none;
+    }
+}

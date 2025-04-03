@@ -174,3 +174,41 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
+@media (max-width: 1200px) {
+  .center {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .chartContainer {
+    padding: 10px;
+    gap: 20px;
+  }
+  .chart1, .chart2, .chart3, .chart4{
+    height: 400px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .center {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .chartContainer {
+    padding: 10px;
+    gap: 20px;
+  }
+  .chart1, .chart2, .chart3, .chart4{
+    height: 300px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .center {
+    padding-left: 8px;
+  }
+  .chart1, .chart2, .chart3, .chart4{
+    height: 100px !important;
+  }
+}

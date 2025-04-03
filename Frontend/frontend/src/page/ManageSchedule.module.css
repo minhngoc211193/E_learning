@@ -2,16 +2,17 @@
   --font-family-sans-serif: 'Open Sans', sans-serif;
 }
 
-.body{
+.body {
   display: flex;
   font-family: var(--font-family-sans-serif);
 }
 
-.container{
-  background-color:#f9f9f9;
+.container {
+  background-color: #f9f9f9;
   flex: 1;
   overflow-y: auto;
 }
+
 /* Header */
 .heading {
   text-align: center;
@@ -28,7 +29,6 @@
   border-radius: var(--radius);
   padding: 20px;
   margin: 0 auto 30px;
-  max-width: 900px;
   --primary-color: #007bff;
   --primary-dark: #0056b3;
   --border-color: #ddd;
@@ -64,6 +64,7 @@
   text-align: center;
   font-size: 16px;
 }
+
 /* Style cho header của bảng */
 .scheduleTable th {
   background-color: var(--primary-dark);
@@ -75,11 +76,12 @@
 .scheduleTable tbody tr:nth-child(odd) {
   background-color: var(--bg-light);
 }
+
 .scheduleTable tbody tr:nth-child(even) {
   background-color: var(--bg-white);
 }
 
-.scheduleItem{
+.scheduleItem {
   cursor: pointer;
 }
 
@@ -94,30 +96,33 @@
   font-weight: bold;
   margin: 0;
 }
+
 .slot {
   font-size: 0.9rem;
   margin: 0;
   color: var(--bg-white);
 }
 
-.subjectName{
+.subjectName {
   margin: 0;
   font-size: 15px;
 }
 
-.scheduleInfo{
+.scheduleInfo {
   margin: 0;
   font-size: 12px;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
+
   .scheduleTable th,
   .scheduleTable td {
     font-size: 14px;
     padding: 8px;
   }
 }
+
 /* Style cho DatePicker */
 .datePicker {
   margin-bottom: 10px;
@@ -267,9 +272,23 @@
   .createSchedule {
     padding: 20px;
   }
-  
+
   .createScheduleLeft,
   .createScheduleRight {
     width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .scheduleTable th,
+  .scheduleTable td {
+    font-size: 10px;
+  }
+  .subjectName {
+    font-size: 10px;
+  }
+  
+  .scheduleInfo {
+    font-size: 8px;
   }
 }

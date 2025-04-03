@@ -9,6 +9,6 @@ router.put('/update-schedule/:id', verifyAdmin, scheduleController.updateSchedul
 router.delete('/delete-schedule/:id', verifyAdmin, scheduleController.deleteSchedule);
 router.get('/get-schedule-by-user', verifyToken, scheduleController.getScheduleByUserId);
 router.get('/get-schedule-by-day', verifyAdmin, scheduleController.getScheduleByDay);
-router.get('/detail-schedule/:id', verifyToken, scheduleController.getScheduleById);
+router.get('/detail-schedule/:id', verifyAdmin, scheduleController.getScheduleById);
 
 module.exports = router;

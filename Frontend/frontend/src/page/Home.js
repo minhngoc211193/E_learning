@@ -43,7 +43,8 @@ function Home() {
     return (
         <div>
             <Header />
-            <div className={styles.header} style={{ backgroundImage: `url(${backgroundImg})` }}>
+            <div>
+                <img className={styles.header} src={backgroundImg} alt="Background" />
             </div>
             <div className={styles.main}>
                 <div className={styles.search}>

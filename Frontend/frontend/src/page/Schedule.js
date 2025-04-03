@@ -18,13 +18,11 @@ function Schedule() {
   const [schedules, setSchedules] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedWeek, setSelectedWeek] = useState(moment());
-  // State để lưu thông tin notification
   const [notifData, setNotifData] = useState(null);
   const token = localStorage.getItem("accessToken");
   const smileIcon = <SmileOutlined />;
   const [api, contextHolder] = notification.useNotification();
 
-  // Sử dụng useEffect để trigger notification khi notifData thay đổi
   useEffect(() => {
     if (notifData) {
       api.open({
@@ -70,7 +68,6 @@ function Schedule() {
 
   const weekDays = getWeekDays();
 
-  // Hàm lọc lịch học theo ngày và khung giờ
   const getScheduleForCell = (weekDate, slot) => {
     return schedules.filter((item) => {
       const itemDate = moment(item.Day);
@@ -78,7 +75,6 @@ function Schedule() {
     });
   };
 
-  // Xử lý khi người dùng thay đổi tuần trên DatePicker
   const onWeekChange = (date) => {
     if (date) {
       const selectedDate = moment(date.toDate());
@@ -87,21 +83,16 @@ function Schedule() {
     }
   };
 
-// Hàm xử lý khi người dùng click vào lịch học
 const handleAttendance = async (scheduleId) => {
   try {
-    // Gửi yêu cầu lấy dữ liệu điểm danh cho lịch học
-    const res = await axios.get(
+    await axios.get(
       `http://localhost:8000/attendance/get-attendance-by-schedule/${scheduleId}`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
       window.location.href = `/attendance/${scheduleId}`;
   } catch (err) {
-    // Hiển thị thông báo lỗi nếu gặp lỗi khi gọi API
-    setNotifData({
-      type: "error",
-      detailMessage: "Không thể lấy dữ liệu điểm danh. Vui lòng thử lại sau!",
-    });
+    const errorMessage = err.response?.data?.message || "Có lỗi xảy ra!";
+    setNotifData({ type: "error", detailMessage: errorMessage });
   }
 };
 
