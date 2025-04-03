@@ -14,5 +14,6 @@ router.delete('/delete-user/:id', verifyAdmin, userController.deleteUser);
 router.get('/detail-user/:id', verifyToken, userController.detailUser);
 router.get('/users-by-major/:id', verifyAdmin, userController.getUserByMajor);
 router.get('/search-user', verifyAdmin, userController.searchUser);
+router.get('/users-by-subject', verifyAdmin, userController.getUsersBySubject);
 
 module.exports = router;
