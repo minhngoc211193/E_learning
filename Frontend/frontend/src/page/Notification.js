@@ -3,39 +3,69 @@ import axios from "axios";
 import { Bell } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import io from "socket.io-client"; // ✅ Import socket.io-client
+import createSocket from "./Socket";
+import {jwtDecode} from 'jwt-decode';
 
-const socket = io("http://localhost:8000"); // 🔄 Kết nối với server socket
+
+ // 🔄 Kết nối với server socket
 
 const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
   const navigate = useNavigate();
   const token = localStorage.getItem("accessToken");
-
-  useEffect(() => {
-    fetchNotifications();
-
-    // Lắng nghe sự kiện socket khi có thông báo mới
-    socket.on("receive notification", (newNotification) => {
-      console.log("📩 Nhận thông báo mới:", newNotification);
-      setNotifications((prev) => [newNotification, ...prev]); // ✅ Thêm thông báo mới vào đầu danh sách
-    });
-
-    return () => {
-      socket.off("receive notification"); // Cleanup khi component unmount
-    };
-  }, []);
+  const decoded = jwtDecode(token);
+  const userId = decoded.id;
+  const socket = createSocket();
 
   const fetchNotifications = async () => {
     try {
       const response = await axios.get("http://localhost:8000/notification/noti", {
         headers: { Authorization: `Bearer ${token}` },
       });
+      console.log(response.data);
       setNotifications(response.data.notifications);
     } catch (error) {
       console.error("Error fetching notifications:", error);
-      if (error.response?.status === 401) navigate("/login");
+      if (error.response?.status === 401) navigate("/");
     }
   };
+
+  useEffect(() => {
+    if (userId) {
+      socket.emit('register', userId);  // Đảm bảo socket đã đăng ký với đúng userId
+    }
+    
+    fetchNotifications();  // Lấy thông báo ban đầu
+  
+    // Lắng nghe sự kiện 'receive notification'
+    socket.on("receive notification", (newNotification) => {
+      console.log("📩 Nhận thông báo mới:", newNotification);
+      setNotifications((prevNotifications) => {
+        return [newNotification, ...prevNotifications];  // Thêm thông báo mới vào đầu danh sách
+      });
+    });
+  
+    // Lắng nghe sự kiện 'connect' để đảm bảo socket luôn kết nối
+    socket.on('connect', () => {
+      console.log('Socket connected');
+      if (userId) {
+        socket.emit('register', userId);  // Đảm bảo đăng ký lại nếu socket mất kết nối
+      }
+    });
+  
+    // Lắng nghe sự kiện 'connect_error' nếu có lỗi khi kết nối
+    socket.on('connect_error', (error) => {
+      console.error('Socket connection error:', error);
+    });
+  
+    return () => {
+      socket.off("receive notification");
+      socket.off('connect');
+      socket.off('connect_error');
+    };
+  }, [socket,fetchNotifications,userId]);
+
+
 
   return (
     <div className="w-96 p-4 bg-white rounded-lg shadow-md">

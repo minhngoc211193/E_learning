@@ -12,7 +12,7 @@ const majorController = {
     createMajor: async (req, res) => {
         try {
             const { Name, Description, CodeMajor } = req.body;
-            if (!Name || !Description || !CodeMajor) {
+            if (Name.trim().length === 0 || Description.trim().length === 0 || CodeMajor.trim().length === 0) {
                 return res.status(400).json({ message: "Name, Description and CodeMajor cannot be empty" });
             }
             if (!checkPattern.test(Name)) {
@@ -24,16 +24,20 @@ const majorController = {
             if (!CodeMajorPattern.test(CodeMajor)) {
                 return res.status(400).json({ message: "CodeMajor can only accept letters, numbers, spaces and accented characters" });
             }
-            const existingName = await Major.findOne({ Name });
+            const existingName = await Major.findOne({ Name }).collation({ locale: 'en', strength: 2 });
             if (existingName) {
                 return res.status(400).json({ message: `Major with name '${Name}' already exists` });
             }
-            const existingCode = await Major.findOne({ CodeMajor });
+            const existingCode = await Major.findOne({ CodeMajor }).collation({ locale: 'en', strength: 2 });
             if (existingCode) {
                 return res.status(400).json({ message: `CodeMajor '${CodeMajor}' already exists` });
             }
             const newMajor = new Major({ Name, Description, CodeMajor });
             const savedMajor = await newMajor.save();
+
+            const io = req.app.get('io');
+            io.emit('newMajor', savedMajor);
+
             res.status(201).json(savedMajor);
         } catch (err) {
             res.status(500).json({ message: "Failed to create major", error: err.message });
@@ -61,6 +65,39 @@ const majorController = {
 
     updateMajor: async (req, res) => {
         try {
+            const { Name, Description, CodeMajor } = req.body;
+            const major = await Major.findById(req.params.id);
+            if (Name.trim().length === 0 || Description.trim().length === 0 || CodeMajor.trim().length === 0) {
+                return res.status(400).json({ message: "Name, Description and CodeMajor cannot be empty" });
+            }
+            if (!checkPattern.test(Name)) {
+                return res.status(400).json({ message: "Name can only contain letters, numbers, and spaces and accented characters" });
+            }
+            if (!checkPattern.test(Description)) {
+                return res.status(400).json({ message: "Description can only contain letters, numbers, and spaces and accented characters" });
+            }
+            if (!CodeMajorPattern.test(CodeMajor)) {
+                return res.status(400).json({ message: "CodeMajor can only accept letters, numbers, spaces and accented characters" });
+            }
+            if (Name.toLowerCase() !== major.Name.toLowerCase()) {
+                if (!checkPattern.test(Name)) {
+                    return res.status(400).json({ message: "Name can only contain letters, numbers, and spaces and accented characters" });
+                }
+                const existingName = await Major.findOne({ Name }).collation({ locale: 'en', strength: 2 });
+                if (existingName) {
+                    return res.status(400).json({ message: `Major with name '${Name}' already exists` });
+                }
+            }
+            if (CodeMajor.toLowerCase() !== major.CodeMajor.toLowerCase()) {
+                if (!CodeMajorPattern.test(CodeMajor)) {
+                    return res.status(400).json({ message: "CodeMajor can only accept letters, numbers, spaces and accented characters" });
+                }
+                const existingCode = await Major.findOne({ CodeMajor }).collation({ locale: 'en', strength: 2 });
+                if (existingCode) {
+                    return res.status(400).json({ message: `CodeMajor '${CodeMajor}' already exists` });
+                }
+            }
+
             const updatedMajor = await Major.findByIdAndUpdate(req.params.id, req.body, { new: true });
             if (!updatedMajor) return res.status(404).json({ message: "Major not found" });
             res.status(200).json(updatedMajor);
@@ -74,7 +111,7 @@ const majorController = {
             const majorId = req.params.id;
             const major = await Major.findById(majorId);
             if (!major) {
-                return res.status(404).json({ message: "Không tìm thấy Major" });
+                return res.status(404).json({ message: "Major not found" });
             }
 
             const subjects = await Subject.find({ Major: majorId });

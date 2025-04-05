@@ -20,7 +20,6 @@ const EditClass = () => {
   const [teachers, setTeachers] = useState([]);
   const [students, setStudents] = useState([]);
 
-  console.log(classData);
   // Lấy thông tin lớp học
   const fetchClassInfo = async () => {
     const token = localStorage.getItem("accessToken");
@@ -79,7 +78,9 @@ const EditClass = () => {
         .then((res) => setStudents(res.data));
     }
 
-    axios.get("http://localhost:8000/major/majors").then((res) => setMajors(res.data));
+    axios.get("http://localhost:8000/major/majors", {
+      headers: { Authorization: `Bearer ${token}` },
+    }).then((res) => setMajors(res.data));
   }, [classData.Major]);
 
   // Xử lý thay đổi giá trị trong form
@@ -101,7 +102,6 @@ const EditClass = () => {
       return { ...prevState, Students: newStudents };
     });
   };
-  console.log(classData);
   
 
   const handleSubmit = async (e) => {
@@ -109,16 +109,18 @@ const EditClass = () => {
     const formData = {
       Classname: classData.Classname,
     //   Major: classData.Major,
-      Subject: classData.Subject,
+      subjectId: classData.Subject,
       Teacher: classData.Teacher,
       Student: classData.Students.map((student) => student._id), 
       Slots: classData.Slot,
     };
 
     try {
+      const token = localStorage.getItem('accessToken');
       const response = await axios.put(`http://localhost:8000/class/update-class/${classId}`, formData, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
+        headers: { Authorization: `Bearer ${token}` },
       });
+      console.log(response.data);
       alert("Cập nhật lớp học thành công");
       navigate(`/manageclass`);
     } catch (error) {

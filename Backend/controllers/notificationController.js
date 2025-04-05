@@ -7,12 +7,13 @@ const createNotification = async (senderId, receiverId, type, message) => {
       type: type,
       sender: senderId,
       receiver: receiverId,
-      message: message
+      message: message,
     });
-
+    
     const savedNotification = await newNotification.save();
+    // const io = req.app.get('io');
+    io.to(receiverId.toString()).emit('receive notification', savedNotification);
 
-    // Trả về thông báo để sử dụng trong socket
     return savedNotification;
   } catch (error) {
     console.error('Error creating notification:', error);
@@ -49,8 +50,30 @@ const getAllNotifications = async (req, res) => {
   }
 };
 
+const markNotificationAsRead = async (req, res) => {
+  try {
+    const { notificationId } = req.params;
+    const userId = req.user.id;
 
-module.exports = { 
-  createNotification, getAllNotifications
+    const notification = await Notification.findOneAndUpdate(
+      { _id: notificationId, receiver: userId },
+      { isRead: true },
+      { new: true }
+    );
 
+    if (!notification) {
+      return res.status(404).json({ message: 'Thông báo không tồn tại' });
+    }
+
+    return res.status(200).json(notification);
+  } catch (error) {
+    console.error('Error marking notification as read:', error);
+    return res.status(500).json({ 
+      message: 'Lỗi server khi đánh dấu thông báo', 
+      error: error.message 
+    });
+  }
 };
+
+module.exports = { createNotification, getAllNotifications, markNotificationAsRead };
+

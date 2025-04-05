@@ -30,7 +30,7 @@ const subjectController = {
                 return res.status(400).json({ message: "Description can only contain letters, numbers, and spaces and accented characters" });
             }
 
-            const existingCode = await Subject.findOne({ CodeSubject });
+            const existingCode = await Subject.findOne({ CodeSubject }).collation({ locale: 'en', strength: 2 });
             if (existingCode) {
                 return res.status(400).json({ message: `CodeSubject '${CodeSubject}' already exists`})
             }
@@ -38,13 +38,17 @@ const subjectController = {
             if (!codeSubjectPattern.test(CodeSubject)) {
                 return res.status(400).json({ message: "CodeSubject can only accept letters, numbers, spaces and accented characters" });
             }
-            const existingSubject = await Subject.findOne({ Name });
+            const existingSubject = await Subject.findOne({ Name }).collation({ locale: 'en', strength: 2 });
             if (existingSubject) {
                 return res.status(400).json({ message: `Subject with name '${Name}' already exists` });
             }
 
             const newSubject = new Subject({ Name, Description, Major: MajorId, Classes: ClassId, CodeSubject });
             const savedSubject = await newSubject.save();
+
+            const io = req.app.get('io');
+            io.emit('newSubject', savedSubject);
+
             res.status(201).json(savedSubject);
         } catch (err) {
             res.status(500).json({ message: "Failed to create subject", error: err.message });
@@ -103,18 +107,18 @@ const subjectController = {
                 return res.status(404).json({ message: "Subject not found" });
             }
             
-            if (existingSubject.CodeSubject !== CodeSubject) {
-                const existingCode = await Subject.findOne({ CodeSubject });
+            if (existingSubject.CodeSubject.toLowerCase() !== CodeSubject.toLowerCase()) {
+                const existingCode = await Subject.findOne({ CodeSubject }).collation({ locale: 'en', strength: 2 });
                 if (existingCode) {
                     return res.status(400).json({ message: `CodeSubject '${CodeSubject}' already exists` });
                 }
             }
     
-            if (existingSubject.Name !== Name) {
+            if (existingSubject.Name.toLowerCase() !== Name.toLowerCase()) {
                 const duplicateName = await Subject.findOne({
                     Name,
                     _id: { $ne: req.params.id }
-                });
+                }).collation({ locale: 'en', strength: 2 });
                 if (duplicateName) {
                     return res.status(400).json({ message: `Subject with name '${Name}' already exists` });
                 }

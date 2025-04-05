@@ -35,7 +35,7 @@ const classController = {
             }
 
             // Check if Classname already exists (unique constraint check)
-            const existingClass = await Class.findOne({ Classname });
+            const existingClass = await Class.findOne({ Classname }).collation({ locale: 'en', strength: 2 });
             if (existingClass) {
                 return res.status(400).json({ message: `Classname '${Classname}' already exists` });
             }
@@ -219,7 +219,7 @@ const classController = {
             if (!updatedClass) {
                 return res.status(404).json({ message: "Không tìm thấy lớp học" });
             }
-            if (Classname && Classname !== updatedClass.Classname) {
+            if (Classname && Classname.toLowerCase() !== updatedClass.Classname.toLowerCase()) {
                 // Kiểm tra Classname có hợp lệ không
                 if (!Classname || Classname.trim().length === 0) {
                     return res.status(400).json({ message: "Classname is required" });
@@ -232,7 +232,7 @@ const classController = {
                 }
 
                 // Check if Classname already exists (unique constraint check)
-                const existingClass = await Class.findOne({ Classname });
+                const existingClass = await Class.findOne({ Classname }).collation({ locale: 'en', strength: 2 });
                 if (existingClass) {
                     return res.status(400).json({ message: `Classname '${Classname}' already exists` });
                 }
