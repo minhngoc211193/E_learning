@@ -1,46 +1,42 @@
 const Class = require('../models/Class');
 const Subject = require('../models/Subject');
 const Schedule = require('../models/Schedule');
-
 const Document = require('../models/Document');
 
 const subjectController = {
-    //lấy toàn bộ subject
     getSubject: async (req, res) => {
         try {
             const subjects = await Subject.find().populate("Major").populate("Classes");
             res.status(200).json(subjects);
         } catch (err) {
-            res.status(500).json({ message: "Không tải được môn học", error: err.message });
+            res.status(500).json({ message: "Failed to get Subject ", error: err.message });
         }
     },
 
-    // tạo subject
     createSubject: async (req, res) => {
         try {
             const { Name, Description, MajorId, ClassId, CodeSubject } = req.body;
 
             if (!Name || !Description || Name.trim().length === 0 || Description.trim().length === 0) {
-                return res.status(400).json({ message: "Name or Description is required" });
+                return res.status(400).json({ message: "Name and Description cannot be empty" });
             }
 
-            // Validate Classname format (optional, example: alphanumeric with space support)
-            const namePattern = /^[A-Za-z0-9\s]+$/;  // Adjust the regex as needed
+            const namePattern = /^[A-Za-z0-9\u00C0-\u024F\u1E00-\u1EFF\u2C00-\u2C5F\u0370-\u03FF\s.]+$/;
             if (!namePattern.test(Name)) {
-                return res.status(400).json({ message: "Name format is invalid" });
+                return res.status(400).json({ message: "Name can only contain letters, numbers, and spaces and accented characters" });
             }
 
             if (!namePattern.test(Description)) {
-                return res.status(400).json({ message: "Description format is invalid" });
+                return res.status(400).json({ message: "Description can only contain letters, numbers, and spaces and accented characters" });
             }
 
             const existingCode = await Subject.findOne({ CodeSubject });
             if (existingCode) {
                 return res.status(400).json({ message: `CodeSubject '${CodeSubject}' already exists`})
             }
-            const codeSubjectPattern = /^[A-Za-z0-9\u00C0-\u00FF\s]+$/;  // Example regex for alphanumeric CodeSubject
+            const codeSubjectPattern = /^[A-Za-z0-9\u00C0-\u024F\u1E00-\u1EFF\u2C00-\u2C5F\u0370-\u03FF\s]+$/;
             if (!codeSubjectPattern.test(CodeSubject)) {
-                return res.status(400).json({ message: "CodeSubject format is invalid" });
+                return res.status(400).json({ message: "CodeSubject can only accept letters, numbers, spaces and accented characters" });
             }
             const existingSubject = await Subject.findOne({ Name });
             if (existingSubject) {
@@ -55,7 +51,6 @@ const subjectController = {
         }
     },
 
-    //lấy chi tiết subject
     detailSubject: async (req, res) => {
         try {
             const subject = await Subject.findById(req.params.id).populate("Major", "Name Description")
@@ -68,10 +63,9 @@ const subjectController = {
         }
     },
 
-    //lấy subject theo major
     getSubjectsByMajor: async (req, res) => {
         try {
-            const majorId = req.params.majorId;  // ID của Major cần lấy các Subject
+            const majorId = req.params.majorId;
             const subjects = await Subject.find({ Major: majorId }).populate('Major').populate('Classes');
 
             if (subjects.length === 0) {
@@ -84,54 +78,61 @@ const subjectController = {
         }
     },
 
-    //cập nhật subject
     updateSubject: async (req, res) => {
         try {
             const { Name, Description, MajorId, CodeSubject } = req.body;
+            
             if (!Name || !Description || Name.trim().length === 0 || Description.trim().length === 0) {
-                return res.status(400).json({ message: "Name or Description is required" });
+                return res.status(400).json({ message: "Name and Description cannot be empty" });
             }
-
-            // Validate Classname format (optional, example: alphanumeric with space support)
-            const namePattern = /^[A-Za-z0-9\u00C0-\u00FF\s]+$/;  // Adjust the regex as needed
+    
+            const namePattern = /^[A-Za-z0-9\u00C0-\u024F\u1E00-\u1EFF\u2C00-\u2C5F\u0370-\u03FF\s.]+$/;
             if (!namePattern.test(Name)) {
-                return res.status(400).json({ message: "Name format is invalid" });
+                return res.status(400).json({ message: "Name can only contain letters, numbers, and spaces and accented characters" });
             }
-
+    
             if (!namePattern.test(Description)) {
-                return res.status(400).json({ message: "Description format is invalid" });
+                return res.status(400).json({ message: "Description can only contain letters, numbers, and spaces and accented characters" });
             }
-            const existingCode = await Subject.findOne({ CodeSubject });
-            if (existingCode) {
-                return res.status(400).json({ message: `CodeSubject '${CodeSubject}' already exists`})
-            }
-            const codeSubjectPattern = /^[A-Za-z0-9\u00C0-\u00FF\s]+$/;  // Example regex for alphanumeric CodeSubject
+            const codeSubjectPattern = /^[A-Za-z0-9\u00C0-\u024F\u1E00-\u1EFF\u2C00-\u2C5F\u0370-\u03FF\s]+$/;
             if (!codeSubjectPattern.test(CodeSubject)) {
-                return res.status(400).json({ message: "CodeSubject format is invalid" });
+                return res.status(400).json({ message: "CodeSubject can only accept letters, numbers, spaces and accented characters" });
             }
-
-            const existingSubject = await Subject.findOne({
-                Name,
-                _id: { $ne: req.params.id }  // Exclude the current subject being updated
-            });
-            if (existingSubject) {
-                return res.status(400).json({ message: `Subject with name '${Name}' already exists` });
+            const existingSubject = await Subject.findById(req.params.id);
+            if (!existingSubject) {
+                return res.status(404).json({ message: "Subject not found" });
             }
+            
+            if (existingSubject.CodeSubject !== CodeSubject) {
+                const existingCode = await Subject.findOne({ CodeSubject });
+                if (existingCode) {
+                    return res.status(400).json({ message: `CodeSubject '${CodeSubject}' already exists` });
+                }
+            }
+    
+            if (existingSubject.Name !== Name) {
+                const duplicateName = await Subject.findOne({
+                    Name,
+                    _id: { $ne: req.params.id }
+                });
+                if (duplicateName) {
+                    return res.status(400).json({ message: `Subject with name '${Name}' already exists` });
+                }
+            }
+    
             const updatedSubject = await Subject.findByIdAndUpdate(req.params.id, req.body, { new: true });
-            if (!updatedSubject) return res.status(404).json({ message: "Subject not found" });
             res.status(200).json(updatedSubject);
         } catch (err) {
             res.status(500).json({ message: "Failed to update subject", error: err.message });
         }
     },
 
-    //xóa subject
     deleteSubject: async (req, res) => {
         try {
             const deletedSubject = await Subject.findByIdAndDelete(req.params.id);
 
             if (!deletedSubject) {
-                return res.status(404).json({ message: "Subject không tồn tại" });
+                return res.status(404).json({ message: "Subject not found" });
             }
             const deletedClasses = await Class.deleteMany({ Subject: deletedSubject._id });
             const classIds = deletedClasses.map(cls => cls._id);
@@ -139,9 +140,9 @@ const subjectController = {
             await Document.deleteMany({ Class: { $in: classIds } });
             const scheduleIds = await Schedule.find({ Class: { $in: classIds } }).select('_id');
             await Attendance.deleteMany({ Schedule: { $in: scheduleIds.map(sch => sch._id) } });
-            res.status(200).json({ message: "Xóa lớp và các đối tượng liên quan thành công" });
+            res.status(200).json({ message: "Subject and related entities deleted successfully" });
         } catch (err) {
-            res.status(500).json({ message: "Lỗi xóa Subject", error: err.message });
+            res.status(500).json({ message: "Error deleting subject", error: err.message });
         }
     },
 
@@ -155,11 +156,11 @@ const subjectController = {
                 ]
             }).populate("Major", "Name Description");
             if (subjects.length === 0) {
-                return res.status(404).json({ message: "Không tìm thấy Subject" });
+                return res.status(404).json({ message: "No subjects found" });
             }
             res.status(200).json(subjects);
         } catch (err) {
-            res.status(500).json({ message: "Lỗi tìm kiếm Subject", error: err.message });
+            res.status(500).json({ message: "Error searching for subject", error: err.message });
         }
     }
 }
