@@ -396,8 +396,8 @@ const classController = {
                 await Subject.findByIdAndDelete(classData.Subject);
             }
 
-            // Xóa lớp học
-            await classData.remove();
+            const io = req.app.get('io');
+            io.emit('deleteClass', req.params.id);
 
             res.status(200).json({ message: "Xóa lớp và các đối tượng liên quan thành công" });
         } catch (err) {

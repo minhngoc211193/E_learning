@@ -144,6 +144,10 @@ const subjectController = {
             await Document.deleteMany({ Class: { $in: classIds } });
             const scheduleIds = await Schedule.find({ Class: { $in: classIds } }).select('_id');
             await Attendance.deleteMany({ Schedule: { $in: scheduleIds.map(sch => sch._id) } });
+
+            const io = req.app.get('io');
+            io.emit('deleteSubject', req.params.id);
+
             res.status(200).json({ message: "Subject and related entities deleted successfully" });
         } catch (err) {
             res.status(500).json({ message: "Error deleting subject", error: err.message });

@@ -8,7 +8,6 @@ const Major = require('../models/Major');
 const fs = require('fs');
 const path = require('path');
 
-
 // Hàm tạo mật khẩu ngẫu nhiên
 const generateRandomPassword = () => {
     return Math.random().toString(36).slice(-8); // Tạo mật khẩu 8 ký tự
@@ -207,7 +206,6 @@ const authController = {
             // Trường hợp bình thường, trả về thông tin người dùng và accessToken
             return res.status(200).json({ user: others, accessToken });
 
-
         } catch (err) {
             console.error("❌ Login Error:", err);
             res.status(500).json({ message: "Login failed", error: err.message });
@@ -217,6 +215,13 @@ const authController = {
     changePassword: async (req, res) => {
         try {
             const { userId, oldPassword, newPassword } = req.body;
+
+            const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])[^\s]{9,}$/;
+            if (!passwordRegex.test(newPassword)) {
+                return res.status(400).json({
+                    message: "Password must be more than 8 characters, contain uppercase, lowercase, a number, a special character, and no spaces.",
+                });
+            }
 
             const user = await User.findById(userId);
             if (!user) {
@@ -230,7 +235,7 @@ const authController = {
 
             const hashedNewPassword = await bcrypt.hash(newPassword, 10);
             user.Password = hashedNewPassword;
-            user.firstLogin = false; // ✅ Đánh dấu đã đổi mật khẩu
+            user.firstLogin = false; 
 
             await user.save();
             res.status(200).json({ message: "Password changed successfully" });
@@ -258,13 +263,16 @@ const authController = {
 
             // 3. Kiểm tra độ mạnh của mật khẩu mới
 
-            // const isStrongPassword = (password) => {
-            //     return password.length >= 8 && /\d/.test(password) && /[A-Z]/.test(password);
-            // };
-
-            // if (!isStrongPassword(newPassword)) {
-            //     return res.status(400).json({ message: "Mật khẩu mới phải có ít nhất 8 ký tự, bao gồm số và chữ hoa" });
-            // }
+            const isStrongPassword = (password) => {
+                const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])[^\s]{9,}$/;
+                return strongPasswordRegex.test(password);
+            };
+    
+            if (!isStrongPassword(newPassword)) {
+                return res.status(400).json({
+                    message: "Mật khẩu mới phải có nhiều hơn 8 ký tự, bao gồm chữ hoa, chữ thường, số, ký tự đặc biệt và không chứa khoảng trắng",
+                });
+            }
 
             // 4. Hash mật khẩu mới và lưu vào database
             const hashedNewPassword = await bcrypt.hash(newPassword, 10);
@@ -344,11 +352,14 @@ const authController = {
 
             // 2. Kiểm tra độ mạnh của mật khẩu mới
             const isStrongPassword = (password) => {
-                return password.length >= 8 && /\d/.test(password) && /[A-Z]/.test(password);
+                const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])[^\s]{9,}$/;
+                return strongPasswordRegex.test(password);
             };
-
+    
             if (!isStrongPassword(newPassword)) {
-                return res.status(400).json({ message: "Mật khẩu mới phải có ít nhất 8 ký tự, bao gồm số và chữ hoa" });
+                return res.status(400).json({
+                    message: "Mật khẩu mới phải có nhiều hơn 8 ký tự, bao gồm chữ hoa, chữ thường, số, ký tự đặc biệt và không chứa khoảng trắng",
+                });
             }
 
             // 3. Hash mật khẩu mới và lưu vào database

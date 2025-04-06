@@ -144,6 +144,9 @@ const userController = {
             // Cuối cùng, xóa người dùng khỏi cơ sở dữ liệu
             await User.findByIdAndDelete(userId);
 
+            const io = req.app.get('io');
+            io.emit('deleteUser', userId);
+
             res.status(200).json({ message: 'Người dùng đã bị xóa cùng với các liên kết liên quan' });
         } catch (err) {
             return res.status(500).json({ message: 'Lỗi Server', error: err.message });
