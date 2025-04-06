@@ -3,6 +3,7 @@ import { useNavigate} from "react-router-dom";
 import axios from "axios";
 import {jwtDecode} from 'jwt-decode';
 import styles from './ManageClass.module.css';
+import Menu from "../components/Menu"
 function ManageClass (){
     const [classes, setClasses] = useState([]);
     const [search, setSearch] = useState("");
@@ -62,7 +63,9 @@ function ManageClass (){
         };
 
     return (
-        <div className={styles.container}>
+        <div className={styles.body}>
+      <Menu />
+        <div className={styles.container}> 
         <div className={styles.header}>
             <h1 className={styles.title}>All Class</h1>
             {role ==="admin" && (
@@ -113,6 +116,7 @@ function ManageClass (){
                 </div>
             ))}
         </div>
+    </div>
     </div>
 
     );

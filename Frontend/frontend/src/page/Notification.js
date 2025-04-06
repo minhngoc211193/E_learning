@@ -10,13 +10,13 @@ import styles from './Notification.module.css';
 
  // 🔄 Kết nối với server socket
 
-const Notifications = () => {
+ const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
-  const [socket, setSocket] = useState(null);
   const navigate = useNavigate();
   const token = localStorage.getItem("accessToken");
   const decoded = jwtDecode(token);
   const userId = decoded.id;
+  const socket = createSocket();
 
   const fetchNotifications = async () => {
     try {
@@ -32,35 +32,39 @@ const Notifications = () => {
   };
 
   useEffect(() => {
-    if (!userId) return;
-
-    const newSocket = createSocket();  // ✅ Chỉ tạo socket một lần
-    setSocket(newSocket);
-
-    newSocket.emit("register", userId);  // Đăng ký user với socket server
-    fetchNotifications();  // Lấy danh sách thông báo ban đầu
-
-    newSocket.on("receive notification", (newNotification) => {
+    if (userId) {
+      socket.emit('register', userId);  // Đảm bảo socket đã đăng ký với đúng userId
+    }
+    
+    fetchNotifications();  // Lấy thông báo ban đầu
+  
+    // Lắng nghe sự kiện 'receive notification'
+    socket.on("receive notification", (newNotification) => {
       console.log("📩 Nhận thông báo mới:", newNotification);
-      setNotifications((prev) => [newNotification, ...prev]);
+      setNotifications((prevNotifications) => {
+        return [newNotification, ...prevNotifications];  // Thêm thông báo mới vào đầu danh sách
+      });
     });
-
-    newSocket.on("connect", () => {
-      console.log("✅ Socket connected");
-      newSocket.emit("register", userId);
+  
+    // Lắng nghe sự kiện 'connect' để đảm bảo socket luôn kết nối
+    socket.on('connect', () => {
+      console.log('Socket connected');
+      if (userId) {
+        socket.emit('register', userId);  // Đảm bảo đăng ký lại nếu socket mất kết nối
+      }
     });
-
-    newSocket.on("connect_error", (error) => {
-      console.error("❌ Socket connection error:", error);
+  
+    // Lắng nghe sự kiện 'connect_error' nếu có lỗi khi kết nối
+    socket.on('connect_error', (error) => {
+      console.error('Socket connection error:', error);
     });
-
+  
     return () => {
-      newSocket.off("receive notification");
-      newSocket.off("connect");
-      newSocket.off("connect_error");
-      newSocket.disconnect();  // ✅ Ngắt kết nối khi unmount
+      socket.off("receive notification");
+      socket.off('connect');
+      socket.off('connect_error');
     };
-  }, [userId]);
+  }, [socket,fetchNotifications,userId]);
 
 
   return (
@@ -70,7 +74,7 @@ const Notifications = () => {
       </h2>
       <div className={styles["notification-list"]}>
         {notifications.length > 0 ? (
-          notifications.slice(0, 4).map((notification) => (
+          notifications.map((notification) => (
             <div key={notification._id} className={styles["notification-item"]}>
               <div>
                 <p className={styles["notification-message"]}>{notification.message}</p>
@@ -79,7 +83,7 @@ const Notifications = () => {
             </div>
           ))
         ) : (
-          <p className={styles["no-notifications"]}>Không có thông báo nào</p>
+            <p className={styles["no-notifications"]}>Không có thông báo nào</p>
         )}
       </div>
     </div>

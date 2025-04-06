@@ -3,6 +3,7 @@ import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import styles from "./EditUser.module.css"; // Import CSS module nếu có
 import {jwtDecode} from 'jwt-decode';
+import Header from '../components/Header';
 
 const EditUser = () => {
   const { id } = useParams();
@@ -113,6 +114,7 @@ useEffect(() => {
 
   return (
     <div className={styles.createPage}>
+      <Header />
     <form onSubmit={handleSubmit} className={styles.form}>
       <h1 className={styles.title}>Edit User</h1>
 
@@ -176,6 +178,9 @@ useEffect(() => {
           </div>
         )}
       </div>
+        <button className={styles.changePassword} onClick={() => navigate('/changepassword')}>
+            <i className="fa-solid fa-key"></i> Change Password
+        </button>
 
       {/* Nút Update */}
       <button type="submit" className={styles.create}>Update User</button>

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styles from '../page/Subject.module.css';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import Menu from '../components/Menu';
 
 function Subject() {
     const [subjectData, setSubjectData] = useState({ Name: "", Description: "", MajorId:"", CodeSubject:"" });
@@ -143,6 +144,7 @@ function Subject() {
 
     return (
         <section className={styles.Subjectsection}>
+            <Menu/>
             <div className={styles.container}>
                 <h2 className={styles.headingSection}>Manage Subjects</h2>
 

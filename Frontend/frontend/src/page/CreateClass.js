@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import styles from './CreateClass.module.css';
+import Header from '../components/Header'
 
 
 function CreateClass() {
@@ -35,8 +36,10 @@ function CreateClass() {
     useEffect(() => {
         fetchSubjects(classData.Major);
         fetchTeachers(classData.Major);
-        fetchStudents(classData.Major);
-    }, [classData.Major]);
+        if (classData.Major && classData.Subject) {
+            fetchStudentsBySubject(classData.Major, classData.Subject);
+        }
+    }, [classData.Major,classData.Subject]);
 
 
 
@@ -64,21 +67,18 @@ function CreateClass() {
         }
     };
 
-    const fetchStudents = async (majorId) => {
-
+    const fetchStudentsBySubject = async (majorId, subjectId) => {
+        if (!majorId || !subjectId) return;
         try {
-            const decoded = jwtDecode(token);
-            const userRole = "student";
-            if (!classData.Major) return;
-            const response = await axios.get(`http://localhost:8000/user/users-by-major/${majorId}?Role=${userRole}`, {
+            const response = await axios.get(`http://localhost:8000/user/users-by-subject?majorId=${majorId}&subjectId=${subjectId}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
-            // const studentList = response.data.filter(user => user.role === "student");
             setStudents(response.data);
         } catch (e) {
-            console.error("Error fetching students", e);
+            console.error("Error fetching students by subject", e);
         }
     };
+    
 
     const fetchTeachers = async (majorId) => {
         try{
@@ -106,6 +106,9 @@ function CreateClass() {
             ...prev,
             Subject: selectedSubjectId,  // Lưu id của subject vào state
         }));
+
+
+        
     };
 
     const handleCheckboxChange = (student) => {
@@ -165,6 +168,7 @@ function CreateClass() {
 
     return (
         <div className={styles.container}>
+            <Header />
             <h1 className={styles.title}>Create new class</h1>
             <div className={styles["mt-4"]}>
                 {step === 1 ? (

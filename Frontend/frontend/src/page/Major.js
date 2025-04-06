@@ -1,6 +1,8 @@
 import React, {useState, useEffect} from 'react';
 import { useNavigate } from "react-router-dom";
 import axios from 'axios';
+import styles from './Major.module.css';
+import Menu from '../components/Menu';
 
 function Major () {
     const[majorData, setMajorData] = useState({
@@ -87,7 +89,9 @@ function Major () {
     };
 
     return (
-        <div>
+        <div className={styles.body}>
+           <Menu/> 
+        <div className={styles.container}>
             <h1>Manage Majors</h1>
             <form onSubmit={handleSubmit}>
                 <input type="text" name="Name" value={majorData.Name} onChange={handleChange} placeholder="Major Name" required />
@@ -104,6 +108,7 @@ function Major () {
                     </li>
                 ))}
             </ul>
+        </div>
         </div>
     );
 };

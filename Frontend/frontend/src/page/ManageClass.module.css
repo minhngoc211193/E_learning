@@ -1,7 +1,14 @@
+.body{
+    display: flex;
+    font-family: var(--font-family-sans-serif);
+  }
 .container {
-    max-width: 1200px;
+    max-width: 80%;
     margin: 0 auto;
     padding: 1.5rem;
+    background-color:#f9f9f9;
+    flex: 1;
+    overflow-y: auto;
 }
 
 .header {

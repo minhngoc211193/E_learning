@@ -12,9 +12,7 @@ import CreateBLog from './page/CreateBlog';
 import EditBlog from './page/EditBlog';
 import BlogDetail from "./page/BlogDetail";
 import ManageBlog from './page/ManageBlog';
-
 import CreateMeet from './page/CreateMeet';
-
 import ManageClass from './page/ManageClass';
 import Major from "./page/Major";
 import Document from './page/Document';
@@ -33,6 +31,7 @@ import Attendance from './page/Attendance';
 import Messenger from './page/Messenger';
 import ManageMeet from './page/ManageMeet';
 import Notification from './page/Notification';
+
 
 import './App.css';
 
