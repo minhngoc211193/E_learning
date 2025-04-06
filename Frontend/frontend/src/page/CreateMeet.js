@@ -1,21 +1,20 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import {jwtDecode} from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
 import styles from './CreateMeet.module.css';
-function CreateMeet({ selectedConversationId}) {
-  const [isVisible, setIsVisible] = useState(true);
-  const handleClose = () => {
-    setIsVisible(false);
-  };
+
+function CreateMeet({ selectedConversationId, setIsMeetingFormVisible }) {
   const [meeting, setMeeting] = useState({
     reason: "",
     meetingType: "online",
     time: "",
     address: "",
   });
-  console.log("selected id", selectedConversationId)
-  console.log("id teacher", selectedConversationId?.teacherId?._id)
+
+  const navigate = useNavigate();
   const token = localStorage.getItem("accessToken");
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setMeeting((prevForm) => ({
@@ -23,28 +22,25 @@ function CreateMeet({ selectedConversationId}) {
       [name]: value,
     }));
   };
-console.log("token", token)
+
   const handleCreateMeeting = async () => {
     const { reason, meetingType, time, address } = meeting;
     const decodedToken = jwtDecode(token);
     const studentId = decodedToken.id; // Lấy ID của học sinh từ token
     const role = decodedToken.Role;
     const MeetingData = {
-        teacherId: selectedConversationId?.teacherId?._id, 
-        reason,
-        meetingType,
-        time,
-        address: meetingType === "offline" ? address : "không có",
-        // studentId, 
+      teacherId: selectedConversationId?.teacherId?._id,
+      reason,
+      meetingType,
+      time,
+      address: meetingType === "offline" ? address : "không có",
     };
-    console.log("meeting data", MeetingData);
-    // Kiểm tra nếu lý do cuộc họp hoặc thời gian trống
+
     if (!reason || !time) {
       alert("Vui lòng điền đầy đủ lý do và thời gian cuộc họp.");
       return;
     }
 
-    // Kiểm tra xem thời gian đã chọn có hợp lệ không (phải sau thời điểm hiện tại)
     const currentTime = new Date();
     const selectedTime = new Date(time);
     if (selectedTime <= currentTime) {
@@ -53,33 +49,30 @@ console.log("token", token)
     }
 
     try {
-      // Kiểm tra role là 'student'
       if (role !== 'student') {
         alert("Bạn không có quyền tạo cuộc họp. Chỉ học sinh mới có thể thực hiện.");
         return;
       }
 
-      // Gửi yêu cầu tạo cuộc họp
       const res = await axios.post(
-        "http://localhost:8000/meet/request-meeting", MeetingData ,
+        "http://localhost:8000/meet/request-meeting", 
+        MeetingData, 
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      alert(res.data.message); // Hiển thị thông báo khi tạo thành công
-      handleClose(); // Đóng form
+      alert(res.data.message);
+      setIsMeetingFormVisible(false); // Đóng form khi tạo thành công
+      navigate("/messenger");
     } catch (error) {
       console.error("Lỗi khi tạo cuộc họp:", error);
       alert("Đã có lỗi xảy ra khi tạo cuộc họp.");
     }
   };
-  if (!isVisible) return null;
 
   return (
     <div className={styles["create-meet-container"]}>
       <h3 className={styles["create-meet-title-bold"]}>
         Tạo cuộc họp với {selectedConversationId?.teacherId?.Fullname || "Giáo viên chưa xác định"}
       </h3>
-
-      {/* Form nhập lý do cuộc họp */}
       <input
         type="text"
         name="reason"
@@ -88,8 +81,6 @@ console.log("token", token)
         onChange={handleInputChange}
         className={styles["create-meet-input"]}
       />
-
-      {/* Form chọn thời gian cuộc họp */}
       <input
         type="datetime-local"
         name="time"
@@ -97,8 +88,7 @@ console.log("token", token)
         onChange={handleInputChange}
         className={styles["create-meet-input"]}
       />
-
-    <div className={styles["create-meet-radio-group"]}>
+      <div className={styles["create-meet-radio-group"]}>
         <label>
           <input
             type="radio"
@@ -120,7 +110,6 @@ console.log("token", token)
           Offline
         </label>
       </div>
-
       {meeting.meetingType === "offline" && (
         <input
           type="text"
@@ -131,21 +120,11 @@ console.log("token", token)
           className={styles["wcreate-meet-input"]}
         />
       )}
-
-      {/* Nút gửi yêu cầu tạo cuộc họp */}
-      <button
-        onClick={handleCreateMeeting}
-        className={styles["create-meet-button"]}
-      >
-        Gửi yêu cầu
+      <button onClick={handleCreateMeeting} className={styles["create-meet-button"]}>
+        Create Meet
       </button>
-
-      {/* Nút hủy form */}
-      <button
-        onClick={handleClose}
-        className={styles["create-meet-cancel"]}
-      >
-        Hủy
+      <button onClick={() => setIsMeetingFormVisible(false)} className={styles["closeButton"]}>
+      Cancel
       </button>
     </div>
   );

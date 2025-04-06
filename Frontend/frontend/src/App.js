@@ -15,6 +15,7 @@ import ManageBlog from './page/ManageBlog';
 import CreateMeet from './page/CreateMeet';
 import ManageClass from './page/ManageClass';
 import Major from "./page/Major";
+import DetailMajor from "./page/DetailMajor";
 import Document from './page/Document';
 import EditClass from './page/EditClass';
 import DetailClass from './page/DetailClass';
@@ -81,6 +82,7 @@ function App() {
           <Route path="/update-user/:id" element={renderProtected(UpdateUser)} />
           <Route path="/manageuser" element={renderProtected(ManageUser)} />
           <Route path="/major" element={renderProtected(Major)} />
+          <Route path="/detail-major/:id" element={renderProtected(DetailMajor)} />
           <Route path="/home" element={renderProtected(Home)} />
           <Route path="/createblog" element={renderProtected(CreateBLog)} />
           <Route path="/editblog/:id" element={renderProtected(EditBlog)} />

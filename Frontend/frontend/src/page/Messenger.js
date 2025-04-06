@@ -237,106 +237,140 @@ const handleUser = async(user) =>{
       socket.emit("stop typing", selectedConversationId);
     }
   };
+  const getAvatarSrc = (sender) => {
+    if (!sender) return "";
+    // Ưu tiên dùng sender.imageBase64 nếu có
+    if (sender.imageBase64) return sender.imageBase64;
+    // Nếu sender.Image là object, lấy thuộc tính base64
+    if (sender.Image && typeof sender.Image === "object") {
+      return sender.imageBase64;
+    }
+    // Nếu sender.Image không phải object thì trả về luôn nó
+    return sender.imageBase64;
+  };
+  
 
   return (
-      <div className={styles["messenger-container"]}>
-        <div className={styles.sidebar}>
-          <h2 className={styles["sidebar-title"]}>Hội thoại</h2>
-          <input type="text" placeholder="Tìm kiếm..." value={searchText} onChange={(e) => setSearchText(e.target.value)} />
-            <button onClick={handleSearch}>Tìm</button>
-            <div>
-              {searchResults.map((user) => (
-                <div key={user._id} onClick={() => handleUser(user)} className={styles["search-result-item"]}>
-                  <FaUserCircle size={20} />
-                  <span>{user.Fullname}</span>
-                </div>
-              ))}
-            </div>
-
-          {conversations.map((conv) => (
-            <div key={conv._id} onClick={() => handleConversationClick(conv._id)} className={styles["conversation-item"]}>
-              <img src={conv.studentId.Image} className={styles.avatar} />
-              <span>
-                {conv.studentId?._id === jwtDecode(token).id ? conv.teacherId?.Fullname : conv.studentId?.Fullname}
-              </span>
-            </div>
-          ))}
+    <div className={styles["messenger-container"]}>
+  <div className={styles.sidebar}>
+    <h2 className={styles["sidebar-title"]}>Messenger</h2>
+    <input
+      type="text"
+      placeholder="Tìm kiếm..."
+      value={searchText}
+      onChange={(e) => setSearchText(e.target.value)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') { handleSearch(); }
+      }}
+    />
+    <div>
+      {searchResults.map((user) => (
+        <div key={user._id} onClick={() => handleUser(user)} className={styles["search-result-item"]}>
+          <FaUserCircle size={20} />
+          <span>{user.Fullname}</span>
         </div>
-  
-        <div className={styles["chat-window"]}>
-          {selectedConversationId ? (
-            <>
-              <div className={styles["chat-header"]}>
-                <FaUserCircle className={styles["icon-lg"]} />
-                <h2>
-                  {(() => {
-                    const conv = conversations.find((c) => c._id === selectedConversationId);
-                    return conv?.studentId?._id === jwtDecode(token).id ? conv?.teacherId?.Fullname : conv?.studentId?.Fullname;
-                  })()}
-                </h2>
-              </div>
-  
-              <div className={styles["message-list"]}>
-                {messages.length > 0 ? (
-                  messages.map((msg) => {
-                    const isSentByUser = msg.senderId?._id === userId;
+      ))}
+    </div>
 
-                    return (
-                      <div key={msg._id} className={`${styles.message} ${isSentByUser ? styles.sent : styles.received}`}>
-                        {!isSentByUser && ( // Chỉ hiển thị avatar bên trái nếu không phải tin nhắn của user
-                          <img src={msg.senderId.imageBase64 || msg.senderId.Image} className={styles.avatar} />
-                        )}
-                        
-                        <div className={styles["message-content"]}>
-                          {!isSentByUser && <span className={styles["message-sender"]}>{msg.receiverId.Fullname}</span>}
-                          <div className={styles["message-bubble"]}>{msg.text}</div>
-                        </div>
-
-                        {isSentByUser && ( // Chỉ hiển thị avatar bên phải nếu là tin nhắn của user
-                          <img src={msg.senderId.imageBase64 || msg.senderId.Image} className={styles.avatar} />
-                        )}
-                      </div>
-                    );
-                  })
-                ) : (
-                  <p className={styles["no-messages"]}>Chưa có tin nhắn nào.</p>
-                )}
-                <div ref={messagesEndRef}></div> {/* Tự động cuộn xuống tin nhắn mới */}
-              </div>
-  
-              <div className={styles["chat-input"]}>
-                <input
-                  type="text"
-                  placeholder="Nhập tin nhắn..."
-                  value={newMessage}
-                  onChange={(e) => setNewMessage(e.target.value)}
-                  onKeyDown={handleTyping}
-                  onKeyUp={handleStopTyping}
-                />
-                <button className={styles["send-button"]} onClick={sendMessage}>
-                  <FaPaperPlane />
-                </button>
-                {typing && <p className={styles["typing-indicator"]}>Ai đó đang nhập...</p>}
-              </div>
-  
-              {userRole === "student" && (
-                <button onClick={() => setIsMeetingFormVisible(true)} className={styles["create-meet-button"]}>
-                  Tạo cuộc họp
-                </button>
-              )}
-  
-  {isMeetingFormVisible && 
-  <CreateMeet 
-    selectedConversationId={conversations.find(conv => conv._id === selectedConversationId)} 
-  />
-}
-
-            </>
-          ) : (
-            <div className={styles["chat-placeholder"]}>Chọn hội thoại để bắt đầu chat</div>
-          )}
-        </div>
+    {conversations.map((conv) => (
+      <div
+        key={conv._id}
+        onClick={() => handleConversationClick(conv._id)}
+        className={styles["conversation-item"]}
+      >
+        <img src={conv.studentId?._id === jwtDecode(token).id ? conv.teacherId?.Image : conv.studentId?.Image} className={styles.avatar} />
+        <span>
+          {conv.studentId?._id === jwtDecode(token).id ? conv.teacherId?.Fullname : conv.studentId?.Fullname}
+        </span>
       </div>
+    ))}
+  </div>
+
+  <div className={styles["chat-window"]}>
+    {selectedConversationId ? (
+      <>
+        <div className={styles["chat-header"]}>
+          <img
+            src={(() => {
+              const conv = conversations.find((c) => c._id === selectedConversationId);
+              const isStudent = conv?.studentId?._id === jwtDecode(token).id;
+              return isStudent ? conv?.teacherId?.Image : conv?.studentId?.Image;
+            })()}
+            alt="Receiver Avatar"
+            className={styles["icon-lg"]}
+          />
+          <h2>
+            {(() => {
+              const conv = conversations.find((c) => c._id === selectedConversationId);
+              return conv?.studentId?._id === jwtDecode(token).id ? conv?.teacherId?.Fullname : conv?.studentId?.Fullname;
+            })()}
+          </h2>
+        </div>
+
+        <div className={styles["message-list"]}>
+          {messages.length > 0 ? (
+            messages.map((msg) => {
+              const isSentByUser = typeof msg.senderId === 'string'
+              ? msg.senderId === userId
+              : msg.senderId?._id === userId;
+              return (
+                <div key={msg._id} className={`${styles.message} ${isSentByUser ? styles.sent : styles.received}`}>
+                  {!isSentByUser && (
+                    <img src={getAvatarSrc(msg.senderId)} className={styles.avatar} />
+                  )}
+                  <div className={styles["message-content"]}>
+                    {!isSentByUser && <span className={styles["message-sender"]}>{msg.senderId.Fullname}</span>}
+                    <div className={styles["message-bubble"]}>{msg.text}</div>
+                  </div>
+                  {isSentByUser && (
+                    <img src={getAvatarSrc(msg.senderId)} className={styles.avatar} />
+                  )}
+                </div>
+              );
+            })
+          ) : (
+            <p className={styles["no-messages"]}>No messages</p>
+          )}
+          <div ref={messagesEndRef}></div>
+        </div>
+
+        <div className={styles["chat-input-wrapper"]}>
+          {userRole === "student" && (
+            <button onClick={() => setIsMeetingFormVisible(true)} className={styles["create-meet-button"]}>
+              Create Meet
+            </button>
+          )}
+
+          <div className={styles["chat-input"]}>
+            <input
+              type="text"
+              placeholder="Nhập tin nhắn..."
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              onKeyDown={handleTyping}
+              onKeyUp={handleStopTyping}
+            />
+            <button className={styles["send-button"]} onClick={sendMessage}>
+              <FaPaperPlane />
+            </button>
+            {typing && <p className={styles["typing-indicator"]}>Typing...</p>}
+          </div>
+        </div>
+
+        {isMeetingFormVisible && (
+          <div className={styles["create-meet-overlay"]}>
+            <CreateMeet
+              selectedConversationId={conversations.find((conv) => conv._id === selectedConversationId)}
+              setIsMeetingFormVisible={setIsMeetingFormVisible}
+            />
+          </div>
+        )}
+      </>
+    ) : (
+      <div className={styles["chat-placeholder"]}>Please choose a user to chat with</div>
+    )}
+  </div>
+</div>
   );
 }
 
