@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import Header from '../components/Header'
 
 const DetailUser = () => {
     const { id } = useParams();
@@ -33,7 +34,10 @@ const DetailUser = () => {
     if (!user) return <p>Không tìm thấy người dùng</p>;
 
     return (
+        
         <div className="p-6 max-w-lg mx-auto bg-white shadow-md rounded-lg">
+            <Header />
+
             <h2 className="text-xl font-bold mb-4">User Details</h2>
             {user.Image && (
                 <img 

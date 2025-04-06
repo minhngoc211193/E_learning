@@ -1,60 +1,64 @@
-/* CreateClass.css */
-
 .container {
-    max-width: 800px;
+    max-width: 1200px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 1.5rem;
 }
 
-h1 {
-    font-size: 24px;
+.title {
+    font-size: 1.875rem; /* text-3xl */
     font-weight: bold;
-    margin-bottom: 20px;
 }
 
-.form-group {
-    margin-bottom: 15px;
-}
-
-label {
-    display: block;
-    font-weight: bold;
-    margin-bottom: 5px;
-}
-
-input, select {
+.input-field {
     width: 100%;
-    padding: 8px;
+    padding: 0.5rem;
     border: 1px solid #ccc;
-    border-radius: 4px;
+    border-radius: 0.5rem;
+    margin-top: 0.5rem;
 }
 
-button {
-    padding: 10px 15px;
+.select-field {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.button {
+    margin-top: 1rem;
+    padding: 0.5rem 1rem;
+    color: white;
     border: none;
-    border-radius: 4px;
+    border-radius: 0.5rem;
     cursor: pointer;
-    margin-right: 10px;
 }
 
-.btn-next {
-    background-color: #007bff;
-    color: white;
+.button-blue {
+    background-color: #3b82f6;
 }
 
-.btn-back {
-    background-color: #6c757d;
-    color: white;
+.button-blue:hover {
+    background-color: #2563eb;
+}
+
+.button-gray {
+    background-color: #6b7280;
+}
+
+.button-gray:hover {
+    background-color: #4b5563;
 }
 
 .student-list {
-    margin-top: 10px;
+    margin-top: 0.5rem;
 }
 
 .student-item {
     display: flex;
     justify-content: space-between;
-    padding: 8px;
-    border: 1px solid #ddd;
-    margin-top: 5px;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    margin-top: 0.5rem;
+    border-radius: 0.5rem;
 }

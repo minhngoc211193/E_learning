@@ -3,6 +3,7 @@ import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import styles from "./EditUser.module.css"; // Import CSS module nếu có
 import {jwtDecode} from 'jwt-decode';
+import Header from '../components/Header';
 
 const EditUser = () => {
   const { id } = useParams();
@@ -113,96 +114,79 @@ useEffect(() => {
 
   return (
     <div className={styles.createPage}>
-      <form onSubmit={handleSubmit} className={styles.form}>
-        <h1 className={styles.title}>Edit User</h1>
-        <div className={styles.formGrid}>
-          <input
-            type="text"
-            name="Fullname"
-            placeholder="Full Name"
-            value={userData.Fullname}
-            onChange={handleChange}
-            className={styles.input}
-            required
-          />
-          <input
-            type="text"
-            name="Username"
-            placeholder="Username"
-            value={userData.Username}
-            onChange={handleChange}
-            className={styles.input}
-            required
-          />
-          <input
-            type="tel"
-            name="PhoneNumber"
-            placeholder="Phone Number"
-            value={userData.PhoneNumber}
-            onChange={handleChange}
-            className={styles.input}
-            required
-          />
-          <select
-            name="Gender"
-            value={userData.Gender}
-            onChange={handleChange}
-            className={styles.select}
-            required
-          >
+      <Header />
+    <form onSubmit={handleSubmit} className={styles.form}>
+      <h1 className={styles.title}>Edit User</h1>
+
+      <div className={styles.avatarContainer}>
+        <div className={styles.avatarWrapper}>
+          <img src={userData.Image || "avatar.png"} alt="User Avatar" className={styles.avatar} />
+          
+          {/* Nút chọn ảnh (icon camera) */}
+          <label className={styles.cameraIcon}>
+            <input type="file" accept="image/*" onChange={handleImageChange} hidden />
+            📷
+          </label>
+        </div>
+      </div>
+
+      {/* Form Grid */}
+      <div className={styles.formGrid}>
+        <div className={styles.inputGroup}>
+          <label>Full Name:</label>
+          <input type="text" name="Fullname" value={userData.Fullname} onChange={handleChange} className={styles.input} required />
+        </div>
+
+        <div className={styles.inputGroup}>
+          <label>Username:</label>
+          <input type="text" name="Username" value={userData.Username} onChange={handleChange} className={styles.input} required />
+        </div>
+
+        <div className={styles.inputGroup}>
+          <label>Phone:</label>
+          <input type="tel" name="PhoneNumber" value={userData.PhoneNumber} onChange={handleChange} className={styles.input} required />
+        </div>
+
+        <div className={styles.inputGroup}>
+          <label>Gender:</label>
+          <select name="Gender" value={userData.Gender} onChange={handleChange} className={styles.select} required>
             <option value="">Select Gender</option>
             <option value="Male">Male</option>
             <option value="Female">Female</option>
           </select>
-          <input
-            type="date"
-            name="DateOfBirth"
-            value={userData.DateOfBirth}
-            onChange={handleChange}
-            className={styles.input}
-            required
-          />
-          <select
-            name="Major"
-            value={userData.Major}
-            onChange={handleChange}
-            className={styles.select}
-            required
-          >
+        </div>
+
+        <div className={styles.inputGroup}>
+          <label>Date of Birth:</label>
+          <input type="date" name="DateOfBirth" value={userData.DateOfBirth} onChange={handleChange} className={styles.input} required />
+        </div>
+
+        <div className={styles.inputGroup}>
+          <label>Major:</label>
+          <select name="Major" value={userData.Major} onChange={handleChange} className={styles.select} required>
             <option value="">Select Major</option>
             {majors.map((major) => (
-              <option key={major._id} value={major._id}>
-                {major.Name}
-              </option>
+              <option key={major._id} value={major._id}>{major.Name}</option>
             ))}
           </select>
-          {userData.Role === "student" && (
-            <input
-              type="number"
-              name="SchoolYear"
-              placeholder="School Year"
-              value={userData.SchoolYear}
-              onChange={handleChange}
-              className={styles.input}
-            />
-          )}
-          <label className={styles.imageLabel}>
-            <input type="file" accept="image/*" onChange={handleImageChange} />
-            Chọn ảnh mới
-          </label>
-          {userData.PreviewImage && (
-            <img
-              src={userData.PreviewImage}
-              alt="User Avatar"
-              className={styles.avatar}
-            />
-          )}
-          <button type="submit" className={styles.create}>
-            Update User
-          </button>
         </div>
-      </form>
+
+        {userData.Role === "student" && (
+          <div className={styles.inputGroup}>
+            <label>School Year:</label>
+            <input type="number" name="SchoolYear" value={userData.SchoolYear} onChange={handleChange} className={styles.input} />
+          </div>
+        )}
+      </div>
+        <button className={styles.changePassword} onClick={() => navigate('/changepassword')}>
+            <i className="fa-solid fa-key"></i> Change Password
+        </button>
+
+      {/* Nút Update */}
+      <button type="submit" className={styles.create}>Update User</button>
+    </form>
     </div>
+
   );
 };
 
