@@ -123,6 +123,12 @@
     grid-column: span 2;
 }
 
+.loadingContainer{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 /* Responsive Design */
 @media (max-width: 1024px) {
     .content {

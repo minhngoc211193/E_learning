@@ -101,6 +101,7 @@ const sendMessage = async (req, res) => {
   try {
     const { conversationId, text } = req.body;
     const userId = req.user.id;
+    const user = await User.findById(userId);
 
     const conversation = await Conversation.findById(conversationId);
     if (!conversation) {
@@ -112,7 +113,7 @@ const sendMessage = async (req, res) => {
       return res.status(403).json({ message: 'You are not authorized to send messages in this conversation' });
     }
 
-    // Xác định receiverId là người còn lại trong cuộc trò chuyện
+
     const receiverId = userId === conversation.studentId.toString() 
       ? conversation.teacherId 
       : conversation.studentId;
@@ -129,15 +130,14 @@ const sendMessage = async (req, res) => {
     // Cập nhật tin nhắn cuối cùng của cuộc trò chuyện
     conversation.lastMessage = savedMessage._id;
     await conversation.save();
-
-    // Tạo thông báo
     const notification = await createNotification(
       userId, 
       receiverId, 
       'MESSAGE', 
-      `Bạn có tin nhắn mới từ ${req.user.Fullname}`
+      `Bạn có tin nhắn mới từ ${user.Fullname}`
     );
 
+    console.log(notification);
     const io = req.app.get('io');
     
     // Gửi tin nhắn mới đến cuộc trò chuyện
@@ -151,6 +151,8 @@ const sendMessage = async (req, res) => {
 
     // Gửi thông báo real-time nếu có
     if (notification) {
+      console.log(`Emitting notification to user: ${receiverId}`);
+      // io.emit('new notification', notification);
       io.to(receiverId.toString()).emit('new notification', notification);
     }
 

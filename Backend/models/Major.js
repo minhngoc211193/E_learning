@@ -7,5 +7,4 @@ const majorSchema = new mongoose.Schema({
     CodeMajor:{type:String, required: true, unique:true},
 })
 const Major = mongoose.model("Major", majorSchema, "majors");
-
 module.exports = Major;

@@ -132,6 +132,12 @@
   background-color: var(--btn-delete-hover);
 }
 
+.loadingContainer{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 /* Responsive styles cho màn hình nhỏ */
 @media (max-width: 920px) {
   .container {

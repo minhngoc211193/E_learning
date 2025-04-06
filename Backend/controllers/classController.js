@@ -85,6 +85,9 @@ const classController = {
             // Lưu Class vào database
             const savedClass = await newClass.save();
 
+            const io = req.app.get('io');
+            io.emit('newClass', savedClass);
+
             // ===== Gửi email cho giáo viên =====
             const teacherInfo = await User.findById(Teacher);
             if (teacherInfo) {
@@ -338,8 +341,6 @@ const classController = {
             res.status(500).json({ message: "Cập nhật lớp thất bại", error: err.message });
         }
     },
-
-
     // Xóa lớp học theo ID
     deleteClass: async (req, res) => {
         try {

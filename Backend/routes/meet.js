@@ -1,5 +1,4 @@
 const express = require('express');
-const meetController = require('../controllers/meetController');
 const router = express.Router();
 const { verifyToken, verifyAdmin, verifyRole } = require('../middlewares/authMiddleware');  
 const { requestMeeting, getMeetings, respondToMeetingRequest, searchMeetings, deleteMeetingRequest, updateMeetingRequest  } = require('../controllers/meetController');  

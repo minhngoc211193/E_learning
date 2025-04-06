@@ -38,7 +38,7 @@ function Schedule() {
       setNotifData(null);
     }
   }, [notifData, api]);
-
+  console.log(schedules);
   useEffect(() => {
     const fetchSchedule = async () => {
       try {
@@ -150,6 +150,8 @@ const handleAttendance = async (scheduleId) => {
                                 Teacher: {sch.Class.Teacher.Fullname}
                                 <br />
                                 Room: {sch.Address}
+                                <br />
+                                Status: {sch.Attendances[0].IsPresent}
                               </div>
                             </div>
                           ))

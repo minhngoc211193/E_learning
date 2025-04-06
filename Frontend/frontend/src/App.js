@@ -88,8 +88,8 @@ function App() {
           <Route path="/subject" element={renderProtected(Subject)} />
           <Route path="/manageclass" element={renderProtected(ManageClass)} />
           <Route path="/document" element={renderProtected(Document)} />
-          <Route path="/update-class/:id" element={renderProtected(EditClass)} />
-          <Route path="/detail-class/:id" element={renderProtected(EditClass)} />
+          <Route path="/update-class/:classId" element={renderProtected(EditClass)} />
+          <Route path="/detail-class/:classId" element={renderProtected(EditClass)} />
           <Route path="/create-class" element={renderProtected(CreateClass)} />
           <Route path="/schedule" element={renderProtected(Schedule)} />
           <Route path="/manageschedule" element={renderProtected(ManageSchedule)} />

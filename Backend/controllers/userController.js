@@ -6,6 +6,8 @@ const Notification = require('../models/Notification');
 const mime = require('mime-types');
 const Major = require('../models/Major');
 const Attendance = require('../models/Attendance');
+const Subject = require('../models/Subject');
+const Class = require('../models/Class')
 
 const userController = {
     getUser: async (req, res) => {
@@ -80,6 +82,7 @@ const userController = {
                     return res.status(400).json({ message: 'Kích thước file vượt quá giới hạn (3MB)' });
                 }
             }
+            updateData.Image = file.buffer;
 
             // Cập nhật người dùng trong cơ sở dữ liệu
             const updatedUser = await User.findByIdAndUpdate(userId, updateData, { new: true }).select('-Password');
@@ -222,6 +225,56 @@ const userController = {
         }
     },
 
+    getUsersBySubject: async (req, res) => {
+        try {
+            const { majorId, subjectId } = req.query;
+    
+            // Kiểm tra Major có tồn tại không
+            const major = await Major.findById(majorId);
+            if (!major) {
+                return res.status(404).json({ message: 'Major không tồn tại' });
+            }
+    
+            // Kiểm tra Subject có tồn tại không
+            const subject = await Subject.findById(subjectId);
+            if (!subject) {
+                return res.status(404).json({ message: 'Subject không tồn tại' });
+            }
+    
+            // Lấy tất cả học sinh trong Major
+            const studentsInMajor = await User.find({
+                Major: majorId,
+                Role: 'student'
+            }).populate('Subjects').select('Fullname Username Subjects Email Role Gender');  // Populating để lấy các môn học của học sinh
+    
+            // Lấy các lớp học có môn học này
+            const classes = await Class.find({ Subject: subjectId });
+    
+            // Lấy danh sách học sinh đã tham gia các lớp học có môn học này
+            let studentsWithSubject = [];
+            classes.forEach(cls => {
+                studentsWithSubject = [...studentsWithSubject, ...cls.Student];
+            });
+    
+            // Loại bỏ trùng lặp học sinh tham gia lớp học có môn học
+            studentsWithSubject = [...new Set(studentsWithSubject.map(student => student.toString()))];
+    
+            // Lọc ra các học sinh chưa tham gia môn học này
+            const studentsNotInSubject = studentsInMajor.filter(student => {
+                // Kiểm tra xem học sinh này đã tham gia môn học này chưa
+                const alreadyInSubject = student.Subjects.some(subject => subject.toString() === subjectId);
+                // Nếu học sinh chưa tham gia môn học, thì giữ lại
+                return !alreadyInSubject && !studentsWithSubject.includes(student._id.toString());
+            });
+    
+            return res.status(200).json(studentsNotInSubject);
+    
+        } catch (err) {
+            res.status(500).json({ message: 'Lỗi khi truy vấn dữ liệu', error: err.message });
+        }
+    },
+    
+    
 
     searchUser: async (req, res) => {
         try {

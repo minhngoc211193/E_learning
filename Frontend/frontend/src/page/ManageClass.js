@@ -9,6 +9,7 @@ function ManageClass (){
         fetchClasses();
     }, []);
 
+    //  Get class by user: fetch class theo user. 
     const fetchClasses = async () => {
         try {
             const response = await axios.get("http://localhost:8000/class/classes");

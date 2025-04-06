@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import styles from "./ManageSchedule.module.css";
-import { DatePicker, Space, notification } from 'antd';
+import { DatePicker, Space, notification, Spin } from 'antd';
 import axios from 'axios';
 import moment from 'moment';
 import Menu from '../components/Menu';
@@ -15,6 +15,7 @@ function ManageSchedule() {
   const [classes, setClasses] = useState([]);
   const [selectedClass, setSelectedClass] = useState("");
   const [editingSchedule, setEditingSchedule] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const [api, contextHolder] = notification.useNotification();
   const token = localStorage.getItem("accessToken");
@@ -85,7 +86,6 @@ function ManageSchedule() {
 
   // Khi click vào một lịch học ở bảng, chuyển sang chế độ chỉnh sửa
   const handleSelectSchedule = (sch) => {
-    // Nếu lịch được click là lịch đang được chỉnh sửa, hủy chỉnh sửa
     if (editingSchedule && editingSchedule._id === sch._id) {
       setEditingSchedule(null);
       setSelectedClass("");
@@ -93,7 +93,6 @@ function ManageSchedule() {
       setSelectedSlot("");
       setSelectedDay(null);
     } else {
-      // Nếu khác, chuyển sang chế độ chỉnh sửa lịch đó
       setEditingSchedule(sch);
       setSelectedClass(sch.Class?._id || "");
       setSelectedRoom(sch.Address);
@@ -105,12 +104,11 @@ function ManageSchedule() {
   // Xử lý tạo mới hoặc cập nhật lịch học dựa trên editingSchedule
   const handleSubmitSchedule = async (e) => {
     e.preventDefault();
-
     if (!selectedClass || !selectedRoom || !selectedSlot || !selectedDay) {
       openNotification("error", "Vui lòng điền đầy đủ thông tin");
       return;
     }
-
+    setLoading(true);
     try {
       if (editingSchedule) {
         // Update lịch học
@@ -146,7 +144,6 @@ function ManageSchedule() {
       setSelectedSlot("");
       setSelectedRoom("");
       setSelectedDay(null);
-
       // Reload lịch học cho ngày hiện tại
       fetchSchedules(displayDay);
     } catch (err) {
@@ -154,6 +151,7 @@ function ManageSchedule() {
       const errorMessage = err.response?.data?.message || "Có lỗi xảy ra!";
       openNotification("error", errorMessage, true);
     }
+    setLoading(false);
   };
 
   // Xử lý xóa lịch học với xác nhận SweetAlert2
@@ -170,24 +168,23 @@ function ManageSchedule() {
     });
 
     if (!result.isConfirmed) return;
-
+    setLoading(true);
     try {
       await axios.delete(`http://localhost:8000/schedule/delete-schedule/${editingSchedule._id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       Swal.fire("Đã xóa!", "Lịch học đã được xóa.", "success");
-      // Reset form sau khi xóa
       setEditingSchedule(null);
       setSelectedClass("");
       setSelectedSlot("");
       setSelectedRoom("");
       setSelectedDay(null);
-      // Reload lịch học
       fetchSchedules(displayDay);
     } catch (error) {
       console.error("Lỗi khi xóa lịch học", error);
       Swal.fire("Lỗi!", "Không thể xóa lịch học.", "error");
     }
+    setLoading(false);
   };
 
   return (
@@ -313,16 +310,17 @@ function ManageSchedule() {
               />
             </div>
 
-            <button type="submit" className={styles.btnCreate}>
-              {editingSchedule ? "Save" : "Create"}
+            <button type="submit" className={styles.btnCreate} disabled={loading}>
+              {loading ? <Spin size="small" /> : (editingSchedule ? "Save" : "Create")}
             </button>
             {editingSchedule && (
               <button
                 type="button"
                 className={styles.btnDelete}
                 onClick={handleDeleteSchedule}
+                disabled={loading}
               >
-                Delete
+                {loading ? <Spin size="small" /> : "Delete"}
               </button>
             )}
           </form>
