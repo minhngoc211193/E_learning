@@ -54,7 +54,7 @@ app.use('/attendance', attendanceRouter);
 app.use('/messenger', messagesRouter);
 app.use('/meet', googleMeetRoutes);
 app.use('/notification', notificationRoutes);
-app.use('/dashboard',dashboardRoutes );
+app.use('/dashboard', dashboardRoutes);
 
 // Kết nối MongoDB
 const connectToMongo = async () => {
@@ -80,7 +80,7 @@ io.on("connection", (socket) => {
     console.log(`User ${userId} registered with socket ID: ${socket.id}`);
     userSocketMap.set(userId.toString(), socket.id);
   });
-  
+
   socket.on("setup", (userData) => {
     if (!userData || !userData._id) return;
     socket.join(userData._id);
@@ -146,6 +146,26 @@ io.on("connection", (socket) => {
 
   socket.on("newUser", (user) => {
     console.log("New user created: ", user);
+  });
+
+  socket.on("deleteBlog", (blogId) => {
+    console.log("Blog đã bị xóa: ", blogId);
+  });
+
+  socket.on("deleteClass", (classId) => {
+    console.log("Class đã bị xóa: ", classId);
+  });
+
+  socket.on("deleteMajor", (majorId) => {
+    console.log("Major đã bị xóa: ", majorId);
+  });
+
+  socket.on("deleteSubject", (subjectId) => {
+    console.log("Subject đã bị xóa: ", subjectId);
+  });
+
+  socket.on("deleteUser", (userId) => {
+    console.log("User đã bị xóa: ", userId);
   });
 
   socket.on('disconnect', () => {

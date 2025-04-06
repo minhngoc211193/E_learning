@@ -187,6 +187,9 @@ const blogController = {
             // Sau khi xóa các comment, xóa blog
             await Blog.findByIdAndDelete(req.params.id);
 
+            const io = req.app.get('io');
+            io.emit('deleteBlog', req.params.id);
+
             res.status(200).json({ message: "Xóa blog và các bình luận liên quan thành công" });
         } catch (err) {
             res.status(500).json({ message: "Không thể xóa blog", error: err.message });

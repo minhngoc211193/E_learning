@@ -127,6 +127,9 @@ const majorController = {
             }
             await Major.findByIdAndDelete(majorId);
 
+            const io = req.app.get('io');
+            io.emit('deleteMajor', majorId);
+
             res.status(200).json({ message: 'Major đã bị xóa cùng với các đối tượng liên quan' });
         } catch (err) {
             res.status(500).json({ message: "Failed to delete major", error: err.message });
