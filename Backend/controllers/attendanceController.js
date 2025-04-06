@@ -38,7 +38,11 @@ const addAttendanceForNewStudent = async (classId, studentId) => {
           Date: schedule.Day
         });
 
-        await newAttendance.save();
+        const saveAttendance = await newAttendance.save();
+        await Schedule.updateOne(
+          { _id: schedule._id },
+          { $push: { Attendances: saveAttendance._id } }
+        )
       }
     }
   } catch (err) {

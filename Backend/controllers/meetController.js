@@ -31,6 +31,7 @@ async function requestMeeting(req, res) {
       meetingUrl: ""
     };
 
+
     const newMeeting = new Meeting(meetingRequest);
     await newMeeting.save();
 
