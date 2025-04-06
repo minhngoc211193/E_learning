@@ -159,20 +159,17 @@ const getSubjectCountByMajor = async (req, res) => {
 
 const getBlogCountByDay = async (req, res) => {
     try {
-        // Lấy ngày hiện tại
         const currentDate = new Date();
-
-        // Tính toán 28 ngày trước
         const startDate = new Date();
-        startDate.setDate(currentDate.getDate() - 28);  // Trừ 28 ngày
+        startDate.setDate(currentDate.getDate() - 27);
 
-        // Truy vấn và thống kê số lượng blog được đăng trong 28 ngày gần nhất
+        // Lấy dữ liệu từ MongoDB như cũ
         const result = await Blog.aggregate([
             {
                 $match: {
                     createdAt: {
-                        $gte: startDate,  // Lọc theo ngày tạo từ 28 ngày trước
-                        $lte: currentDate  // Đến ngày hiện tại
+                        $gte: startDate,
+                        $lte: currentDate
                     }
                 }
             },
@@ -187,7 +184,7 @@ const getBlogCountByDay = async (req, res) => {
                 }
             },
             {
-                $sort: { "_id.year": 1, "_id.month": 1, "_id.day": 1 }  // Sắp xếp theo ngày
+                $sort: { "_id.year": 1, "_id.month": 1, "_id.day": 1 }
             },
             {
                 $project: {
@@ -209,7 +206,25 @@ const getBlogCountByDay = async (req, res) => {
             }
         ]);
 
-        res.status(200).json(result);
+        // Tạo danh sách tất cả các ngày trong 28 ngày
+        const allDates = [];
+        const tempDate = new Date(startDate);
+        while (tempDate <= currentDate) {
+            const isoDate = tempDate.toISOString().slice(0, 10); // format YYYY-MM-DD
+            allDates.push(isoDate);
+            tempDate.setDate(tempDate.getDate() + 1);
+        }
+
+        // Biến đổi result thành Map để tra nhanh
+        const resultMap = new Map(result.map(item => [item.date, item.count]));
+
+        // Gộp dữ liệu: nếu ngày không có blog thì count = 0
+        const finalResult = allDates.map(date => ({
+            date,
+            count: resultMap.get(date) || 0
+        }));
+
+        res.status(200).json(finalResult);
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: "Server error" });
@@ -259,20 +274,18 @@ const getStudentClassStatus = async (req, res) => {
 
 const getMessageCountByDay = async (req, res) => {
     try {
-        // Lấy ngày hiện tại
+        // Lấy ngày hiện tại và ngày bắt đầu
         const currentDate = new Date();
-
-        // Tính toán 28 ngày trước
         const startDate = new Date();
-        startDate.setDate(currentDate.getDate() - 28);  // Trừ 28 ngày
+        startDate.setDate(currentDate.getDate() - 27);
 
-        // Truy vấn và thống kê số lượng tin nhắn được gửi trong 28 ngày gần nhất
+        // Truy vấn MongoDB: thống kê số lượng tin nhắn theo ngày
         const result = await Messenger.aggregate([
             {
                 $match: {
                     timestamp: {
-                        $gte: startDate,  // Lọc theo ngày tạo từ 28 ngày trước
-                        $lte: currentDate  // Đến ngày hiện tại
+                        $gte: startDate,
+                        $lte: currentDate
                     }
                 }
             },
@@ -283,11 +296,11 @@ const getMessageCountByDay = async (req, res) => {
                         month: { $month: "$timestamp" },
                         day: { $dayOfMonth: "$timestamp" }
                     },
-                    count: { $sum: 1 }  // Đếm số tin nhắn gửi mỗi ngày
+                    count: { $sum: 1 }
                 }
             },
             {
-                $sort: { "_id.year": 1, "_id.month": 1, "_id.day": 1 }  // Sắp xếp theo ngày
+                $sort: { "_id.year": 1, "_id.month": 1, "_id.day": 1 }
             },
             {
                 $project: {
@@ -309,7 +322,25 @@ const getMessageCountByDay = async (req, res) => {
             }
         ]);
 
-        res.status(200).json(result);
+        // Tạo danh sách tất cả các ngày trong 28 ngày gần nhất
+        const allDates = [];
+        const tempDate = new Date(startDate);
+        while (tempDate <= currentDate) {
+            const isoDate = tempDate.toISOString().slice(0, 10); // YYYY-MM-DD
+            allDates.push(isoDate);
+            tempDate.setDate(tempDate.getDate() + 1);
+        }
+
+        // Dùng Map để ánh xạ ngày -> số lượng tin nhắn
+        const resultMap = new Map(result.map(item => [item.date, item.count]));
+
+        // Gộp lại: nếu không có tin nhắn thì count = 0
+        const finalResult = allDates.map(date => ({
+            date,
+            count: resultMap.get(date) || 0
+        }));
+
+        res.status(200).json(finalResult);
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: "Server error" });

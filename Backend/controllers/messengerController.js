@@ -1,7 +1,7 @@
 const Conversation = require('../models/Conversation');
 const Messenger = require('../models/Messenger');
-const User = require('../models/User'); 
-const {createNotification} = require('./notificationController')
+const User = require('../models/User');
+const { createNotification } = require('./notificationController')
 const mime = require('mime-types');
 
 const searchUser = async (req, res) => {
@@ -12,14 +12,14 @@ const searchUser = async (req, res) => {
 
     let userToSearch;
     if (userRole === 'student') {
-      userToSearch = await User.find({ 
-        Role: 'teacher', 
-        Fullname: { $regex: searchText, $options: 'i' } 
+      userToSearch = await User.find({
+        Role: 'teacher',
+        Fullname: { $regex: searchText, $options: 'i' }
       });
     } else if (userRole === 'teacher') {
-      userToSearch = await User.find({ 
-        Role: 'student', 
-        Fullname: { $regex: searchText, $options: 'i' } 
+      userToSearch = await User.find({
+        Role: 'student',
+        Fullname: { $regex: searchText, $options: 'i' }
       });
     } else {
       return res.status(403).json({ message: 'Unauthorized' });
@@ -68,8 +68,8 @@ const createConversation = async (req, res) => {
         { studentId: searchUserId, teacherId: userId },
       ],
     })
-    .populate('studentId', 'Fullname Image')
-    .populate('teacherId', 'Fullname Image');
+      .populate('studentId', 'Fullname Image')
+      .populate('teacherId', 'Fullname Image');
 
     // Nếu conversation đã tồn tại, trả về conversation đó
     if (existingConversation) {
@@ -114,8 +114,8 @@ const sendMessage = async (req, res) => {
     }
 
 
-    const receiverId = userId === conversation.studentId.toString() 
-      ? conversation.teacherId 
+    const receiverId = userId === conversation.studentId.toString()
+      ? conversation.teacherId
       : conversation.studentId;
 
     const newMessage = new Messenger({
@@ -126,27 +126,44 @@ const sendMessage = async (req, res) => {
     });
 
     const savedMessage = await newMessage.save();
+    let populatedMessage = await Messenger.findById(savedMessage._id)
+      .populate('senderId', 'Fullname Image')
+      .populate('receiverId', 'Fullname Image');
 
+    // Chuyển user.Image sang base64 (giống logic ở getMessages)
+    populatedMessage = populatedMessage.toObject();
+
+    // Xử lý senderId.Image
+    if (populatedMessage.senderId && populatedMessage.senderId.Image) {
+      const mimeType = mime.lookup(populatedMessage.senderId.Image) || 'image/png';
+      populatedMessage.senderId.imageBase64 = `data:${mimeType};base64,${populatedMessage.senderId.Image.toString('base64')}`;
+    }
+
+    // Xử lý receiverId.Image
+    if (populatedMessage.receiverId && populatedMessage.receiverId.Image) {
+      const mimeType = mime.lookup(populatedMessage.receiverId.Image) || 'image/png';
+      populatedMessage.receiverId.imageBase64 = `data:${mimeType};base64,${populatedMessage.receiverId.Image.toString('base64')}`;
+    }
     // Cập nhật tin nhắn cuối cùng của cuộc trò chuyện
     conversation.lastMessage = savedMessage._id;
     await conversation.save();
     const notification = await createNotification(
-      userId, 
-      receiverId, 
-      'MESSAGE', 
+      userId,
+      receiverId,
+      'MESSAGE',
       `Bạn có tin nhắn mới từ ${user.Fullname}`
     );
 
     console.log(notification);
     const io = req.app.get('io');
-    
+
     // Gửi tin nhắn mới đến cuộc trò chuyện
-    io.to(conversationId).emit('new message', savedMessage);
-    
+    io.to(conversationId).emit('new message', populatedMessage);
+
     // Xác nhận tin nhắn đã được gửi
-    io.to(conversationId).emit('message delivered', { 
-      messageId: savedMessage._id, 
-      status: 'delivered' 
+    io.to(conversationId).emit('message delivered', {
+      messageId: savedMessage._id,
+      status: 'delivered'
     });
 
     // Gửi thông báo real-time nếu có
@@ -168,42 +185,42 @@ const getConversations = async (req, res) => {
     const userId = req.user.id; // Lấy userId từ req.user, đã được xác thực trong middleware 
 
     // Tìm tất cả các cuộc trò chuyện mà userId là studentId hoặc teacherId
-    const conversations = await Conversation.find({ 
-      $or: [ 
-        { studentId: userId }, 
-        { teacherId: userId } 
-      ] 
+    const conversations = await Conversation.find({
+      $or: [
+        { studentId: userId },
+        { teacherId: userId }
+      ]
     })
-    .populate({
-      path: 'studentId',
-      select: 'Fullname Image',
-      transform: (user) => {
-        let imageBase64 = null;
-        if (user.Image) {
-          const mimeType = mime.lookup(user.Image) || 'image/png';
-          imageBase64 = `data:${mimeType};base64,${user.Image.toString('base64')}`;
+      .populate({
+        path: 'studentId',
+        select: 'Fullname Image',
+        transform: (user) => {
+          let imageBase64 = null;
+          if (user.Image) {
+            const mimeType = mime.lookup(user.Image) || 'image/png';
+            imageBase64 = `data:${mimeType};base64,${user.Image.toString('base64')}`;
+          }
+          return {
+            ...user.toObject(),
+            Image: imageBase64
+          };
         }
-        return {
-          ...user.toObject(),
-          Image: imageBase64
-        };
-      }
-    })
-    .populate({
-      path: 'teacherId',
-      select: 'Fullname Image',
-      transform: (user) => {
-        let imageBase64 = null;
-        if (user.Image) {
-          const mimeType = mime.lookup(user.Image) || 'image/png';
-          imageBase64 = `data:${mimeType};base64,${user.Image.toString('base64')}`;
+      })
+      .populate({
+        path: 'teacherId',
+        select: 'Fullname Image',
+        transform: (user) => {
+          let imageBase64 = null;
+          if (user.Image) {
+            const mimeType = mime.lookup(user.Image) || 'image/png';
+            imageBase64 = `data:${mimeType};base64,${user.Image.toString('base64')}`;
+          }
+          return {
+            ...user.toObject(),
+            Image: imageBase64
+          };
         }
-        return {
-          ...user.toObject(),
-          Image: imageBase64
-        };
-      }
-    });
+      });
 
     // Nếu không có cuộc trò chuyện nào
     if (!conversations || conversations.length === 0) {
@@ -244,7 +261,7 @@ const getMessages = async (req, res) => {
 
     // Convert images to base64
     const processedMessages = messages.map(message => {
-      const processedMessage = message.toObject(); 
+      const processedMessage = message.toObject();
 
       // Process sender image
       if (processedMessage.senderId && processedMessage.senderId.Image) {
