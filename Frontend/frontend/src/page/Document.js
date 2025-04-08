@@ -6,8 +6,8 @@ import { jwtDecode } from "jwt-decode";
 import { saveAs } from 'file-saver';
 
 
-function Document() {
-    const [selectClass, setSelectClass] = useState(null);
+function Document({ classId: externalClassId }) {
+    const [selectClass, setSelectClass] = useState(externalClassId || null);
     const [classes, setClasses] = useState([]);
     const [documents, setDocuments] = useState([]);
     const [documentData, setDocumentData] = useState({
@@ -50,6 +50,11 @@ function Document() {
             fetchDocuments(selectClass);
         }
     }, [selectClass]);
+    useEffect(() => {
+        if (externalClassId) {
+            setSelectClass(externalClassId);
+        }
+    }, [externalClassId]);
 
     const fetchClasses = async (userId) => {
         try {
@@ -190,7 +195,7 @@ function Document() {
     
     return (
 <div className={styles.container}>
-    {/* Sidebar */}
+{!externalClassId && (
     <div className={styles.sidebar}>
         <h2 className={styles.logo}>LOGO</h2>
         {classes.map(cls => (
@@ -203,6 +208,7 @@ function Document() {
             </button>
         ))}
     </div>
+)}
 
     {/* Main Content */}
     <div className={styles.content}>

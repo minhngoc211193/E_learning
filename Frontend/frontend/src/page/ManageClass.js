@@ -3,7 +3,8 @@ import { useNavigate} from "react-router-dom";
 import axios from "axios";
 import {jwtDecode} from 'jwt-decode';
 import styles from './ManageClass.module.css';
-import Menu from "../components/Menu"
+import Menu from "../components/Menu";
+import Header from '../components/Header';
 function ManageClass (){
     const [classes, setClasses] = useState([]);
     const [search, setSearch] = useState("");
@@ -48,6 +49,12 @@ function ManageClass (){
         const handleSearch = (e) => {
             setSearch(e.target.value);
         };
+        const handleClass = (id) => {
+
+                navigate(`/detail-class/${id}`);
+
+
+        };
         const handleDelete = async (id) =>{
             const token = localStorage.getItem("accessToken");
             if(!window.confirm("Are you sure you want to delete this class?")) 
@@ -61,22 +68,51 @@ function ManageClass (){
                 console.error("Error deleting class", e);
             }
         };
+         const [showMenu, setShowMenu] = useState(false);
 
     return (
-        <div className={styles.body}>
-      <Menu />
-        <div className={styles.container}> 
-        <div className={styles.header}>
-            <h1 className={styles.title}>All Class</h1>
-            {role ==="admin" && (
-                <button className={styles["create-btn"]}
-                onClick={() => navigate("/create-class")}
-            >
-                Create new class
-            </button>
+        <div className={`${styles.body} ${role === "admin" ? "admin" : ""}`}>
+              {role === "admin" && (
+                <>
+                {/* Hamburger button only on small screens */}
+                <div className={styles.hamburgerBar}>
+                    <button
+                    className={styles.hamburgerBtn}
+                    onClick={() => setShowMenu(!showMenu)}
+                    >
+                    &#9776;
+                    </button>
+                </div>
+
+                {/* Sidebar Menu with toggle for small screens */}
+                <div
+                    className={`${styles.sidebar} ${showMenu ? styles.showSidebar : ""}`}
+                    onClick={(e) => {
+                    if (e.target.tagName === "A" || e.target.closest("a")) {
+                        setShowMenu(false);
+                    }
+                    }}
+                >
+                    <Menu />
+                </div>
+                </>
             )}
 
-        </div>
+            {/* Role: Teacher or Student */}
+            {(role === "teacher" || role === "student") && (
+                <Header className={styles["header-fixed"]} />
+            )}
+        <div className={role === "admin" ? styles.containerAdmin : styles["main-content"]}> 
+            <div className={styles.header}>
+                <h1 className={styles.title}>All Class</h1>
+                {role ==="admin" && (
+                    <button className={styles["create-btn"]}
+                        onClick={() => navigate("/create-class")}
+                    >
+                        Create new class
+                    </button>
+                )}
+            </div>
         <div className="mb-4">
             <input 
                 type="text" 
@@ -88,7 +124,7 @@ function ManageClass (){
         </div>
         <div className={styles["class-grid"]}>
             {filteredClasses.map((classItem) => (
-                <div key={classItem._id} className={styles["class-card"]}>
+                <div key={classItem._id} className={styles["class-card"]} onClick={() => handleClass(classItem._id)}>
                     <h2 className={styles["class-title"]}>{classItem.Classname}</h2>
                     <p>{classItem.Subject?.Name}</p>
                   

@@ -94,7 +94,7 @@ function ManageUser (){
 
     return (
         <div className={styles.body}>
-      <Menu />
+        <Menu />
           <div className={styles.container}>
             <h2>Manage Account</h2>
             <div className={styles.nav}>
