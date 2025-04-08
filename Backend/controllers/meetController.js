@@ -20,6 +20,14 @@ async function requestMeeting(req, res) {
       return res.status(404).json({ message: 'Không tìm thấy giáo viên này.' });
     }
 
+    const meetingTime = new Date(time);
+    const currentTime = new Date();
+    if (meetingTime <= currentTime) {
+      return res.status(400).json({
+        message: 'Không được đặt lịch hẹn ở thời điểm đã qua.'
+      });
+    }
+
     const meetingRequest = {
       studentId,
       teacherId, // give teacherId
@@ -126,7 +134,9 @@ const respondToMeetingRequest = async (req, res) => {
       );
 
       if (io && notification) {
+
         io.to(studentId.toString()).emit('receive notification', notification);
+
       }
 
       return res.status(200).json({
@@ -159,7 +169,9 @@ const respondToMeetingRequest = async (req, res) => {
       );
 
       if (io && notification) {
+
         io.to(studentId.toString()).emit('receive notification', notification);
+
       }
 
       return res.status(200).json({

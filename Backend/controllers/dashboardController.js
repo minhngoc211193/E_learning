@@ -163,7 +163,6 @@ const getBlogCountByDay = async (req, res) => {
         const startDate = new Date();
         startDate.setDate(currentDate.getDate() - 27);
 
-        // Lấy dữ liệu từ MongoDB như cũ
         const result = await Blog.aggregate([
             {
                 $match: {

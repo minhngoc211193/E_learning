@@ -276,8 +276,6 @@ const userController = {
             res.status(500).json({ message: 'Lỗi khi truy vấn dữ liệu', error: err.message });
         }
     },
-    
-    
 
     searchUser: async (req, res) => {
         try {

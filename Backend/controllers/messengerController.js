@@ -168,9 +168,9 @@ const sendMessage = async (req, res) => {
 
     // Gửi thông báo real-time nếu có
     if (notification) {
-      console.log(`Emitting notification to user: ${receiverId}`);
+      // console.log(`Emitting notification to user: ${receiverId}`);
       // io.emit('new notification', notification);
-      io.to(receiverId.toString()).emit('new notification', notification);
+      io.to(receiverId.toString()).emit('receive notification', notification);
     }
 
     return res.status(201).json(savedMessage);
