@@ -96,7 +96,13 @@
     color: black;
 }
 
-.notification{
+/* Bọc icon chuông và dropdown thông báo */
+.notificationWrapper {
+    position: relative;
+}
+
+/* Chuông thông báo */
+.notification {
     margin-right: 25px;
     cursor: pointer;
 }

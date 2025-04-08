@@ -5,6 +5,7 @@ import { DatePicker, notification } from "antd";
 import { SmileOutlined } from "@ant-design/icons";
 import styles from "./Schedule.module.css";
 import Header from "../components/Header";
+import {jwtDecode} from "jwt-decode"; 
 
 function Schedule() {
   const timeSlots = [
@@ -20,6 +21,8 @@ function Schedule() {
   const [selectedWeek, setSelectedWeek] = useState(moment());
   const [notifData, setNotifData] = useState(null);
   const token = localStorage.getItem("accessToken");
+  const decoded = jwtDecode(token);
+  const isStudent = decoded.Role && decoded.Role.toLowerCase() === "student";
   const smileIcon = <SmileOutlined />;
   const [api, contextHolder] = notification.useNotification();
 
@@ -83,18 +86,18 @@ function Schedule() {
     }
   };
 
-const handleAttendance = async (scheduleId) => {
-  try {
-    await axios.get(
-      `http://localhost:8000/attendance/get-attendance-by-schedule/${scheduleId}`,
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
+  const handleAttendance = async (scheduleId) => {
+    try {
+      await axios.get(
+        `http://localhost:8000/attendance/get-attendance-by-schedule/${scheduleId}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
       window.location.href = `/attendance/${scheduleId}`;
-  } catch (err) {
-    const errorMessage = err.response?.data?.message || "Có lỗi xảy ra!";
-    setNotifData({ type: "error", detailMessage: errorMessage });
-  }
-};
+    } catch (err) {
+      const errorMessage = err.response?.data?.message || "Có lỗi xảy ra!";
+      setNotifData({ type: "error", detailMessage: errorMessage });
+    }
+  };
 
 
   if (loading) return <div>Đang tải lịch học...</div>;
@@ -151,7 +154,8 @@ const handleAttendance = async (scheduleId) => {
                                 <br />
                                 Room: {sch.Address}
                                 <br />
-                                Status: {sch.Attendances[0].IsPresent}
+                                {isStudent ? <span>Status: {sch.Attendances[0].IsPresent}</span> : <span></span>}
+                                
                               </div>
                             </div>
                           ))

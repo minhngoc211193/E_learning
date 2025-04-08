@@ -1,6 +1,8 @@
 import React, {useState, useEffect} from 'react';
 import { useNavigate } from "react-router-dom";
 import axios from 'axios';
+import styles from './Major.module.css';
+import Menu from '../components/Menu';
 
 function Major () {
     const[majorData, setMajorData] = useState({
@@ -85,25 +87,40 @@ function Major () {
             console.error("Error deleting major", error);
         }
     };
+    const handleViewDetail = (id) => {
+        navigate(`/detail-major/${id}`);
+    };
 
     return (
-        <div>
-            <h1>Manage Majors</h1>
-            <form onSubmit={handleSubmit}>
-                <input type="text" name="Name" value={majorData.Name} onChange={handleChange} placeholder="Major Name" required />
-                <input type="text" name="Description" value={majorData.Description} onChange={handleChange} placeholder="Description" required />
-                <input type="text" name="CodeMajor" value={majorData.CodeMajor} onChange={handleChange} placeholder="Code Major" required />
-                <button type="submit">{editingId ? "Update" : "Create"} Major</button>
-            </form>
-            <ul>
-                {majors.map((major) => (
-                    <li key={major._id}>
-                        {major.Name} - {major.Description} - {major.CodeMajor}
-                        <button onClick={() => handleEdit(major)}>Edit</button>
-                        <button onClick={() => handleDelete(major._id)}>Delete</button>
-                    </li>
-                ))}
-            </ul>
+        <div className={styles.body}>
+            <Menu />
+            <div className={styles.container}>
+                <h1>Manage Majors</h1>
+                <form onSubmit={handleSubmit} className={styles.form}>
+                    <input type="text" name="Name" value={majorData.Name} onChange={handleChange} placeholder="Major Name" required />
+                    <input type="text" name="Description" value={majorData.Description} onChange={handleChange} placeholder="Description" required />
+                    <input type="text" name="CodeMajor" value={majorData.CodeMajor} onChange={handleChange} placeholder="Code Major" required />
+                    <button type="submit">{editingId ? "Update" : "Create"} Major</button>
+                </form>
+
+                <div className={styles.cardContainer}>
+                    {majors.map((major) => (
+                        <div key={major._id} className={styles.card} onClick={() => handleViewDetail(major._id)}>
+                            <h3>{major.Name}</h3>
+                            <p>{major.Description}</p>
+                            <p><strong>Code:</strong> {major.CodeMajor}</p>
+                            <div className={styles.cardActions}>
+                            <button onClick={(e) => {e.stopPropagation(); // ⛔ stop chuyển trang
+                            handleEdit(major);}}>Edit
+                            </button>
+                            <button onClick={(e) => {e.stopPropagation(); // ⛔ stop chuyển trang
+                            handleDelete(major._id);}}>Delete
+                            </button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
         </div>
     );
 };

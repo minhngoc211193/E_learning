@@ -570,6 +570,9 @@ const Dashboard = () => {
       updateChartStudentsByMajor();
       updateChartTeachersByMajor();
     });
+    socket.on("dashboard new message", (message) => {
+      updateChartMessagesByDay();
+    });
     return () => {
       socket.disconnect();
     };

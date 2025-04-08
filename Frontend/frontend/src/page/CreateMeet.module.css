@@ -1,0 +1,111 @@
+.create-meet-container {
+  padding: 1rem;
+  background-color: white;
+  border-top: 1px solid #ccc;
+  max-width: 600px; /* Limit the width for better UI on larger screens */
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+.create-meet-title {
+  font-weight: bold;
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+}
+
+.create-meet-input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  margin-top: 0.5rem;
+  font-size: 1rem;
+}
+
+.create-meet-radio-group {
+  margin-top: 0.5rem;
+}
+
+.create-meet-radio-group label {
+  margin-right: 1rem;
+}
+
+.create-meet-button {
+  background-color: #3b82f6; /* Màu xanh */
+  color: white;
+  padding: 0.5rem;
+  border-radius: 6px;
+  margin-top: 1rem;
+  cursor: pointer;
+  width: 100%;
+  font-size: 1rem;
+}
+
+.create-meet-button:hover {
+  background-color: #2563eb;
+}
+
+.create-meet-cancel {
+  background-color: #6b7280; /* Màu xám */
+  color: white;
+  padding: 0.5rem;
+  border-radius: 6px;
+  margin-left: 0.5rem;
+  cursor: pointer;
+  width: 100%;
+  font-size: 1rem;
+}
+
+.create-meet-cancel:hover {
+  background-color: #4b5563;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .create-meet-container {
+    padding: 1rem;
+    margin: 0 1rem;
+  }
+
+  .create-meet-title {
+    font-size: 1rem;
+    text-align: center;
+  }
+
+  .create-meet-input,
+  .create-meet-button,
+  .create-meet-cancel {
+    font-size: 0.9rem;
+  }
+
+  .create-meet-radio-group label {
+    font-size: 0.9rem;
+  }
+
+  .create-meet-button,
+  .create-meet-cancel {
+    width: 100%; /* Full width on smaller screens */
+    margin-top: 0.5rem;
+  }
+}
+
+/* For very small screens (like mobile devices) */
+@media (max-width: 480px) {
+  .create-meet-container {
+    padding: 0.8rem;
+  }
+
+  .create-meet-input,
+  .create-meet-button,
+  .create-meet-cancel {
+    font-size: 0.8rem;
+  }
+
+  .create-meet-title {
+    font-size: 0.9rem;
+  }
+
+  .create-meet-radio-group {
+    font-size: 0.8rem;
+  }
+}

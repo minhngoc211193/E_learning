@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
+import styles from './CreateClass.module.css';
+import Header from '../components/Header'
 
 
 function CreateClass() {
@@ -14,7 +16,7 @@ function CreateClass() {
         Student: [],
         Schedule: "",
         Document: "",
-        Slot: ""
+        Slot:""
     });
 
     const [students, setStudents] = useState([]);
@@ -25,6 +27,7 @@ function CreateClass() {
     const [subjects, setSubjects] = useState([]);
     const [teachers, setTeachers] = useState([]);
     const token = localStorage.getItem("accessToken");
+    const [message, setMessage] = useState("");
 
     useEffect(() => {
         fetchMajors();
@@ -33,8 +36,10 @@ function CreateClass() {
     useEffect(() => {
         fetchSubjects(classData.Major);
         fetchTeachers(classData.Major);
-        fetchStudents(classData.Major);
-    }, [classData.Major]);
+        if (classData.Major && classData.Subject) {
+            fetchStudentsBySubject(classData.Major, classData.Subject);
+        }
+    }, [classData.Major,classData.Subject]);
 
 
 
@@ -62,34 +67,31 @@ function CreateClass() {
         }
     };
 
-    const fetchStudents = async (majorId) => {
-
+    const fetchStudentsBySubject = async (majorId, subjectId) => {
+        if (!majorId || !subjectId) return;
         try {
-            const decoded = jwtDecode(token);
-            const userRole = "student";
-            if (!classData.Major) return;
-            const response = await axios.get(`http://localhost:8000/user/users-by-major/${majorId}?Role=${userRole}`, {
+            const response = await axios.get(`http://localhost:8000/user/users-by-subject?majorId=${majorId}&subjectId=${subjectId}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
-            // const studentList = response.data.filter(user => user.role === "student");
             setStudents(response.data);
         } catch (e) {
-            console.error("Error fetching students", e);
+            console.error("Error fetching students by subject", e);
         }
     };
+    
 
     const fetchTeachers = async (majorId) => {
-        try {
+        try{
             const decoded = jwtDecode(token);
             const userRole = "teacher"
-            if (!classData.Major) return;
+            if(!classData.Major) return;
             const response = await axios.get(`http://localhost:8000/user/users-by-major/${majorId}?Role=${userRole}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             console.log(response.data);
             // const teacherList = response.data.filter(user => user.role === "teacher");
             setTeachers(response.data);
-        } catch (e) {
+        }catch(e){
             console.error("Error fetching teachers", e);
         }
     };
@@ -104,6 +106,9 @@ function CreateClass() {
             ...prev,
             Subject: selectedSubjectId,  // Lưu id của subject vào state
         }));
+
+
+        
     };
 
     const handleCheckboxChange = (student) => {
@@ -119,7 +124,7 @@ function CreateClass() {
     };
 
     const handleTeacher = (teacher) => {
-        setClassData(prev => ({
+        setClassData (prev => ({
             ...prev,
             Teacher: teacher._id
         }));
@@ -147,102 +152,99 @@ function CreateClass() {
                 Teacher: classData.Teacher,
                 Slots: classData.Slot,
             };
-            console.log({
-                Classname: classData.Classname,
-                subjectId: classData.Subject,
-                Teacher: classData.Teacher,
-                Student: classData.Student,
-                Slots: classData.Slot,
-            });
+            console.log("form gửi đi:"+ simplifiedClassData);
 
             await axios.post("http://localhost:8000/class/create-class", simplifiedClassData, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             navigate("/manageclass");
         } catch (e) {
+            if (e.response && e.response.data.errors) {
+                setMessage(e.response.data.errors[0].message);
+            }
             console.error("Error creating class", e);
         }
     };
 
     return (
-        <div className="container mx-auto p-6">
-            <h1 className="text-3xl font-bold">Create new class</h1>
-            <div className="mt-4">
+        <div className={styles.container}>
+            <Header />
+            <h1 className={styles.title}>Create new class</h1>
+            <div className={styles["mt-4"]}>
                 {step === 1 ? (
                     <div>
-                        <label className="block mt-4">Class Name</label>
+                        <label className={styles["block mt-4"]}>Class Name</label>
                         <input type="text" placeholder="Name" value={classData.Classname}
                             onChange={(e) => setClassData({ ...classData, Classname: e.target.value })}
-                            className="border p-2 w-full" />
-                        <br />
-                        <br />
-                        <label className="block mt-4">Slot</label>
+                            className={styles["input-field"]} />
+                        <br/>
+                        <br/>
+                        <label className={styles["block mt-4"]}>Slot</label>
                         <input type="text" placeholder="Slot" value={classData.Slot}
                             onChange={(e) => setClassData({ ...classData, Slot: e.target.value })}
-                            className="border p-2 w-full" />
-                        <label className="block mt-4">Major</label>
-                        <select value={classData.Major} onChange={handleMajorChange} className="border p-2 w-full">
+                            className={styles["input-field"]} />
+                        <br/>
+                        <br/>
+                        <label className={styles["block mt-4"]}>Major</label>
+                        <select value={classData.Major} onChange={handleMajorChange} className={styles["select-field"]}>
                             <option value="">Select Major</option>
                             {majors.map((major) => (
                                 <option key={major._id} value={major._id}>{major.Name}</option>
                             ))}
                         </select>
-                        <br />
-                        <br />
-                        <label className="block mt-4">Subject</label>
+                        <br/>
+                        <br/>
+                        <label className={styles["block mt-4"]}>Subject</label>
                         <select value={classData.Subject} onChange={handleSubjectChange}
-                            className="border p-2 w-full" disabled={!classData.Major}>
+                            className={styles["select-field"]}  disabled={!classData.Major}>
                             <option value="">Select Subject</option>
                             {subjects.map((subject) => (
                                 <option key={subject._id} value={subject._id}>{subject.Name}</option>
                             ))}
                         </select>
-                        <br />
-                        <br />
+                        <br/>
+                        <br/>
                         <label className="block mt-4">Teacher</label>
-                        <select
-                            value={classData.Teacher}
-                            onChange={(e) => setClassData({ ...classData, Teacher: e.target.value })}
-                            className="border p-2 w-full"
-                            disabled={!classData.Major}
-                        >
+                        <select value={classData.Teacher} onChange={(e) => setClassData({ ...classData, Teacher: e.target.value })}
+                             className={styles["select-field"]}  disabled={!classData.Major}>
                             <option value="">Select Teacher</option>
                             {teachers.map((teacher) => (
-                                <option key={teacher._id} value={teacher._id}>
-                                    {teacher.Fullname}
-                                </option>
+                                <option onClick={() => handleTeacher(teacher)}  key={teacher._id} value={teacher._id}>{teacher.Fullname}</option>
                             ))}
                         </select>
-                        <br />
-                        <br />
-                        <button onClick={handleNext} className="mt-4 px-4 py-2 bg-blue-500 text-white">Next</button>
+                        <br/>
+                        <br/>
+                        <button onClick={handleNext} className={styles["button button-blue"]}>Next</button>
                     </div>
                 ) : (
                     <div>
                         <input type="text" placeholder="Search student..." value={search}
-                            onChange={(e) => setSearch(e.target.value)} className="border p-2 w-full" />
+                            onChange={(e) => setSearch(e.target.value)} className={styles["input-field"]} />
 
 
-                        <div className="mt-2">
+                    <div className={styles["student-list"]}>
                             {students.filter(s => s.Fullname.toLowerCase().includes(search.toLowerCase())).map(student => (
-                                <div key={student._id} className="flex justify-between border p-2 mt-2">
+                                <div key={student._id} className={styles["student-item"]}>
                                     <span>{student.Fullname}</span>
                                     <input
                                         type="checkbox"
                                         checked={classData.Student.includes(student._id)} // Kiểm tra nếu học sinh đã được chọn
                                         onChange={() => handleCheckboxChange(student)} // Thêm hoặc bỏ học sinh khi thay đổi trạng thái checkbox
-                                        className="ml-4"
                                     />
                                 </div>
                             ))}
                         </div>
 
-                        <button onClick={handlePre} className="px-4 py-2 bg-gray-500 text-white">Back</button>
-                        <button onClick={handleSubmit} className="px-4 py-2 bg-blue-500 text-white">Create</button>
+                        <button onClick={handlePre} className={styles["button button-gray"]}>Back</button>
+                        <button onClick={handleSubmit} className={styles["button button-blue"]}>Create</button>
+                        {message && <p>{message}</p>}
                     </div>
+                    
                 )}
             </div>
+            
         </div>
+
     );
 }
 

@@ -4,6 +4,7 @@ const Schedule = require('../models/Schedule');
 const Document = require('../models/Document');
 const User = require('../models/User');
 const Major = require('../models/Major');
+const Attendance = require('../models/Attendance');
 const { addAttendanceForNewStudent } = require('./attendanceController');
 
 const nodemailer = require('nodemailer');
@@ -26,15 +27,15 @@ const classController = {
             if (!Classname || Classname.trim().length === 0) {
                 return res.status(400).json({ message: "Classname is required" });
             }
-    
+
             // Validate Classname format (optional, example: alphanumeric with space support)
             const classNamePattern = /^[A-Za-z0-9\u00C0-\u00FF\s]+$/;  // Adjust the regex as needed
             if (!classNamePattern.test(Classname)) {
                 return res.status(400).json({ message: "Classname format is invalid" });
             }
-    
+
             // Check if Classname already exists (unique constraint check)
-            const existingClass = await Class.findOne({ Classname });
+            const existingClass = await Class.findOne({ Classname }).collation({ locale: 'en', strength: 2 });
             if (existingClass) {
                 return res.status(400).json({ message: `Classname '${Classname}' already exists` });
             }
@@ -225,16 +226,37 @@ const classController = {
             }
     
             // Check if Classname already exists (unique constraint check)
-            const existingClass = await Class.findOne({ Classname });
-            if (existingClass) {
-                return res.status(400).json({ message: `Classname '${Classname}' already exists` });
-            }
+            // const existingClass = await Class.findOne({ Classname });
+            // if (existingClass) {
+            //     return res.status(400).json({ message: `Classname '${Classname}' already exists` });
+            // }
+
 
             // Tìm lớp học cần cập nhật
             const updatedClass = await Class.findById(classId).populate("Teacher").populate("Student");
             if (!updatedClass) {
                 return res.status(404).json({ message: "Không tìm thấy lớp học" });
             }
+            if (Classname && Classname.toLowerCase() !== updatedClass.Classname.toLowerCase()) {
+                // Kiểm tra Classname có hợp lệ không
+                if (!Classname || Classname.trim().length === 0) {
+                    return res.status(400).json({ message: "Classname is required" });
+                }
+
+                // Validate Classname format (optional, example: alphanumeric with space support)
+                const classNamePattern = /^[A-Za-z0-9\u00C0-\u00FF\s]+$/;  // Adjust the regex as needed
+                if (!classNamePattern.test(Classname)) {
+                    return res.status(400).json({ message: "Classname format is invalid" });
+                }
+
+                // Check if Classname already exists (unique constraint check)
+                const existingClass = await Class.findOne({ Classname }).collation({ locale: 'en', strength: 2 });
+                if (existingClass) {
+                    return res.status(400).json({ message: `Classname '${Classname}' already exists` });
+                }
+            }
+
+
 
             // Lưu lại thông tin trước khi cập nhật
             const oldTeacherId = updatedClass.Teacher?._id.toString() || null;
@@ -300,13 +322,42 @@ const classController = {
                         });
                     }
                 }
+                const attendances = await Attendance.find({ Schedule: { $in: savedClass.Schedules } }); // Tìm các Attendance liên quan đến các Schedule của lớp học
+                if (attendances.length > 0) {
+                    const updateAttendancePromises = attendances.map(async (attendance) => {
+                        attendance.Teacher = Teacher;  // Cập nhật giáo viên trong Attendance
+                        await attendance.save();  // Lưu lại các thay đổi
+                    });
+
+                    await Promise.all(updateAttendancePromises);
+                }
+
             }
 
             // Kiểm tra thay đổi học sinh
             const newStudentIds = savedClass.Student.map(s => s._id.toString());
             const addedStudentIds = newStudentIds.filter(id => !oldStudentIds.includes(id));
             const removedStudentIds = oldStudentIds.filter(id => !newStudentIds.includes(id));
+            console.log(addedStudentIds);
+            if (removedStudentIds.length > 0) {
+                // Xóa tất cả Attendance của học sinh bị xóa khỏi lớp
 
+                // Bước 2: Tìm các Attendance mà học sinh bị xóa tham gia
+                const removedAttendances = await Attendance.find({
+                    Student: { $in: removedStudentIds }
+                });
+
+                // Lấy ra các ID của Attendance đã bị xóa
+                const removedAttendanceIds = removedAttendances.map(attendance => attendance._id);
+
+                // Bước 3: Cập nhật lại các Schedule để loại bỏ Attendance của học sinh bị xóa
+                await Schedule.updateMany(
+                    { 'Attendances': { $in: removedAttendanceIds } },  // Tìm các Schedule có Attendance chứa ID của học sinh bị xóa
+                    { $pull: { 'Attendances': { $in: removedAttendanceIds } } }  // Loại bỏ Attendance của học sinh khỏi Attendances của Schedule
+                );
+                await Attendance.deleteMany({ Student: { $in: removedStudentIds } });
+
+            }
             for (const addedId of addedStudentIds) {
                 const addedStudent = await User.findById(addedId);
                 if (addedStudent) {
@@ -363,8 +414,9 @@ const classController = {
                 await Subject.findByIdAndDelete(classData.Subject);
             }
 
-            // Xóa lớp học
-            await classData.remove();
+            const io = req.app.get('io');
+            io.emit('deleteClass', req.params.id);
+
 
             res.status(200).json({ message: "Xóa lớp và các đối tượng liên quan thành công" });
         } catch (err) {

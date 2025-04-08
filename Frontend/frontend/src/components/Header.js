@@ -4,6 +4,7 @@ import logo from "../assets/Greenwich.png";
 import ProfileImg from "../assets/profile.jpg";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate } from 'react-router-dom';
+import Notifications from '../page/Notification';
 import axios from "axios";
 
 function Header() {
@@ -49,6 +50,9 @@ function Header() {
   const handleLogout = () => {
     localStorage.removeItem("accessToken");
     navigate('/');
+  };
+  const handleBellClick = () => {
+    setIsNotificationOpen(prevState => !prevState);
   };
 
   return (
