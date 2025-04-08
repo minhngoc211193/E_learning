@@ -113,14 +113,15 @@ useEffect(() => {
 
 
   return (
+    <div>
+    <Header />
     <div className={styles.createPage}>
-      <Header />
     <form onSubmit={handleSubmit} className={styles.form}>
       <h1 className={styles.title}>Edit User</h1>
 
       <div className={styles.avatarContainer}>
         <div className={styles.avatarWrapper}>
-          <img src={userData.Image || "avatar.png"} alt="User Avatar" className={styles.avatar} />
+          <img src={userData.PreviewImage || userData.Image || "avatar.png"} alt="User Avatar" className={styles.avatar} />
           
           {/* Nút chọn ảnh (icon camera) */}
           <label className={styles.cameraIcon}>
@@ -186,7 +187,7 @@ useEffect(() => {
       <button type="submit" className={styles.create}>Update User</button>
     </form>
     </div>
-
+    </div>
   );
 };
 

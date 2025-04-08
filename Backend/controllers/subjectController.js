@@ -2,7 +2,7 @@ const Class = require('../models/Class');
 const Subject = require('../models/Subject');
 const Schedule = require('../models/Schedule');
 const Document = require('../models/Document');
-
+const Attendance = require('../models/Attendance');
 const subjectController = {
     getSubject: async (req, res) => {
         try {
@@ -138,8 +138,10 @@ const subjectController = {
             if (!deletedSubject) {
                 return res.status(404).json({ message: "Subject not found" });
             }
-            const deletedClasses = await Class.deleteMany({ Subject: deletedSubject._id });
+
+            const deletedClasses = await Class.find({ Subject: deletedSubject._id });
             const classIds = deletedClasses.map(cls => cls._id);
+            await Class.deleteMany({ Subject: deletedSubject._id });
             await Schedule.deleteMany({ Class: { $in: classIds } });
             await Document.deleteMany({ Class: { $in: classIds } });
             const scheduleIds = await Schedule.find({ Class: { $in: classIds } }).select('_id');

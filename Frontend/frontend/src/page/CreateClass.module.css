@@ -1,64 +1,180 @@
-.container {
-    max-width: 1200px;
+
+
+.pageContainer {
+    display: flex;
+    height: 100vh; /* Toàn bộ chiều cao màn hình */
+    box-sizing: border-box;
+    font-family: var(--font-family-sans-serif);
+    background-color: #f3f4f6;
+    position: relative;
+  }
+  
+  .hamburgerBar {
+    display: none;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 999;
+  }
+  
+  .hamburgerBtn {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+  }
+  
+  /* Sidebar (Menu) */
+  .sidebar {
+    height: 100vh; /* Chiếm toàn bộ chiều cao */
+    position: sticky; /* hoặc fixed nếu dùng layout khác */
+    top: 0;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* giữ nút logout ở dưới */
+    overflow-y: auto; /* cho phép cuộn nếu nội dung dài */
+    padding: 1rem;
+    width: 15%;
+  }
+  
+  
+  /* Content bên phải chiếm 80% */
+  .content {
+    max-width: 80%;
     margin: 0 auto;
     padding: 1.5rem;
-}
-
-.title {
+    background-color:#f9f9f9;
+    flex: 1;
+    overflow-y: auto;
+  }
+  
+  /* Tiêu đề trang */
+  .title {
     font-size: 1.875rem; /* text-3xl */
     font-weight: bold;
-}
-
-.input-field {
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+  
+  /* Margin-top 1rem (ví dụ) */
+  .mt-4 {
+    margin-top: 1rem;
+  }
+  
+  /* block: để label hiển thị dạng khối, cách dòng */
+  .block {
+    display: block;
+  }
+  
+  /* Input field */
+  .input-field {
     width: 100%;
-    padding: 0.5rem;
+    padding: 0.5rem 0.75rem;
     border: 1px solid #ccc;
     border-radius: 0.5rem;
     margin-top: 0.5rem;
-}
-
-.select-field {
+    transition: border-color 0.2s ease-in-out;
+  }
+  
+  .input-field:focus {
+    border-color: #3b82f6; /* Xanh dương nhạt */
+    outline: none;
+  }
+  
+  /* Select field */
+  .select-field {
     width: 100%;
-    padding: 0.5rem;
+    padding: 0.5rem 0.75rem;
     border: 1px solid #ccc;
     border-radius: 0.5rem;
     margin-top: 0.5rem;
-}
-
-.button {
+    transition: border-color 0.2s ease-in-out;
+  }
+  
+  .select-field:focus {
+    border-color: #3b82f6;
+    outline: none;
+  }
+  
+  /* Nút bấm chung */
+  .button {
     margin-top: 1rem;
     padding: 0.5rem 1rem;
-    color: white;
+    color: #fff;
     border: none;
     border-radius: 0.5rem;
     cursor: pointer;
-}
-
-.button-blue {
+    transition: background-color 0.2s ease-in-out;
+  }
+  
+  /* Button xanh */
+  .button-blue {
     background-color: #3b82f6;
-}
-
-.button-blue:hover {
+  }
+  
+  .button-blue:hover {
     background-color: #2563eb;
-}
-
-.button-gray {
+  }
+  
+  /* Button xám */
+  .button-gray {
     background-color: #6b7280;
-}
-
-.button-gray:hover {
+  }
+  
+  .button-gray:hover {
     background-color: #4b5563;
-}
-
-.student-list {
+  }
+  
+  /* Danh sách học sinh */
+  .student-list {
     margin-top: 0.5rem;
-}
-
-.student-item {
+  }
+  
+  /* Mỗi item trong danh sách học sinh */
+  .student-item {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     padding: 0.5rem;
     border: 1px solid #ccc;
     margin-top: 0.5rem;
     border-radius: 0.5rem;
-}
+  }
+  
+  @media (min-width: 768px) {
+    .sidebar {
+      transform: translateX(0);
+      position: relative;
+    }
+  }
+  @media (max-width: 768px) {
+    /* Hiển thị hamburger và ẩn sidebar mặc định */
+    .hamburgerBar {
+      display: block;
+    }
+  
+    /* Ẩn Sidebar bằng cách dịch nó ra ngoài màn hình */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      width: 70%;
+      transform: translateX(-100%);
+      z-index: 998;
+    }
+    
+    /* Khi có class showSidebar thì hiển thị Sidebar */
+    .showSidebar {
+      transform: translateX(0);
+    }
+  
+    /* Nội dung Content full width khi không hiển thị sidebar */
+    .content {
+      max-width: 100%;
+      margin: 0;
+      padding: 1rem;
+    }
+  }
+  
