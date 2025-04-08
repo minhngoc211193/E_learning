@@ -76,4 +76,3 @@ const markNotificationAsRead = async (req, res) => {
 };
 
 module.exports = { createNotification, getAllNotifications, markNotificationAsRead };
-

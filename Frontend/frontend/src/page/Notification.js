@@ -5,11 +5,12 @@ import { useNavigate } from "react-router-dom";
 import io from "socket.io-client"; // ✅ Import socket.io-client
 import createSocket from "./Socket";
 import {jwtDecode} from 'jwt-decode';
+import styles from './Notification.module.css';
 
 
  // 🔄 Kết nối với server socket
 
-const Notifications = () => {
+ const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
   const navigate = useNavigate();
   const token = localStorage.getItem("accessToken");
@@ -66,24 +67,23 @@ const Notifications = () => {
   }, [socket,fetchNotifications,userId]);
 
 
-
   return (
-    <div className="w-96 p-4 bg-white rounded-lg shadow-md">
-      <h2 className="text-xl font-semibold flex items-center gap-2">
-        <Bell className="w-5 h-5 text-yellow-500" /> Thông báo
+    <div className={styles["notification-container"]}>
+      <h2 className={styles["notification-header"]}>
+        <Bell className={styles["notification-icon"]} /> Thông báo
       </h2>
-      <div className="mt-4 space-y-2">
+      <div className={styles["notification-list"]}>
         {notifications.length > 0 ? (
           notifications.map((notification) => (
-            <div key={notification._id} className="p-3 border rounded flex justify-between items-center">
+            <div key={notification._id} className={styles["notification-item"]}>
               <div>
-                <p className="font-medium">{notification.message}</p>
-                <p className="text-sm text-gray-500">Từ: {notification.sender?.Fullname}</p>
+                <p className={styles["notification-message"]}>{notification.message}</p>
+                <p className={styles["notification-sender"]}>Từ: {notification.sender?.Fullname}</p>
               </div>
             </div>
           ))
         ) : (
-          <p className="text-gray-500">Không có thông báo nào</p>
+            <p className={styles["no-notifications"]}>Không có thông báo nào</p>
         )}
       </div>
     </div>

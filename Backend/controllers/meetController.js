@@ -1,12 +1,13 @@
 const User = require('../models/User'); 
 const Meeting = require('../models/Meeting'); 
 const { authorize, createSpace } = require('../services/meetService');
-const { createNotification } = require('./notificationController');
+const {createNotification} = require('./notificationController');
+
 
 async function requestMeeting(req, res) {
   try {
-    const { teacherName, reason, meetingType, address, time } = req.body;
-
+    //  change teacherName - teacherId
+    const { teacherId, reason, meetingType, address, time } = req.body;
     const studentId = req.user.id;
 
     const student = await User.findById(studentId);
@@ -14,7 +15,7 @@ async function requestMeeting(req, res) {
       return res.status(403).json({ message: 'Chỉ học sinh mới có thể gửi yêu cầu gặp giáo viên.' });
     }
 
-    const teacher = await User.findOne({ Fullname: teacherName, Role: 'teacher' });
+    const teacher = await User.findById(teacherId);  //findOne to finById
     if (!teacher) {
       return res.status(404).json({ message: 'Không tìm thấy giáo viên này.' });
     }
@@ -29,7 +30,7 @@ async function requestMeeting(req, res) {
 
     const meetingRequest = {
       studentId,
-      teacherId: teacher._id,
+      teacherId, // give teacherId
       reason,
       meetingType,
       time,
@@ -46,14 +47,13 @@ async function requestMeeting(req, res) {
     teacher.Meeting.push(newMeeting._id);
     await student.save();
     await teacher.save();
-
+    // add to create noti
     const notification = await createNotification(
       studentId,          
       teacher._id,       
       'MEETING_REQUEST', 
       `Bạn có một yêu cầu meeting mới từ học sinh: ${student.Fullname}`
     );
-
     const io = req.app.get('io');
     if (notification && io) {
       io.to(teacher._id.toString()).emit('receive notification', notification);
@@ -134,7 +134,9 @@ const respondToMeetingRequest = async (req, res) => {
       );
 
       if (io && notification) {
-        io.to(studentId.toString()).emit('recive notification', notification);
+
+        io.to(studentId.toString()).emit('receive notification', notification);
+
       }
 
       return res.status(200).json({
@@ -167,7 +169,9 @@ const respondToMeetingRequest = async (req, res) => {
       );
 
       if (io && notification) {
-        io.to(studentId.toString()).emit('recive notification', notification);
+
+        io.to(studentId.toString()).emit('receive notification', notification);
+
       }
 
       return res.status(200).json({

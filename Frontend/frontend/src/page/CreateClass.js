@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
+import styles from './CreateClass.module.css';
+import Menu from '../components/Menu'
 
 
 function CreateClass() {
@@ -25,6 +27,7 @@ function CreateClass() {
     const [subjects, setSubjects] = useState([]);
     const [teachers, setTeachers] = useState([]);
     const token = localStorage.getItem("accessToken");
+    const [message, setMessage] = useState("");
 
     useEffect(() => {
         fetchMajors();
@@ -33,8 +36,10 @@ function CreateClass() {
     useEffect(() => {
         fetchSubjects(classData.Major);
         fetchTeachers(classData.Major);
-        fetchStudents(classData.Major);
-    }, [classData.Major]);
+        if (classData.Major && classData.Subject) {
+            fetchStudentsBySubject(classData.Major, classData.Subject);
+        }
+    }, [classData.Major,classData.Subject]);
 
 
 
@@ -62,21 +67,18 @@ function CreateClass() {
         }
     };
 
-    const fetchStudents = async (majorId) => {
-
+    const fetchStudentsBySubject = async (majorId, subjectId) => {
+        if (!majorId || !subjectId) return;
         try {
-            const decoded = jwtDecode(token);
-            const userRole = "student";
-            if (!classData.Major) return;
-            const response = await axios.get(`http://localhost:8000/user/users-by-major/${majorId}?Role=${userRole}`, {
+            const response = await axios.get(`http://localhost:8000/user/users-by-subject?majorId=${majorId}&subjectId=${subjectId}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
-            // const studentList = response.data.filter(user => user.role === "student");
             setStudents(response.data);
         } catch (e) {
-            console.error("Error fetching students", e);
+            console.error("Error fetching students by subject", e);
         }
     };
+    
 
     const fetchTeachers = async (majorId) => {
         try{
@@ -104,6 +106,9 @@ function CreateClass() {
             ...prev,
             Subject: selectedSubjectId,  // Lưu id của subject vào state
         }));
+
+
+        
     };
 
     const handleCheckboxChange = (student) => {
@@ -154,83 +159,148 @@ function CreateClass() {
             });
             navigate("/manageclass");
         } catch (e) {
+            if (e.response && e.response.data.errors) {
+                setMessage(e.response.data.errors[0].message);
+            }
             console.error("Error creating class", e);
         }
     };
+    const [showMenu, setShowMenu] = useState(false);
 
     return (
-        <div className="container mx-auto p-6">
-            <h1 className="text-3xl font-bold">Create new class</h1>
-            <div className="mt-4">
-                {step === 1 ? (
-                    <div>
-                        <label className="block mt-4">Class Name</label>
-                        <input type="text" placeholder="Name" value={classData.Classname}
-                            onChange={(e) => setClassData({ ...classData, Classname: e.target.value })}
-                            className="border p-2 w-full" />
-                        <br/>
-                        <br/>
-                        <label className="block mt-4">Slot</label>
-                        <input type="text" placeholder="Slot" value={classData.Slot}
-                            onChange={(e) => setClassData({ ...classData, Slot: e.target.value })}
-                            className="border p-2 w-full" />
-                        <label className="block mt-4">Major</label>
-                        <select value={classData.Major} onChange={handleMajorChange} className="border p-2 w-full">
-                            <option value="">Select Major</option>
-                            {majors.map((major) => (
-                                <option key={major._id} value={major._id}>{major.Name}</option>
-                            ))}
-                        </select>
-                        <br/>
-                        <br/>
-                        <label className="block mt-4">Subject</label>
-                        <select value={classData.Subject} onChange={handleSubjectChange}
-                            className="border p-2 w-full" disabled={!classData.Major}>
-                            <option value="">Select Subject</option>
-                            {subjects.map((subject) => (
-                                <option key={subject._id} value={subject._id}>{subject.Name}</option>
-                            ))}
-                        </select>
-                        <br/>
-                        <br/>
-                        <label className="block mt-4">Teacher</label>
-                        <select value={classData.Teacher} onChange={(e) => setClassData({ ...classData, Teacher: e.target.value })}
-                            className="border p-2 w-full" disabled={!classData.Major}>
-                            <option value="">Select Teacher</option>
-                            {teachers.map((teacher) => (
-                                <option onClick={() => handleTeacher(teacher)}  key={teacher._id} value={teacher._id}>{teacher.Fullname}</option>
-                            ))}
-                        </select>
-                        <br/>
-                        <br/>
-                        <button onClick={handleNext} className="mt-4 px-4 py-2 bg-blue-500 text-white">Next</button>
-                    </div>
-                ) : (
-                    <div>
-                        <input type="text" placeholder="Search student..." value={search}
-                            onChange={(e) => setSearch(e.target.value)} className="border p-2 w-full" />
+        <div className={styles.pageContainer}>
+         {/* Nút Hamburger hiển thị chỉ trên mobile */}
+      <div className={styles.hamburgerBar}>
+        <button
+          className={styles.hamburgerBtn}
+          onClick={() => setShowMenu(!showMenu)}
+        >
+          &#9776;
+        </button>
+      </div>
 
+      {/* Sidebar: Menu */}
+      <div
+        className={`${styles.sidebar} ${showMenu ? styles.showSidebar : ""}`}
+      >
+        <Menu />
+      </div>
+      <div className={styles.content}>
+        <h1 className={styles.title}>Create new class</h1>
+        
+        <div className={styles["mt-4"]}>
+          {step === 1 ? (
+            <div>
+              <label className={`${styles.block} ${styles["mt-4"]}`}>Class Name</label>
+              <input
+                type="text"
+                placeholder="Name"
+                value={classData.Classname}
+                onChange={(e) => setClassData({ ...classData, Classname: e.target.value })}
+                className={styles["input-field"]}
+              />
+              
+              <label className={`${styles.block} ${styles["mt-4"]}`}>Slot</label>
+              <input
+                type="text"
+                placeholder="Slot"
+                value={classData.Slot}
+                onChange={(e) => setClassData({ ...classData, Slot: e.target.value })}
+                className={styles["input-field"]}
+              />
 
-                    <div className="mt-2">
-                            {students.filter(s => s.Fullname.toLowerCase().includes(search.toLowerCase())).map(student => (
-                                <div key={student._id} className="flex justify-between border p-2 mt-2">
-                                    <span>{student.Fullname}</span>
-                                    <input
-                                        type="checkbox"
-                                        checked={classData.Student.includes(student._id)} // Kiểm tra nếu học sinh đã được chọn
-                                        onChange={() => handleCheckboxChange(student)} // Thêm hoặc bỏ học sinh khi thay đổi trạng thái checkbox
-                                        className="ml-4"
-                                    />
-                                </div>
-                            ))}
-                        </div>
+              <label className={`${styles.block} ${styles["mt-4"]}`}>Major</label>
+              <select
+                value={classData.Major}
+                onChange={handleMajorChange}
+                className={styles["select-field"]}
+              >
+                <option value="">Select Major</option>
+                {majors.map((major) => (
+                  <option key={major._id} value={major._id}>
+                    {major.Name}
+                  </option>
+                ))}
+              </select>
 
-                        <button onClick={handlePre} className="px-4 py-2 bg-gray-500 text-white">Back</button>
-                        <button onClick={handleSubmit} className="px-4 py-2 bg-blue-500 text-white">Create</button>
-                    </div>
-                )}
+              <label className={`${styles.block} ${styles["mt-4"]}`}>Subject</label>
+              <select
+                value={classData.Subject}
+                onChange={handleSubjectChange}
+                className={styles["select-field"]}
+                disabled={!classData.Major}
+              >
+                <option value="">Select Subject</option>
+                {subjects.map((subject) => (
+                  <option key={subject._id} value={subject._id}>
+                    {subject.Name}
+                  </option>
+                ))}
+              </select>
+
+              <label className="block mt-4">Teacher</label>
+              <select
+                value={classData.Teacher}
+                onChange={(e) => setClassData({ ...classData, Teacher: e.target.value })}
+                className={styles["select-field"]}
+                disabled={!classData.Major}
+              >
+                <option value="">Select Teacher</option>
+                {teachers.map((teacher) => (
+                  <option
+                    onClick={() => handleTeacher(teacher)}
+                    key={teacher._id}
+                    value={teacher._id}
+                  >
+                    {teacher.Fullname}
+                  </option>
+                ))}
+              </select>
+
+              <button onClick={handleNext} className={`${styles.button} ${styles["button-blue"]}`}>
+                Next
+              </button>
             </div>
+          ) : (
+            <div>
+              <input
+                type="text"
+                placeholder="Search student..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className={styles["input-field"]}
+              />
+
+              <div className={styles["student-list"]}>
+                {students
+                  .filter((s) =>
+                    s.Fullname.toLowerCase().includes(search.toLowerCase())
+                  )
+                  .map((student) => (
+                    <div key={student._id} className={styles["student-item"]}>
+                      <span>{student.Fullname}</span>
+                      <input
+                        type="checkbox"
+                        checked={classData.Student.includes(student._id)}
+                        onChange={() => handleCheckboxChange(student)}
+                      />
+                    </div>
+                  ))}
+              </div>
+
+              <button onClick={handlePre} className={`${styles.button} ${styles["button-gray"]}`}>
+                Back
+              </button>
+              <button onClick={handleSubmit} className={`${styles.button} ${styles["button-blue"]}`}>
+                Create
+              </button>
+              {message && <p>{message}</p>}
+            </div>
+          )}
         </div>
+      </div>
+    </div>
+
     );
 }
 

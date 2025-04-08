@@ -1,4 +1,9 @@
 /* 📌 Container chính */
+.body {
+    display: flex;
+    font-family: var(--font-family-sans-serif);
+}
+
 .container {
     width: 80%;
     margin: 20px auto;
@@ -18,7 +23,6 @@
     justify-content: center;
 }
 
-/* 🎭 Card user */
 /* 🎭 Card user */
 .userCard {
     position: relative;
@@ -77,20 +81,40 @@
 /* 🗑️ Nút delete */
 .deleteButton {
     position: absolute;
-    top: 6px;  /* Đưa lên góc phải */
-    right: 6px; 
-    background: transparent; /* Nền trong suốt */
+    top: 6px;
+    right: 6px;
+    background: transparent;
     border: none;
-    font-size: 12px; /* Nhỏ hơn */
+    font-size: 12px;
     color: red;
     cursor: pointer;
     transition: transform 0.2s ease-in-out;
+    display: none;
 }
 
 .userCard:hover .deleteButton {
     display: block;
-    bottom: 10px; /* Khi hover, hiển thị nút delete */
+    bottom: 10px;
 }
 
+/* 🔄 Responsive media queries */
+@media screen and (max-width: 1024px) {
+    .userGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
 
+@media screen and (max-width: 768px) {
+    .userGrid {
+        grid-template-columns: 1fr;
+    }
 
+    .body {
+        flex-direction: column;
+    }
+
+    .container {
+        width: 95%;
+        padding: 16px;
+    }
+}

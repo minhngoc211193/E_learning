@@ -1,0 +1,103 @@
+.notification-container {
+  width: 24rem;
+  max-width: 100%; /* Giới hạn độ rộng tối đa theo chiều rộng màn hình */
+  padding: 1rem;
+  background-color: #fff;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin: 0 auto; /* Canh giữa container */
+  box-sizing: border-box; /* Tính toán padding và border vào kích thước */
+}
+
+.notification-header {
+  font-size: 1.25rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.notification-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: #facc15; /* Màu vàng */
+}
+
+.notification-list {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.notification-item {
+  padding: 0.75rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.375rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.notification-message {
+  font-weight: 500;
+}
+
+.notification-sender {
+  font-size: 0.875rem;
+  color: #6b7280; /* Màu xám */
+}
+
+.no-notifications {
+  color: #6b7280;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .notification-container {
+    width: 100%; /* Full width trên màn hình nhỏ */
+    padding: 0.75rem;
+  }
+
+  .notification-header {
+    font-size: 1.1rem; /* Giảm kích thước font cho mobile */
+  }
+
+  .notification-item {
+    flex-direction: column; /* Xếp chồng các phần tử */
+    align-items: flex-start; /* Canh trái */
+    padding: 0.5rem;
+  }
+
+  .notification-message {
+    font-size: 1rem; /* Điều chỉnh font-size cho dễ đọc */
+  }
+
+  .notification-sender {
+    font-size: 0.75rem; /* Giảm font-size của sender */
+  }
+}
+
+@media (max-width: 480px) {
+  .notification-container {
+    width: 100%; /* Full width trên màn hình rất nhỏ */
+    padding: 0.5rem;
+  }
+
+  .notification-header {
+    font-size: 1rem; /* Giảm font-size hơn nữa */
+  }
+
+  .notification-item {
+    padding: 0.25rem;
+  }
+
+  .notification-message {
+    font-size: 0.875rem;
+  }
+
+  .notification-sender {
+    font-size: 0.625rem;
+  }
+}

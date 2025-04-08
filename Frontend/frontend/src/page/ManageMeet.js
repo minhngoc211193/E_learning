@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import {useNavigate} from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
+import Menu from '../components/Menu';
 
 function ManageMeeting (){
     const [meetings, setMeetings] = useState([]);
@@ -28,11 +29,11 @@ function ManageMeeting (){
         try{
             let response;
             if(role ==="student"){
-                response = await axios.get("http://localhost:8000/meet/student/meetings", {
+                response = await axios.get("http://localhost:8000/meet/meetings", {
                     headers: { Authorization: `Bearer ${token}`}
                 });
             }else if (role === "teacher"){
-                response = await axios.get("http://localhost:8000/meet/teacher/meetings", {
+                response = await axios.get("http://localhost:8000/meet/meetings", {
                     headers: { Authorization: `Bearer ${token}`}
                 }); 
             }
@@ -53,7 +54,7 @@ function ManageMeeting (){
             return;
         }
         try {
-            const response = await axios.post("http://localhost:8000/meet/handle-meeting-request",{
+            const response = await axios.post("http://localhost:8000/meet/respond-meeting",{
                 meetingId, action: "accept"},
                 {
                     headers: {Authorization: `Bearer ${token}`}
@@ -75,7 +76,7 @@ function ManageMeeting (){
             return;
         }
         try{
-            const response = await axios.post("http://localhost:8000/meet/handle-meeting-request", 
+            const response = await axios.post("http://localhost:8000/meet/respond-meeting", 
                 {
                 meetingId, action: "reject"
                 },

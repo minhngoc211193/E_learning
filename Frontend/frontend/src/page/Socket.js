@@ -22,7 +22,6 @@ function createSocket () {
     socket.emit('receive notification', notification);
   });
 
-
   return socket;
 };
 export default createSocket;

@@ -3,6 +3,7 @@ import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import styles from "./EditClass.module.css";
 import { jwtDecode } from 'jwt-decode';
+import Header from '../components/Header';
 
 const EditClass = () => {
   const { classId } = useParams();
@@ -19,6 +20,14 @@ const EditClass = () => {
   const [subjects, setSubjects] = useState([]);
   const [teachers, setTeachers] = useState([]);
   const [students, setStudents] = useState([]);
+  const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState("");
+
+  const showMessage = (msg, type) => {
+    setMessage(msg);
+    setMessageType(type);
+    setTimeout(() => setMessage(""), 3000);
+  };
 
   // Lấy thông tin lớp học
   const fetchClassInfo = async () => {
@@ -26,8 +35,7 @@ const EditClass = () => {
     try {
       const decoded = jwtDecode(token);
       if (decoded.Role !== "admin") {
-        console.error("Bạn không có quyền chỉnh sửa lớp!");
-        alert("Bạn không có quyền chỉnh sửa lớp!!!");
+        showMessage("Bạn không có quyền chỉnh sửa lớp!", "error");
         navigate("/");
         return;
       }
@@ -46,7 +54,7 @@ const EditClass = () => {
         });
       }
     } catch (e) {
-      console.error("Không thể lấy thông tin lớp học.", e);
+      showMessage("Không thể lấy thông tin lớp học.", e);
     }
   };
 
@@ -121,15 +129,17 @@ const EditClass = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       console.log(response.data);
-      alert("Cập nhật lớp học thành công");
+      showMessage("Cập nhật lớp học thành công", "success");
       navigate(`/manageclass`);
     } catch (error) {
-      console.error("Lỗi cập nhật lớp học:", error);
+      showMessage(`Lỗi cập nhật lớp học: ${error.response?.data?.message || error.message}`, "error");
     }
   };
 
   return (
     <div className={styles.createPage}>
+      <Header />
+      {message && <p className={`${styles.message} ${messageType === "error" ? styles.error : styles.success}`}>{message}</p>}
       <form onSubmit={handleSubmit} className={styles.form}>
         <h1 className={styles.title}>Edit Class</h1>
         <div className={styles.formGrid}>

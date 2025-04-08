@@ -214,6 +214,24 @@ const classController = {
         try {
             const { Classname, subjectId, Teacher, Student, Slots } = req.body;
             const classId = req.params.id; // ID lớp cần cập nhật
+
+            if (!Classname || Classname.trim().length === 0) {
+                return res.status(400).json({ message: "Classname is required" });
+            }
+    
+            // Validate Classname format (optional, example: alphanumeric with space support)
+            const classNamePattern = /^[A-Za-z0-9\u00C0-\u00FF\s]+$/;  // Adjust the regex as needed
+            if (!classNamePattern.test(Classname)) {
+                return res.status(400).json({ message: "Classname format is invalid" });
+            }
+    
+            // Check if Classname already exists (unique constraint check)
+            // const existingClass = await Class.findOne({ Classname });
+            // if (existingClass) {
+            //     return res.status(400).json({ message: `Classname '${Classname}' already exists` });
+            // }
+
+
             // Tìm lớp học cần cập nhật
             const updatedClass = await Class.findById(classId).populate("Teacher").populate("Student");
             if (!updatedClass) {
@@ -398,6 +416,7 @@ const classController = {
 
             const io = req.app.get('io');
             io.emit('deleteClass', req.params.id);
+
 
             res.status(200).json({ message: "Xóa lớp và các đối tượng liên quan thành công" });
         } catch (err) {

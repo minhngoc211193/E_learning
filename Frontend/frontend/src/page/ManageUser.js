@@ -4,6 +4,7 @@ import styles from '../page/ManageUser.module.css';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 import CreateUser from '../page/User/CreateUser';
+import Menu from '../components/Menu';
 
 function ManageUser (){
     const [users, setUsers] = useState([]);
@@ -92,6 +93,8 @@ function ManageUser (){
     };
 
     return (
+        <div className={styles.body}>
+        <Menu />
           <div className={styles.container}>
             <h2>Manage Account</h2>
             <div className={styles.nav}>
@@ -156,6 +159,7 @@ function ManageUser (){
                     </div>
                 </div>
             )}
+        </div>
         </div>
     );
 }
