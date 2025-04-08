@@ -56,7 +56,7 @@ async function requestMeeting(req, res) {
 
     const io = req.app.get('io');
     if (notification && io) {
-      io.to(teacher._id.toString()).emit('new notification', notification);
+      io.to(teacher._id.toString()).emit('receive notification', notification);
     }
 
     res.status(201).json({
@@ -134,7 +134,7 @@ const respondToMeetingRequest = async (req, res) => {
       );
 
       if (io && notification) {
-        io.to(studentId.toString()).emit('new notification', notification);
+        io.to(studentId.toString()).emit('recive notification', notification);
       }
 
       return res.status(200).json({
@@ -167,7 +167,7 @@ const respondToMeetingRequest = async (req, res) => {
       );
 
       if (io && notification) {
-        io.to(studentId.toString()).emit('new notification', notification);
+        io.to(studentId.toString()).emit('recive notification', notification);
       }
 
       return res.status(200).json({

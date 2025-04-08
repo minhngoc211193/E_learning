@@ -159,8 +159,6 @@ const sendMessage = async (req, res) => {
 
     // Gửi tin nhắn mới đến cuộc trò chuyện
     io.to(conversationId).emit('new message', populatedMessage);
-    // 
-    io.emit('dashboard new message', populatedMessage);
 
     // Xác nhận tin nhắn đã được gửi
     io.to(conversationId).emit('message delivered', {
@@ -170,9 +168,9 @@ const sendMessage = async (req, res) => {
 
     // Gửi thông báo real-time nếu có
     if (notification) {
-      console.log(`Emitting notification to user: ${receiverId}`);
+      // console.log(`Emitting notification to user: ${receiverId}`);
       // io.emit('new notification', notification);
-      io.to(receiverId.toString()).emit('new notification', notification);
+      io.to(receiverId.toString()).emit('receive notification', notification);
     }
 
     return res.status(201).json(savedMessage);
@@ -184,7 +182,7 @@ const sendMessage = async (req, res) => {
 
 const getConversations = async (req, res) => {
   try {
-    const userId = req.user.id; 
+    const userId = req.user.id; // Lấy userId từ req.user, đã được xác thực trong middleware 
 
     // Tìm tất cả các cuộc trò chuyện mà userId là studentId hoặc teacherId
     const conversations = await Conversation.find({
