@@ -186,12 +186,12 @@ const authController = {
             const { Password, ...others } = user.toObject();
 
             // Đặt cookie chứa token
-            res.cookie("token", accessToken, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: "strict"
+            // res.cookie("token", accessToken, {
+            //     httpOnly: true,
+            //     secure: process.env.NODE_ENV === "production",
+            //     sameSite: "strict"
 
-            });
+            // });
 
             // Nếu đây là lần đăng nhập đầu tiên, trả về flag firstLogin kèm accessToken
             if (user.firstLogin) {

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import {useNavigate} from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 import Menu from '../components/Menu';
+import { notification } from "antd";
 
 function ManageMeeting (){
     const [meetings, setMeetings] = useState([]);
@@ -17,113 +18,134 @@ function ManageMeeting (){
     const decoded = jwtDecode(token);
     const userId = decoded.id; 
     const role = decoded.Role;
+    const [api, contextHolder] = notification.useNotification();
+
+  const openNotification = (type, detailMessage = "") => {
+    if (type === "success") {
+      api.open({
+        message: "Action uccessfully!",
+        description: "Your action has been successfully.",
+        showProgress: true,
+        pauseOnHover: true,
+      });
+    } else {
+      api.open({
+        message: "Failed!",
+        description: detailMessage,
+        showProgress: true,
+        pauseOnHover: true,
+      });
+    }
+  };
     useEffect(() => {
         if(token){
             fetchMeetings();
         }
     }, [token]);
 
-    const fetchMeetings = async()=>{
-        const decoded = jwtDecode(token);
-        const userId = decoded.id; 
-        const role = decoded.Role;
-        setUserRole(role);
-        try{
-            let response;
-            if(role ==="student"){
-                response = await axios.get("http://localhost:8000/meet/meetings", {
-                    headers: { Authorization: `Bearer ${token}`}
-                });
-            }else if (role === "teacher"){
-                response = await axios.get("http://localhost:8000/meet/meetings", {
-                    headers: { Authorization: `Bearer ${token}`}
-                }); 
-            }
-            console.log("Lich meeting: ", response.data.meetings);
-            setMeetings(response.data.meetings);
-        }catch(error){
-            console.error("Error fetching meetings: ", error);
+  const fetchMeetings = async () => {
+    const decoded = jwtDecode(token);
+    const userId = decoded.id;
+    const role = decoded.Role;
+    setUserRole(role);
+    try {
+      let response;
+      if (role === "student") {
+        response = await axios.get("http://localhost:8000/meet/meetings", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+      } else if (role === "teacher") {
+        response = await axios.get("http://localhost:8000/meet/meetings", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+      }
+      console.log("Lich meeting: ", response.data.meetings);
+      setMeetings(response.data.meetings);
+    } catch (error) {
+      console.error("Error fetching meetings: ", error);
+    }
+  };
+
+
+  const handleConfirm = async (meetingId) => {
+    const decoded = jwtDecode(token);
+    const role = decoded.Role;
+
+    if (role !== "teacher") {
+      openNotification("error", "Just teacher can confirm meetings");
+    }
+    try {
+      const response = await axios.post("http://localhost:8000/meet/respond-meeting", {
+        meetingId, action: "accept"
+      },
+        {
+          headers: { Authorization: `Bearer ${token}` }
         }
-    };
+      );
+      console.log("Meeting confirmed response: ", response);
+      openNotification("success");
+      fetchMeetings();
+    } catch (e) {
+      const errorMessage = e.response?.data?.message || "Have problem, plase try again!";
+      openNotification("error", errorMessage);
+    }
+  };
+  const handleStartReject = (meetingId) => {
+    setRejectedMeetingId(meetingId);
+    setRejectionReason("");  // reset lý do cũ
+  };
+  const handleReject = async (meetingId, rejectionReason) =>{
 
-
-    const handleConfirm = async (meetingId) =>{
+      if(!rejectionReason || rejectionReason.trim() ===""){
+        openNotification("Vui lòng nhập lý do từ chối.");
+        return;
+      }
+      try{
         const decoded = jwtDecode(token);
         const role = decoded.Role;
-
-        if(role !=="teacher"){
-            alert(" Just teacher can confirm meetings");
+        if(role!=="teacher"){
+          openNotification("Just teacher can reject meeting!");
             return;
         }
-        try {
-            const response = await axios.post("http://localhost:8000/meet/respond-meeting",{
-                meetingId, action: "accept"},
-                {
-                    headers: {Authorization: `Bearer ${token}`}
-                }
-            );
-            console.log("Meeting confirmed response: ", response);
-            alert("Meeting was accepted!");
-            fetchMeetings();
-        }catch(e){
-            console.error("Error confirm meeting: ", e);
+          const response = await axios.post("http://localhost:8000/meet/respond-meeting", 
+              {
+              meetingId, action: "reject", rejectionReason
+              },
+              {headers: {Authorization: `Bearer ${token}`}}
+      );
+      console.log("Meeting rejected response: ", response);
+          openNotification ("Meeting was rejected!");
+          setRejectedMeetingId(null);
+          setRejectionReason("");
+          // reload data
+          fetchMeetings();
+      } catch(e){
+        const errorMessage = e.response?.data?.message || "Have problem, plase try again!";
+        openNotification("Error rejectng meeting", errorMessage);
+      }
+  };
+  const handleEdit = (meeting) => {
+    setCurruntMeeting(meeting);
+    setEditedMeeting(meeting);
+    setIsEditing(true);
 
-        }
-    };
-    const handleStartReject = (meetingId) => {
-      setRejectedMeetingId(meetingId);
-      setRejectionReason("");  // reset lý do cũ
-    };
-    const handleReject = async (meetingId, rejectionReason) =>{
+  }
+  // const handleInputChange = (e) =>{
+  //     const {name, value} = e.target;
+  //     setEditedMeeting({
+  //         ...editedMeeting,
+  //         [name]: value
+  //     });
+  //     };
 
-        if(!rejectionReason || rejectionReason.trim() ===""){
-          alert("Vui lòng nhập lý do từ chối.");
-          return;
-        }
-        try{
-          const decoded = jwtDecode(token);
-          const role = decoded.Role;
-          if(role!=="teacher"){
-              alert("Just teacher can reject meeting!");
-              return;
-          }
-            const response = await axios.post("http://localhost:8000/meet/respond-meeting", 
-                {
-                meetingId, action: "reject", rejectionReason
-                },
-                {headers: {Authorization: `Bearer ${token}`}}
-        );
-        console.log("Meeting rejected response: ", response);
-            alert ("Meeting was rejected!");
-            setRejectedMeetingId(null);
-            setRejectionReason("");
-            // reload data
-            fetchMeetings();
-        } catch(e){
-            console.error("Error rejectng meeting", e);
-        }
-    };
-    const handleEdit = (meeting) =>{
-        setCurruntMeeting(meeting);
-        setEditedMeeting(meeting);
-        setIsEditing(true);
-
-    }
-    // const handleInputChange = (e) =>{
-    //     const {name, value} = e.target;
-    //     setEditedMeeting({
-    //         ...editedMeeting,
-    //         [name]: value
-    //     });
-    //     };
-
-    // const handleSave = async()=>{
-    //     try{
-    //         const response = await axios.put(`https://localhost:8000/meet/`)
-    //     }catch{}
-    // };
-    return(
-        <div className="meeting-list">
+  // const handleSave = async()=>{
+  //     try{
+  //         const response = await axios.put(`https://localhost:8000/meet/`)
+  //     }catch{}
+  // };
+  return (
+    <div className="meeting-list">
+      {contextHolder}
       <h2>Danh sách cuộc họp</h2>
       {/* {isEditing && currentMeeting && (
         <div className="edit-meeting-form">
@@ -248,7 +270,7 @@ function ManageMeeting (){
       </table>
     </div>
 
-    );
+  );
 
 }
 

@@ -51,6 +51,22 @@ function isFirstLogin() {
     console.error("Token decode error:", error);
     return false;
   }
+};
+
+function getUserRole() {
+  const token = localStorage.getItem("accessToken");
+  if (!token) return null;
+  try {
+    const decoded = jwtDecode(token);
+    return decoded.Role; // giả sử token chứa thuộc tính role
+  } catch (error) {
+    console.error("Token decode error:", error);
+    return null;
+  }
+}
+
+function isAdmin() {
+  return getUserRole() === "admin";
 }
 
 function renderProtected(Component) {
@@ -58,6 +74,17 @@ function renderProtected(Component) {
   if (!checkToken()) return <Navigate to="/" />;
   // Nếu có token nhưng firstLogin === true => chuyển hướng về trang /firstlogin
   if (isFirstLogin()) return <Navigate to="/firstlogin" />;
+  // Còn lại mới render component
+  return <Component />;
+}
+
+function renderProtectedAdmin(Component) {
+  // Nếu không có token => chuyển hướng về trang login
+  if (!checkToken()) return <Navigate to="/" />;
+  // Nếu có token nhưng firstLogin === true => chuyển hướng về trang /firstlogin
+  if (isFirstLogin()) return <Navigate to="/firstlogin" />;
+  // Kiểm tra vai trò admin
+  if (!isAdmin()) return <Navigate to="/home" />;
   // Còn lại mới render component
   return <Component />;
 }
@@ -74,29 +101,29 @@ function App() {
                 : <Navigate to="/" />
             } />
           <Route path="/changepassword" element={renderProtected(ChangePassword)} />
-          <Route path="/resetpassword" element={renderProtected(ResetPassword)} />
+          <Route path="/resetpassword" element={<ResetPassword />} />
           <Route path="/profile" element={renderProtected(Profile)} />
           <Route path="/updateinformationuser" element={renderProtected(UpdateInformationUser)} />
-          <Route path="/createuser" element={renderProtected(CreateUser)} />
-          <Route path="/detail-user/:id" element={renderProtected(DetailUser)} />
-          <Route path="/update-user/:id" element={renderProtected(UpdateUser)} />
-          <Route path="/manageuser" element={renderProtected(ManageUser)} />
-          <Route path="/major" element={renderProtected(Major)} />
-          <Route path="/detail-major/:id" element={renderProtected(DetailMajor)} />
+          <Route path="/createuser" element={renderProtectedAdmin(CreateUser)} />
+          <Route path="/detail-user/:id" element={renderProtectedAdmin(DetailUser)} />
+          <Route path="/update-user/:id" element={renderProtectedAdmin(UpdateUser)} />
+          <Route path="/manageuser" element={renderProtectedAdmin(ManageUser)} />
+          <Route path="/major" element={renderProtectedAdmin(Major)} />
+          <Route path="/detail-major/:id" element={renderProtectedAdmin(DetailMajor)} />
           <Route path="/home" element={renderProtected(Home)} />
           <Route path="/createblog" element={renderProtected(CreateBLog)} />
           <Route path="/editblog/:id" element={renderProtected(EditBlog)} />
           <Route path="/blogdetail/:id" element={renderProtected(BlogDetail)} />
-          <Route path="/manageblog" element={renderProtected(ManageBlog)} />
-          <Route path="/subject" element={renderProtected(Subject)} />
-          <Route path="/manageclass" element={renderProtected(ManageClass)} />
+          <Route path="/manageblog" element={renderProtectedAdmin(ManageBlog)} />
+          <Route path="/subject" element={renderProtectedAdmin(Subject)} />
+          <Route path="/manageclass" element={renderProtectedAdmin(ManageClass)} />
           <Route path="/document" element={renderProtected(Document)} />
-          <Route path="/update-class/:classId" element={renderProtected(EditClass)} />
+          <Route path="/update-class/:classId" element={renderProtectedAdmin(EditClass)} />
           <Route path="/detail-class/:id" element={renderProtected(DetailClass)} />
-          <Route path="/create-class" element={renderProtected(CreateClass)} />
+          <Route path="/create-class" element={renderProtectedAdmin(CreateClass)} />
           <Route path="/schedule" element={renderProtected(Schedule)} />
-          <Route path="/manageschedule" element={renderProtected(ManageSchedule)} />
-          <Route path="/dashboard" element={renderProtected(Dashboard)} />
+          <Route path="/manageschedule" element={renderProtectedAdmin(ManageSchedule)} />
+          <Route path="/dashboard" element={renderProtectedAdmin(Dashboard)} />
           <Route path="/attendance/:scheduleId" element={renderProtected(Attendance)} />
           <Route path="/detail-class/:id" element={renderProtected(DetailClass)} />
           <Route path ="/messenger" element = {renderProtected(Messenger)} />

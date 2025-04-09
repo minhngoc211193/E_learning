@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from 'axios';
 import styles from './Major.module.css';
 import Menu from '../components/Menu';
+import { notification } from "antd";
 
 function Major () {
     const[majorData, setMajorData] = useState({
@@ -14,22 +15,41 @@ function Major () {
     const [editingId, setEditingId] = useState(null);
     const navigate = useNavigate();
     const token = localStorage.getItem("accessToken");
+    const [api, contextHolder] = notification.useNotification();
+        
+            const openNotification = (type, detailMessage = "") => {
+                if (type === "success") {
+                    api.open({
+                        message: "Action uccessfully!",
+                        description: "Your action has been successfully.",
+                        showProgress: true,
+                        pauseOnHover: true,
+                    });
+                } else {
+                    api.open({
+                        message: "Failed!",
+                        description: detailMessage,
+                        showProgress: true,
+                        pauseOnHover: true,
+                    });
+                }
+            };
 
     useEffect(() => {
       if (token) {
           try {
               const decodedToken = JSON.parse(atob(token.split(".")[1])); // Giải mã token
               if (decodedToken.Role !== "admin") {
-                  alert("You have to login with admin role!");
-                  navigate("/"); // Chuyển hướng về trang chủ
+                  openNotification("error", "You have to login with admin role!");
+                  setTimeout(() =>navigate("/"), 1000); // Chuyển hướng về trang chủ
               }
           } catch (err) {
-              console.error("Token không hợp lệ", err);
-              navigate("/home"); 
+              openNotification("error", "Token không hợp lệ");
+              setTimeout(() =>navigate("/home"), 1000); // Chuyển hướng về trang chủ
           }
       } else {
-          alert("Bạn cần đăng nhập trước!");
-          navigate("/"); // Chuyển hướng đến trang login nếu chưa có token
+          openNotification("error", "Bạn cần đăng nhập trước!");
+          setTimeout(() =>navigate("/"), 1000); // Chuyển hướng đến trang login nếu chưa có token
       }
   }, [navigate]);
     useEffect(() => {
@@ -67,8 +87,11 @@ function Major () {
             setMajorData({ Name: "", Description: "", CodeMajor: "" });
             setEditingId(null);
             fetchMajors();
+            openNotification("success");
         } catch (error) {
             console.error("Error saving major", error);
+            const errorMessage = error.response?.data?.message || "Have problem, plase try again!";
+            openNotification("error", errorMessage);
         }
     };
 
@@ -83,8 +106,11 @@ function Major () {
                 headers: { Authorization: `Bearer ${token}` }
             });
             fetchMajors();
+            openNotification("success");
         } catch (error) {
             console.error("Error deleting major", error);
+            const errorMessage = error.response?.data?.message || "Have problem, plase try again!";
+            openNotification("error", errorMessage);
         }
     };
     const handleViewDetail = (id) => {
@@ -93,6 +119,7 @@ function Major () {
 
     return (
         <div className={styles.body}>
+            {contextHolder}
             <Menu />
             <div className={styles.container}>
                 <h1>Manage Majors</h1>

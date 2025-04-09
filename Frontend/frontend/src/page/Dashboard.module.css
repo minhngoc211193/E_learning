@@ -123,3 +123,157 @@
 .bottom h2 {
   margin: 0;
 }
+
+.chartContainer {
+  padding: 20px;
+  display: flex;
+  gap: 70px;
+  justify-content: center;
+}
+
+.chart1 {
+  padding: 20px;
+  height: 500px !important;
+  width: auto !important;
+  background: #ffffff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.chart2 {
+  padding: 20px;
+  height: 500px !important;
+  width: auto !important;
+  background: #ffffff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.chart3 {
+  padding: 20px;
+  height: 500px !important;
+  width: auto !important;
+  background: #ffffff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.chart4 {
+  padding: 20px;
+  height: 500px !important;
+  width: auto !important;
+  background: #ffffff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.chart5 {
+  padding: 20px;
+  height: 500px !important;
+  width: auto !important;
+}
+.chart5Buttons {
+  background: #ffffff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.headdingChart{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 15px;
+}
+
+.headdingChart select{
+  margin: 0px 5px;
+  border: 1px solid #ccc;
+  border-radius: 2px;
+}
+
+.chart6 {
+  padding: 20px;
+  height: 500px !important;
+  width: auto !important;
+}
+
+.chart6Buttons {
+  background: #ffffff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.chart7 {
+  padding: 20px;
+  height: 500px !important;
+  width: auto !important;
+  background: #ffffff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+@media (max-width: 1200px) {
+  .center {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .chartContainer {
+    padding: 10px;
+    gap: 20px;
+  }
+  .chart1, .chart2, .chart3, .chart4, .chart5, .chart6, .chart7{
+    height: 400px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .center {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .chartContainer {
+    padding: 10px;
+    gap: 20px;
+  }
+  .chart1, .chart2, .chart3, .chart4, .chart5, .chart6, .chart7{
+    height: 300px !important;
+  }
+  .headdingChart{
+    font-size: 14px;
+  }
+  
+  .headdingChart select{
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .center {
+    padding-left: 8px;
+  }
+  .chart1, .chart2, .chart3, .chart4, .chart5, .chart6, .chart7{
+    height: 100px !important;
+  }
+  .headdingChart{
+    font-size: 10px;
+  }
+  
+  .headdingChart select{
+    font-size: 10px;
+  }
+}

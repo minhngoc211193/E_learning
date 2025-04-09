@@ -1,74 +1,23 @@
-/* Reset margin, padding để tránh khoảng trắng thừa */
-html, body {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    width: 100%;
-  }
-  
-  /* Đảm bảo chiều cao bao quanh toàn bộ trang (tùy chọn) */
-  body, #root {
-    min-height: 100vh;
-    /* Bạn có thể muốn cho phép scroll nếu nội dung quá dài */
-  }
 /* Container chính */
 .Subjectsection {
     display: flex;
     flex-direction: row;
     width: 100%;
-    min-height: 100vh;
-    margin: 0;
-    padding: 0;
-    align-items: flex-start;
-  }
-  .Subjectsection > :first-child {
-    flex: 0 0 20%;
-    max-width: 20%;
     height: 100vh;
-    overflow-y: auto;  
-    /* Bạn có thể thêm height: 100%; nếu Menu cần full chiều cao */
-  }
-  .hamburgerBar {
-    display: none;
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    z-index: 999;
-  }
-  
-  .hamburgerBtn {
-    background: none;
-    border: none;
-    font-size: 2rem;
-    cursor: pointer;
-  }
-  
-  /* Sidebar (Menu) */
-  .sidebar {
-    height: 100vh; /* Chiếm toàn bộ chiều cao */
-    position: sticky; /* hoặc fixed nếu dùng layout khác */
-    top: 0;
     background-color: white;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between; /* giữ nút logout ở dưới */
-    overflow-y: auto; /* cho phép cuộn nếu nội dung dài */
-    padding: 1rem;
-    width: 15%;
   }
-  
   /* Khung bao ngoài */
   .container {
-    flex: 0 0 80%;
-    max-width: 80%;
+    height: 100vh;
+    width: 100%;
     margin: 0;
     padding: 24px;
     background-color: #f9f9f9;
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
     border-radius: 12px;
     text-align: center;
-    /* Đảm bảo không có thuộc tính nào vượt quá 100% */
     box-sizing: border-box;
+    margin: 10px;
   }
   
   /* Heading chính */

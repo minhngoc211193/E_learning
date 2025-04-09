@@ -6,6 +6,7 @@ import styles from './BlogDetail.module.css';
 import Footer from '../components/Footer';
 import BackButton from '../components/BackButton';
 import Swal from "sweetalert2";
+import ProfileImg from "../assets/profile.jpg";
 
 function BlogDetail() {
   const { id } = useParams();
@@ -180,7 +181,7 @@ useEffect(() => {
       <div className={styles.authorProfile}>
         <h2>Author</h2>
         <div className={styles.authorInfo}>
-          <img className={styles.authorInfoImage} src={blog.User.Image} alt="User" />
+          <img className={styles.authorInfoImage} src={blog.User.Image || ProfileImg} alt="User" />
           <div className={styles.authorAvar}>
             <h2>{blog.User?.Fullname || "Unknown"}</h2>
           </div>
@@ -197,7 +198,7 @@ useEffect(() => {
           <div key={commentItem._id} className={styles.mainComment}>
             <div className={styles.userComment}>
               <div className={styles.userComentLeft}>
-                <img className={styles.userComentLeftImage} src={commentItem.User.Image} alt="User" />
+                <img className={styles.userComentLeftImage} src={commentItem.User.Image || ProfileImg} alt="User" />
                 <h3>{commentItem.User?.Fullname || "Anonymous"}</h3>
               </div>
               <div className={styles.options}>
@@ -242,7 +243,7 @@ useEffect(() => {
         ))}
       </div>
       <div className={styles.yourComment}>
-        <img src={imageUser} alt="User" />
+        <img src={imageUser || ProfileImg} alt="User" />
         <input
           type="text"
           className={styles.yourCommentText}

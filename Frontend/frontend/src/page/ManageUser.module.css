@@ -81,20 +81,15 @@
 /* 🗑️ Nút delete */
 .deleteButton {
     position: absolute;
-    top: 6px;
-    right: 6px;
     background: transparent;
     border: none;
     font-size: 12px;
     color: red;
     cursor: pointer;
     transition: transform 0.2s ease-in-out;
-    display: none;
-}
-
-.userCard:hover .deleteButton {
-    display: block;
-    bottom: 10px;
+    display: block; 
+    top: 10px; 
+    right: 10px;  
 }
 
 /* 🔄 Responsive media queries */

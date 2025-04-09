@@ -4,7 +4,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 0px 20px 0px 50px;
-    background-color: rgba(255, 255, 255, 0.2);
+    background-color: rgb(255, 255, 255);
     height: 60px;
     font-family: 'Helvetica Neue', Arial, sans-serif;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -21,9 +21,8 @@
 }
 
 .elearning {
-    font-size: 1.4rem;
-    font-weight: bold;
-    color: #333;
+    height: 50px;
+    width: auto;
 }
 
 /* Phần bên phải chứa menu và thông tin người dùng */
@@ -41,7 +40,7 @@
 }
 
 .navItem {
-    margin-right: 15px;
+    
     padding: 5px 10px;
     color: rgb(94, 90, 90);
     cursor: pointer;
@@ -96,7 +95,6 @@
     font-size: 20px;
     color: black;
 }
-
 /* Bọc icon chuông và dropdown thông báo */
 .notificationWrapper {
     position: relative;
@@ -136,4 +134,64 @@
     border-left: 10px solid transparent;
     border-right: 10px solid transparent;
     border-bottom: 10px solid white;
+}
+.navToggle {
+    display: none;
+}
+
+/* Responsive cho Header */
+@media (max-width: 768px) {
+    .header {
+        padding: 0 10px;
+        height: 50px;
+    }
+
+    .elearning {
+        width: 80px;
+        height: auto;
+    }
+
+    .rightSection {
+        flex-direction: row;
+        align-items: center;
+    }
+
+    /* Hiển thị nút menu trên mobile */
+    .navToggle {
+        display: block;
+        font-size: 24px;
+        cursor: pointer;
+        color: #333;
+        margin-right: 15px;
+    }
+
+    /* Ẩn menu mặc định */
+    .nav ul {
+        display: none;
+    }
+
+    /* Khi menu mở, hiển thị */
+    .nav.open ul {
+        display: flex;
+        flex-direction: column;
+        position: absolute;
+        top: 60px;
+        right: 20%;
+        background: white;
+        width: 200px;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .nav.open ul li {
+        text-align: center;
+        border-bottom: 1px solid #ddd;
+    }
+    .nav.open li:hover {
+        background-color: #bababa;
+    }
+
+    .nav.open ul li:last-child {
+        border-bottom: none;
+    }
 }
