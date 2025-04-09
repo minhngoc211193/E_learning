@@ -13,6 +13,7 @@ function Header() {
   const [image, setImage] = useState("");
   const [role, setRole] = useState("");
   const [menuOpen, setMenuOpen] = useState(false); // Trạng thái mở menu
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
 
   useEffect(() => {
     // Khi resize màn hình, nếu lớn hơn 768px thì đóng menu
@@ -78,14 +79,23 @@ function Header() {
             </ul>
           ) : (
             <ul className={styles.navUser}>
-              <li onClick={() => navigate('/myclass')} className={styles.navItem}>Class</li>
+              <li onClick={() => navigate('/messenger')} className={styles.navItem}>Messenger</li>
+              <li onClick={() => navigate('/manageclass')} className={styles.navItem}>Class</li>
               <li onClick={() => navigate('/schedule')} className={styles.navItem}>Schedule</li>
               <li onClick={() => navigate('/createblog')} className={styles.navItem}>Create blog</li>
             </ul>
           )}
         </nav>
-        <div className={styles.notification}>
-          <i className="fa-regular fa-bell"></i>
+        {/* Thông tin người dùng */}
+        <div className={styles.notificationWrapper}>
+          <div className={styles.notification} onClick={handleBellClick}>
+            <i className="fa-regular fa-bell"></i>
+          </div>
+          {isNotificationOpen && (
+            <div className={styles.notificationDropdown}>
+              <Notifications />
+            </div>
+          )}
         </div>
         <div className={styles.userInfo} onClick={() => navigate('/profile')}>
           <img alt="avatar" src={image || ProfileImg} className={styles.avatar} />

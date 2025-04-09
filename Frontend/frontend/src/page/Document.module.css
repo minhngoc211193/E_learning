@@ -39,12 +39,12 @@
 
 /* Nội dung chính */
 .content {
-    width: 80%;
+    width: 100%;
     padding: 2rem;
 }
 
 .class-header {
-    background-image: url("https://i.pinimg.com/736x/d4/45/05/d44505e26211ad5093bf4fe5c3a7293d.jpg");
+    background-image: url("https://i.pinimg.com/474x/dc/b1/ca/dcb1ca484d7d82f48f3eab25c3d49e68.jpg");
     background-size: cover;
     background-position: center;
     color: black;

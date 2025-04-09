@@ -1,64 +1,150 @@
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 1.5rem;
+
+.pageContainer {
+  display: flex;
+  height: 100vh;    
+  width: 100%;              /* Chiều cao toàn bộ màn hình */
+  background-color: #f3f4f6;        /* Màu nền chung */
+  font-family: var(--font-family-sans-serif);
 }
 
+/* Phần nội dung bên phải (85%) với form được căn giữa */
+.content {
+  width: 100%;
+  height: 100vh;         /* Canh giữa theo chiều ngang */
+  display: flex;
+  align-items: center;       /* Căn giữa nội dung theo chiều ngang */
+  justify-content: center;   /* Căn giữa theo chiều dọc */
+  background-color: #ffffff;
+  border-radius: 0.5rem;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Thêm phần card hiển thị form */
+.card {
+  width: 100%;
+  max-width: 600px;
+  background-color: #ffffff;
+  padding: 2rem;
+  border-radius: 0.5rem;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Tiêu đề trang */
 .title {
-    font-size: 1.875rem; /* text-3xl */
-    font-weight: bold;
+  font-size: 1.875rem;            /* text-3xl */
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+  text-align: center;
 }
 
+/* Các margin, block cơ bản */
+.mt-4 {
+  margin-top: 1rem;
+}
+
+.block {
+  display: block;
+}
+
+/* Style cho input field */
 .input-field {
-    width: 100%;
-    padding: 0.5rem;
-    border: 1px solid #ccc;
-    border-radius: 0.5rem;
-    margin-top: 0.5rem;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 0.5rem;
+  margin-top: 0.5rem;
+  transition: border-color 0.2s ease-in-out;
 }
 
+.input-field:focus {
+  border-color: #3b82f6;
+  outline: none;
+}
+
+/* Style cho select field */
 .select-field {
-    width: 100%;
-    padding: 0.5rem;
-    border: 1px solid #ccc;
-    border-radius: 0.5rem;
-    margin-top: 0.5rem;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 0.5rem;
+  margin-top: 0.5rem;
+  transition: border-color 0.2s ease-in-out;
 }
 
+.select-field:focus {
+  border-color: #3b82f6;
+  outline: none;
+}
+
+/* Style cho nút bấm chung */
 .button {
-    margin-top: 1rem;
-    padding: 0.5rem 1rem;
-    color: white;
-    border: none;
-    border-radius: 0.5rem;
-    cursor: pointer;
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  color: #fff;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
 }
 
+/* Nút xanh */
 .button-blue {
-    background-color: #3b82f6;
+  background-color: #3b82f6;
 }
 
 .button-blue:hover {
-    background-color: #2563eb;
+  background-color: #2563eb;
 }
 
+/* Nút xám */
 .button-gray {
-    background-color: #6b7280;
+  background-color: #6b7280;
 }
 
 .button-gray:hover {
-    background-color: #4b5563;
+  background-color: #4b5563;
 }
 
+/* Style danh sách học sinh (bên bước chọn học sinh) */
 .student-list {
-    margin-top: 0.5rem;
+  margin-top: 0.5rem;
 }
 
+/* Mỗi item trong danh sách học sinh */
 .student-item {
-    display: flex;
-    justify-content: space-between;
-    padding: 0.5rem;
-    border: 1px solid #ccc;
-    margin-top: 0.5rem;
-    border-radius: 0.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  margin-top: 0.5rem;
+  border-radius: 0.5rem;
+}
+
+.backBtn {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: #1976d2;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.backBtn:hover {
+  background-color: #125cb3;
+}
+
+/* Responsive: nếu cần chỉnh lại cho mobile */
+@media (max-width: 768px) {
+  .pageContainer {
+      flex-direction: column;
+  }
+  .sidebar {
+      width: 100%;  /* Nếu cần hiển thị Menu full width */
+  }
+  .content {
+      width: 100%;
+      padding: 1rem;
+  }
 }
