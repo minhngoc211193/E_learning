@@ -3,9 +3,10 @@ import styles from '../page/Subject.module.css';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Menu from '../components/Menu';
+import { notification } from "antd";
 
 function Subject() {
-    const [subjectData, setSubjectData] = useState({ Name: "", Description: "", MajorId:"", CodeSubject:"" });
+    const [subjectData, setSubjectData] = useState({ Name: "", Description: "", MajorId: "", CodeSubject: "" });
     const [userRole, setUserRole] = useState(null);
     const [majors, setMajors] = useState([]);
     const [userMajor, setUserMajor] = useState(null);
@@ -14,11 +15,30 @@ function Subject() {
     const [selectedMajor, setSelectedMajor] = useState("");
     const navigate = useNavigate();
     const token = localStorage.getItem("accessToken");
+    const [api, contextHolder] = notification.useNotification();
+
+    const openNotification = (type, detailMessage = "") => {
+        if (type === "success") {
+            api.open({
+                message: "Action uccessfully!",
+                description: "Your action has been successfully.",
+                showProgress: true,
+                pauseOnHover: true,
+            });
+        } else {
+            api.open({
+                message: "Failed!",
+                description: detailMessage,
+                showProgress: true,
+                pauseOnHover: true,
+            });
+        }
+    };
 
     useEffect(() => {
         if (token) {
             try {
-                const decodedToken = JSON.parse(atob(token.split(".")[1])); 
+                const decodedToken = JSON.parse(atob(token.split(".")[1]));
                 setUserRole(decodedToken.Role);
                 setUserMajor(decodedToken.Major || "");
                 if (decodedToken.Role !== "admin") {
@@ -50,7 +70,7 @@ function Subject() {
 
     const fetchMajors = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/major/majors',{
+            const response = await axios.get('http://localhost:8000/major/majors', {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setMajors(response.data);
@@ -90,9 +110,9 @@ function Subject() {
             Name: subjectData.Name,
             Description: subjectData.Description,
             MajorId: subjectData.MajorId,
-            CodeSubject: subjectData.CodeSubject 
+            CodeSubject: subjectData.CodeSubject
         };
-        
+
         try {
 
             if (editId) {
@@ -106,19 +126,22 @@ function Subject() {
             }
             setSubjectData({ Name: "", Description: "", MajorId: "", CodeSubject: "" });
             setEditId(null);
+            openNotification("success");
             fetchSubjects();
         } catch (error) {
             console.error("Error saving subject", error);
+            const errorMessage = error.response?.data?.message || "Have problem, plase try again!";
+            openNotification("error", errorMessage);
         }
     };
 
     //Edit button
     const handleEdit = (subject) => {
-        setSubjectData({ 
-            Name: subject.Name, 
-            Description: subject.Description, 
-            MajorId: subject.Major ? subject.Major._id: "",
-            CodeSubject:  subject.CodeSubject
+        setSubjectData({
+            Name: subject.Name,
+            Description: subject.Description,
+            MajorId: subject.Major ? subject.Major._id : "",
+            CodeSubject: subject.CodeSubject
         });
         setEditId(subject._id);
 
@@ -127,11 +150,11 @@ function Subject() {
     const handleDelete = async (_id) => {
         const token = localStorage.getItem("accessToken");
         try {
-        await axios.delete(`http://localhost:8000/subject/delete-subject/${_id}`,{
-            headers: { Authorization: `Bearer ${token}` }
-        });
-            
-        setSubjects(prevSubjects => prevSubjects.filter(subject => subject._id !== _id));
+            await axios.delete(`http://localhost:8000/subject/delete-subject/${_id}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            setSubjects(prevSubjects => prevSubjects.filter(subject => subject._id !== _id));
         } catch (error) {
             console.error("Error deleting subject", error);
         }
@@ -142,170 +165,151 @@ function Subject() {
     };
 
     const filteredSubjects = selectedMajor ? subjects.filter(subject => subject.Major._id === selectedMajor) : subjects;
-    const [showMenu, setShowMenu] = useState(false);
 
     return (
-        <section className={styles.Subjectsection}>
-                        <div className={styles.hamburgerBar}>
-                    <button
-                    className={styles.hamburgerBtn}
-                    onClick={() => setShowMenu(!showMenu)}
-                    >
-                    &#9776;
-                    </button>
-                </div>
+        <div className={styles.Subjectsection}>
+            {contextHolder}
+            <Menu />
+            <div className={styles.container}>
+                <h2 className={styles.headingSection}>Manage Subjects</h2>
 
-                {/* Sidebar Menu with toggle for small screens */}
-                <div
-                    className={`${styles.sidebar} ${showMenu ? styles.showSidebar : ""}`}
-                    onClick={(e) => {
-                    if (e.target.tagName === "A" || e.target.closest("a")) {
-                        setShowMenu(false);
-                    }
-                    }}
-                >
-                    <Menu />
-                </div>
-        <div className={styles.container}>
-            <h2 className={styles.headingSection}>Manage Subjects</h2>
-
-            {/* Filter Section */}
-            <div className={styles.filterSection}>
-            <h4 className={`${styles.textCenter} ${styles.mb4}`}>Filter by Major</h4>
-            <select
-                className={styles.formControl}
-                value={selectedMajor}
-                onChange={handleMajorFilterChange}
-            >
-                <option value="">All Majors</option>
-                {majors.map((major) => (
-                <option key={major._id} value={major._id}>
-                    {major.Name}
-                </option>
-                ))}
-            </select>
-            </div>
-
-            {/* Form Section */}
-            <div className={styles.formSection}>
-            <h4 className={`${styles.textCenter} ${styles.mb4}`}>Subject Form</h4>
-            <form onSubmit={handleSubmit} className={styles.subjectForm}>
-                <div className={styles.formGrid}>
-                <div className={styles.formGroup}>
-                    <label htmlFor="Name">Subject Name</label>
-                    <input
-                    type="text"
-                    id="Name"
-                    name="Name"
-                    value={subjectData.Name}
-                    onChange={handleChange}
-                    placeholder="Subject Name"
-                    required
-                    className={styles.formControl}
-                    />
-                </div>
-
-                <div className={styles.formGroup}>
-                    <label htmlFor="Description">Description</label>
-                    <input
-                    type="text"
-                    id="Description"
-                    name="Description"
-                    value={subjectData.Description}
-                    onChange={handleChange}
-                    placeholder="Description"
-                    required
-                    className={styles.formControl}
-                    />
-                </div>
-
-                <div className={styles.formGroup}>
-                    <label htmlFor="CodeSubject">Subject Code</label>
-                    <input
-                    type="text"
-                    id="CodeSubject"
-                    name="CodeSubject"
-                    value={subjectData.CodeSubject}
-                    onChange={handleChange}
-                    placeholder="Subject Code"
-                    required
-                    className={styles.formControl}
-                    />
-                </div>
-
-                <div className={styles.formGroup}>
-                    <label htmlFor="MajorId">Major</label>
+                {/* Filter Section */}
+                <div className={styles.filterSection}>
+                    <h4 className={`${styles.textCenter} ${styles.mb4}`}>Filter by Major</h4>
                     <select
-                    id="MajorId"
-                    name="MajorId"
-                    value={subjectData.MajorId}
-                    onChange={handleChange}
-                    required
-                    className={styles.formControl}
+                        className={styles.formControl}
+                        value={selectedMajor}
+                        onChange={handleMajorFilterChange}
                     >
-                    <option value="">Select Major</option>
-                    {majors.map((major) => (
-                        <option key={major._id} value={major._id}>
-                        {major.Name}
-                        </option>
-                    ))}
+                        <option value="">All Majors</option>
+                        {majors.map((major) => (
+                            <option key={major._id} value={major._id}>
+                                {major.Name}
+                            </option>
+                        ))}
                     </select>
                 </div>
-                </div>
-                <button type="submit" className={`${styles.btn} ${styles.btnSuccess}`}>
-                {editId ? "Update" : "Create"} Subject
-                </button>
-            </form>
-            </div>
 
-            {/* Table Section */}
-            <div className={styles.tableWrap}>
-            <table className={styles.table}>
-                <thead className="thead-primary">
-                <tr>
-                    <th>#</th>
-                    <th>Name</th>
-                    <th>Major</th>
-                    <th>Code Subject</th>
-                    <th>Action</th>
-                </tr>
-                </thead>
-                <tbody>
-                {filteredSubjects.length > 0 ? (
-                    filteredSubjects.map((subject, index) => (
-                    <tr key={subject._id}>
-                        <td>{index + 1}</td>
-                        <td>{subject.Name}</td>
-                        <td>{subject.Major ? subject.Major.Name : "No Major"}</td>
-                        <td>{subject.CodeSubject}</td>
-                        <td>
-                        <button
-                            className={`${styles.btn} ${styles.btnWarning} ${styles.me2}`}
-                            onClick={() => handleEdit(subject)}
-                        >
-                            Edit
+                {/* Form Section */}
+                <div className={styles.formSection}>
+                    <h4 className={`${styles.textCenter} ${styles.mb4}`}>Subject Form</h4>
+                    <form onSubmit={handleSubmit} className={styles.subjectForm}>
+                        <div className={styles.formGrid}>
+                            <div className={styles.formGroup}>
+                                <label htmlFor="Name">Subject Name</label>
+                                <input
+                                    type="text"
+                                    id="Name"
+                                    name="Name"
+                                    value={subjectData.Name}
+                                    onChange={handleChange}
+                                    placeholder="Subject Name"
+                                    required
+                                    className={styles.formControl}
+                                />
+                            </div>
+
+                            <div className={styles.formGroup}>
+                                <label htmlFor="Description">Description</label>
+                                <input
+                                    type="text"
+                                    id="Description"
+                                    name="Description"
+                                    value={subjectData.Description}
+                                    onChange={handleChange}
+                                    placeholder="Description"
+                                    required
+                                    className={styles.formControl}
+                                />
+                            </div>
+
+                            <div className={styles.formGroup}>
+                                <label htmlFor="CodeSubject">Subject Code</label>
+                                <input
+                                    type="text"
+                                    id="CodeSubject"
+                                    name="CodeSubject"
+                                    value={subjectData.CodeSubject}
+                                    onChange={handleChange}
+                                    placeholder="Subject Code"
+                                    required
+                                    className={styles.formControl}
+                                />
+                            </div>
+
+                            <div className={styles.formGroup}>
+                                <label htmlFor="MajorId">Major</label>
+                                <select
+                                    id="MajorId"
+                                    name="MajorId"
+                                    value={subjectData.MajorId}
+                                    onChange={handleChange}
+                                    required
+                                    className={styles.formControl}
+                                >
+                                    <option value="">Select Major</option>
+                                    {majors.map((major) => (
+                                        <option key={major._id} value={major._id}>
+                                            {major.Name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" className={`${styles.btn} ${styles.btnSuccess}`}>
+                            {editId ? "Update" : "Create"} Subject
                         </button>
-                        <button
-                            className={`${styles.btn} ${styles.btnDanger}`}
-                            onClick={() => handleDelete(subject._id)}
-                        >
-                            Delete
-                        </button>
-                        </td>
-                    </tr>
-                    ))
-                ) : (
-                    <tr>
-                    <td colSpan="5" className={styles.textCenter}>
-                        No subjects found
-                    </td>
-                    </tr>
-                )}
-                </tbody>
-            </table>
+                    </form>
+                </div>
+
+                {/* Table Section */}
+                <div className={styles.tableWrap}>
+                    <table className={styles.table}>
+                        <thead className="thead-primary">
+                            <tr>
+                                <th>#</th>
+                                <th>Name</th>
+                                <th>Major</th>
+                                <th>Code Subject</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {filteredSubjects.length > 0 ? (
+                                filteredSubjects.map((subject, index) => (
+                                    <tr key={subject._id}>
+                                        <td>{index + 1}</td>
+                                        <td>{subject.Name}</td>
+                                        <td>{subject.Major ? subject.Major.Name : "No Major"}</td>
+                                        <td>{subject.CodeSubject}</td>
+                                        <td>
+                                            <button
+                                                className={`${styles.btn} ${styles.btnWarning} ${styles.me2}`}
+                                                onClick={() => handleEdit(subject)}
+                                            >
+                                                Edit
+                                            </button>
+                                            <button
+                                                className={`${styles.btn} ${styles.btnDanger}`}
+                                                onClick={() => handleDelete(subject._id)}
+                                            >
+                                                Delete
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan="5" className={styles.textCenter}>
+                                        No subjects found
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
-        </section>
 
     );
 }

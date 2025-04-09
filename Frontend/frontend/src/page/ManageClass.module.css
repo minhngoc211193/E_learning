@@ -1,126 +1,177 @@
 .body {
-    /* display: flex; */
-    font-family: var(--font-family-sans-serif);
-    min-height: 100vh;
-    background-color: #f3f4f6;
-    flex-direction: row;
+  display: flex;
+  font-family: var(--font-family-sans-serif);
+  min-height: 100vh;
+  flex-direction: row;
+}
+
+.body1 {
+  height: 100vh;
+  width: 100%;
+}
+
+.main-content {
+  padding: 1.5rem;
+  background-color: #f9f9f9;
+  min-height: calc(100vh - 70px);
+  overflow-y: auto;
+}
+
+/* Admin-specific container */
+.containerAdmin {
+  width: 85%;
+  padding: 1rem;
+  background-color: #f9f9f9;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.class-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.class-card {
+  background-color: #e2e2ec;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+}
+
+.class-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.class-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.avatar {
+  width: 3rem;
+  height: 3rem;
+  background-color: #9ca3af;
+  border-radius: 9999px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+}
+
+.header-fixed {
+  position: sticky;
+  top: 0;
+  background-color: white;
+  z-index: 1000;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+  width: 100%;
+}
+
+/* Đảm bảo không bị tràn nếu là student/teacher */
+.header {
+  text-align: center;
+  background-color: white;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.create-btn {
+  padding: 10px 20px;
+  background-color: #3b82f6;
+  color: white;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.4);
+  transition: background-color 0.3s ease;
+}
+
+.create-btn:hover {
+  background-color: #2563eb;
+}
+
+.search-bar {
+  background-color: transparent;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  color: black;
+  margin: 20px 0px;
+  height: 40px;
+  width: 500px;
+  padding-left: 20px;
+  border-radius: 20px;
+}
+
+.admin-actions{
+  margin-top: 20px;
+}
+
+.edit-btn{
+  padding: 10px 20px;
+  background-color: #3b82f6;
+  color: white;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.4);
+  transition: background-color 0.3s ease;
+  margin-right: 10px;
+}
+
+.delete-btn{
+  padding: 10px 20px;
+  background-color: #d30000;
+  color: white;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.4);
+  transition: background-color 0.3s ease;
+}
+
+/* Các phần còn lại giữ nguyên như bạn có (search-bar, class-card...) */
+
+/* Responsive */
+@media (max-width: 768px) {
+  .body {
+    flex-direction: column;
   }
-  
-  .main-content {
-    flex: 1;
-    padding: 1.5rem;
-    margin-top: 70px; /* đủ cho header sticky */
-    background-color: #f9f9f9;
-    min-height: calc(100vh - 70px);
-    overflow-y: auto;
+
+  .hamburgerBar {
+    display: block;
   }
-  
-  /* Cho student & teacher - toàn màn hình, không giới hạn width */
-  .body:not(.admin) .main-content {
-    width: 100%;
-    max-width: 100%;
-    margin: 0 auto;
-    padding: 1.5rem;
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 250px;
+    transform: translateX(-100%);
+    z-index: 998;
+    background-color: white;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
   }
-  
-  /* Admin-specific container */
+
+  .showSidebar {
+    transform: translateX(0);
+  }
+
   .containerAdmin {
     max-width: 100%;
+    margin: 0;
     padding: 1rem;
-    background-color: #f9f9f9;
-    flex: 1;
-    overflow-y: auto;
   }
-  .class-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1rem;
-  }
-  
-  .class-card {
-    background-color: #e2e2ec;
-    padding: 1rem;
-    border-radius: 0.5rem;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    cursor: pointer;
-  }
-  
-  .class-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.15);
-  }
-  
-  .class-title {
-    font-size: 1.125rem;
-    font-weight: 600;
-  }
-  
-  .avatar {
-    width: 3rem;
-    height: 3rem;
-    background-color: #9ca3af;
-    border-radius: 9999px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: white;
-  }
-  
-  .header-fixed {
-    position: sticky;
-    top: 0;
-    background-color: white;
-    z-index: 1000;
-    padding: 1rem 1.5rem;
-    border-bottom: 1px solid #e5e7eb;
+
+  .main-content {
     width: 100%;
+    padding: 1rem;
   }
-  
-  /* Đảm bảo không bị tràn nếu là student/teacher */
-  .header {
-    background-color: white;
-    padding: 1rem 1.5rem;
-    border-bottom: 1px solid #e5e7eb;
-  }
-  
-  /* Các phần còn lại giữ nguyên như bạn có (search-bar, class-card...) */
-  
-  /* Responsive */
-  @media (max-width: 768px) {
-    .body {
-      flex-direction: column;
-    }
-  
-    .hamburgerBar {
-      display: block;
-    }
-  
-    .sidebar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      height: 100vh;
-      width: 250px;
-      transform: translateX(-100%);
-      z-index: 998;
-      background-color: white;
-      box-shadow: 2px 0 5px rgba(0,0,0,0.1);
-    }
-  
-    .showSidebar {
-      transform: translateX(0);
-    }
-  
-    .containerAdmin {
-      max-width: 100%;
-      margin: 0;
-      padding: 1rem;
-    }
-  
-    .main-content {
-      width: 100%;
-      padding: 1rem;
-    }
-  }
-  
+}

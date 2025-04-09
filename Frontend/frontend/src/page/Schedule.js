@@ -5,6 +5,7 @@ import { DatePicker, notification } from "antd";
 import { SmileOutlined } from "@ant-design/icons";
 import styles from "./Schedule.module.css";
 import Header from "../components/Header";
+import {jwtDecode} from "jwt-decode"; 
 
 function Schedule() {
   const timeSlots = [
@@ -18,13 +19,13 @@ function Schedule() {
   const [schedules, setSchedules] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedWeek, setSelectedWeek] = useState(moment());
-  // State để lưu thông tin notification
   const [notifData, setNotifData] = useState(null);
   const token = localStorage.getItem("accessToken");
+  const decoded = jwtDecode(token);
+  const isStudent = decoded.Role && decoded.Role.toLowerCase() === "student";
   const smileIcon = <SmileOutlined />;
   const [api, contextHolder] = notification.useNotification();
 
-  // Sử dụng useEffect để trigger notification khi notifData thay đổi
   useEffect(() => {
     if (notifData) {
       api.open({
@@ -40,7 +41,7 @@ function Schedule() {
       setNotifData(null);
     }
   }, [notifData, api]);
-
+  console.log(schedules);
   useEffect(() => {
     const fetchSchedule = async () => {
       try {
@@ -70,7 +71,6 @@ function Schedule() {
 
   const weekDays = getWeekDays();
 
-  // Hàm lọc lịch học theo ngày và khung giờ
   const getScheduleForCell = (weekDate, slot) => {
     return schedules.filter((item) => {
       const itemDate = moment(item.Day);
@@ -78,7 +78,6 @@ function Schedule() {
     });
   };
 
-  // Xử lý khi người dùng thay đổi tuần trên DatePicker
   const onWeekChange = (date) => {
     if (date) {
       const selectedDate = moment(date.toDate());
@@ -87,34 +86,18 @@ function Schedule() {
     }
   };
 
-// Hàm xử lý khi người dùng click vào lịch học
-const handleAttendance = async (scheduleId) => {
-  try {
-    // Gửi yêu cầu lấy dữ liệu điểm danh cho lịch học
-    const res = await axios.get(
-      `http://localhost:8000/attendance/get-attendance/${scheduleId}`,
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
-
-    // Kiểm tra xem dữ liệu điểm danh có thành công không
-    if (res.data && res.data.success) {
-      // Nếu thành công, chuyển hướng đến trang điểm danh
+  const handleAttendance = async (scheduleId) => {
+    try {
+      await axios.get(
+        `http://localhost:8000/attendance/get-attendance-by-schedule/${scheduleId}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
       window.location.href = `/attendance/${scheduleId}`;
-    } else {
-      // Nếu không thành công, hiển thị thông báo lỗi
-      setNotifData({
-        type: "error",
-        detailMessage: "Không thể lấy dữ liệu điểm danh. Vui lòng thử lại sau!",
-      });
+    } catch (err) {
+      const errorMessage = err.response?.data?.message || "Có lỗi xảy ra!";
+      setNotifData({ type: "error", detailMessage: errorMessage });
     }
-  } catch (err) {
-    // Hiển thị thông báo lỗi nếu gặp lỗi khi gọi API
-    setNotifData({
-      type: "error",
-      detailMessage: "Không thể lấy dữ liệu điểm danh. Vui lòng thử lại sau!",
-    });
-  }
-};
+  };
 
 
   if (loading) return <div>Đang tải lịch học...</div>;
@@ -170,6 +153,9 @@ const handleAttendance = async (scheduleId) => {
                                 Teacher: {sch.Class.Teacher.Fullname}
                                 <br />
                                 Room: {sch.Address}
+                                <br />
+                                {isStudent ? <span>Status: {sch.Attendances[0].IsPresent}</span> : <span></span>}
+                                
                               </div>
                             </div>
                           ))

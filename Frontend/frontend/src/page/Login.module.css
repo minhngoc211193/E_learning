@@ -4,8 +4,19 @@
     align-items: center;
     height: 100vh;
     background: rgb(245,246,247);
+    padding: 10px; /* thêm chút padding cho màn hình nhỏ */
 }
 
+.content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    max-width: 800px;
+    width: 100%;
+}
+
+/* Form đăng nhập */
 .content form {
     width: 350px;
     padding: 36px;
@@ -14,13 +25,20 @@
     text-align: center;
 }
 
-.content{
+/* Phần hình ảnh bên cạnh form */
+.imageSection {
     display: flex;
-    justify-content: center;
-    align-items: center;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    height: 510px;
+    overflow: hidden;
+    border-radius: 0 10px 10px 0;
 }
 
+.imageSection img {
+    border-radius: 0 10px 10px 0;
+    width: 100%;
+}
+
+/* Các style mặc định khác */
 .content h1 {
     font-size: 40px;
     color: #333;
@@ -55,7 +73,7 @@
     text-decoration: underline;
 }
 
-.btnSignIn{
+.btnSignIn {
     width: 100%;
     padding: 12px;
     background: #007bff;
@@ -73,20 +91,27 @@
     background: #0056b3;
 }
 
-.imageSection{
-    display: flex;
-    height: 510px;
-    overflow: hidden;
-    border-radius: 0 10px 10px 0;
-}
-
-.image{
-    border-radius: 0 10px 10px 0;
-}
-
-.errorMessage{
+.errorMessage {
     margin-top: -15px;
     margin-bottom: 0;
     color: red;
     font-size: 11px;
+}
+
+/* Responsive: Điều chỉnh giao diện cho màn hình nhỏ */
+@media (max-width: 768px) {
+    .content {
+        flex-direction: column;
+    }
+    
+    /* Form: Hiển thị full width và bo tròn đều */
+    .content form {
+        width: 80%;
+        border-radius: 10px;
+    }
+    
+    /* Ẩn phần hình ảnh hoặc đặt bên dưới form */
+    .imageSection {
+        display: none;
+    }
 }

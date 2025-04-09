@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 import styles from './CreateMeet.module.css';
+import { notification } from "antd";
 
 function CreateMeet({ selectedConversationId, setIsMeetingFormVisible }) {
   const [meeting, setMeeting] = useState({
@@ -14,6 +15,25 @@ function CreateMeet({ selectedConversationId, setIsMeetingFormVisible }) {
 
   const navigate = useNavigate();
   const token = localStorage.getItem("accessToken");
+  const [api, contextHolder] = notification.useNotification();
+  
+    const openNotification = (type, detailMessage = "") => {
+      if (type === "success") {
+        api.open({
+          message: "Create meeting successfully!",
+          description: "Meeting has been created successfully.",
+          showProgress: true,
+          pauseOnHover: true,
+        });
+      } else {
+        api.open({
+          message: "Create meeting failed!",
+          description: detailMessage,
+          showProgress: true,
+          pauseOnHover: true,
+        });
+      }
+    };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -37,20 +57,20 @@ function CreateMeet({ selectedConversationId, setIsMeetingFormVisible }) {
     };
 
     if (!reason || !time) {
-      alert("Vui lòng điền đầy đủ lý do và thời gian cuộc họp.");
+      openNotification("error", "Vui lòng điền đầy đủ lý do và thời gian cuộc họp.");
       return;
     }
 
     const currentTime = new Date();
     const selectedTime = new Date(time);
     if (selectedTime <= currentTime) {
-      alert("Thời gian cuộc họp phải sau thời gian hiện tại.");
+      openNotification("error", "Thời gian cuộc họp phải sau thời gian hiện tại.");
       return;
     }
 
     try {
       if (role !== 'student') {
-        alert("Bạn không có quyền tạo cuộc họp. Chỉ học sinh mới có thể thực hiện.");
+        openNotification("error", "Bạn không có quyền tạo cuộc họp. Chỉ học sinh mới có thể thực hiện.");
         return;
       }
 
@@ -59,17 +79,18 @@ function CreateMeet({ selectedConversationId, setIsMeetingFormVisible }) {
         MeetingData, 
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      alert(res.data.message);
+      openNotification("success");
       setIsMeetingFormVisible(false); // Đóng form khi tạo thành công
-      navigate("/messenger");
+      setTimeout(() => navigate("/messenger"),2000);
     } catch (error) {
-      console.error("Lỗi khi tạo cuộc họp:", error);
-      alert("Đã có lỗi xảy ra khi tạo cuộc họp.");
+      const errorMessage = error.response?.data?.message || "Have problem, plase try again!";
+      openNotification("error", errorMessage);
     }
   };
 
   return (
     <div className={styles["create-meet-container"]}>
+      {contextHolder}
       <h3 className={styles["create-meet-title-bold"]}>
         Tạo cuộc họp với {selectedConversationId?.teacherId?.Fullname || "Giáo viên chưa xác định"}
       </h3>

@@ -3,7 +3,8 @@ import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import styles from "./EditClass.module.css";
 import { jwtDecode } from 'jwt-decode';
-import Header from '../components/Header';
+import Menu from '../components/Menu';
+import { notification } from "antd";
 
 const EditClass = () => {
   const { classId } = useParams();
@@ -20,14 +21,26 @@ const EditClass = () => {
   const [subjects, setSubjects] = useState([]);
   const [teachers, setTeachers] = useState([]);
   const [students, setStudents] = useState([]);
-  const [message, setMessage] = useState("");
-  const [messageType, setMessageType] = useState("");
+  const [api, contextHolder] = notification.useNotification();
+  
+      const openNotification = (type, detailMessage = "") => {
+          if (type === "success") {
+              api.open({
+                  message: "Action uccessfully!",
+                  description: "Your action has been successfully.",
+                  showProgress: true,
+                  pauseOnHover: true,
+              });
+          } else {
+              api.open({
+                  message: "Failed!",
+                  description: detailMessage,
+                  showProgress: true,
+                  pauseOnHover: true,
+              });
+          }
+      };
 
-  const showMessage = (msg, type) => {
-    setMessage(msg);
-    setMessageType(type);
-    setTimeout(() => setMessage(""), 3000);
-  };
 
   // Lấy thông tin lớp học
   const fetchClassInfo = async () => {
@@ -35,7 +48,7 @@ const EditClass = () => {
     try {
       const decoded = jwtDecode(token);
       if (decoded.Role !== "admin") {
-        showMessage("Bạn không có quyền chỉnh sửa lớp!", "error");
+        openNotification("error", "Bạn không có quyền chỉnh sửa lớp!");
         navigate("/");
         return;
       }
@@ -54,7 +67,8 @@ const EditClass = () => {
         });
       }
     } catch (e) {
-      showMessage("Không thể lấy thông tin lớp học.", e);
+      const errorMessage = e.response?.data?.message || "Have problem, plase try again!";
+            openNotification("error", errorMessage);
     }
   };
 
@@ -80,7 +94,7 @@ const EditClass = () => {
 
       axios
         .get(`http://localhost:8000/user/users-by-major/${classData.Major}?Role=student`, {
-            // search user
+          // search user
           headers: { Authorization: `Bearer ${token}` },
         })
         .then((res) => setStudents(res.data));
@@ -100,26 +114,26 @@ const EditClass = () => {
     setClassData((prevState) => {
       // Kiểm tra học sinh đã có trong lớp chưa
       const isStudentInClass = prevState.Students.some((classStudent) => classStudent._id === studentId);
-      
+
       // Nếu học sinh đã có trong lớp, bỏ học sinh khỏi lớp
       // Nếu học sinh chưa có trong lớp, thêm học sinh vào lớp
       const newStudents = isStudentInClass
         ? prevState.Students.filter((classStudent) => classStudent._id !== studentId) // Xóa học sinh khỏi lớp
         : [...prevState.Students, { _id: studentId }]; // Thêm học sinh vào lớp (chỉ cần thêm _id)
-  
+
       return { ...prevState, Students: newStudents };
     });
   };
-  
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = {
       Classname: classData.Classname,
-    //   Major: classData.Major,
+      //   Major: classData.Major,
       subjectId: classData.Subject,
       Teacher: classData.Teacher,
-      Student: classData.Students.map((student) => student._id), 
+      Student: classData.Students.map((student) => student._id),
       Slots: classData.Slot,
     };
 
@@ -129,18 +143,20 @@ const EditClass = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       console.log(response.data);
-      showMessage("Cập nhật lớp học thành công", "success");
-      navigate(`/manageclass`);
+      openNotification("success");
+      setTimeout(() =>navigate(`/manageclass`),2000);
     } catch (error) {
-      showMessage(`Lỗi cập nhật lớp học: ${error.response?.data?.message || error.message}`, "error");
+      const errorMessage = error.response?.data?.message || "Have problem, plase try again!";
+            openNotification("error", errorMessage);
     }
   };
 
   return (
     <div className={styles.createPage}>
-      <Header />
-      {message && <p className={`${styles.message} ${messageType === "error" ? styles.error : styles.success}`}>{message}</p>}
+      {contextHolder}
+      <Menu />
       <form onSubmit={handleSubmit} className={styles.form}>
+        <button className={styles.backBtn} onClick={() => navigate(-1)}>← Back</button>
         <h1 className={styles.title}>Edit Class</h1>
         <div className={styles.formGrid}>
           <input
@@ -150,17 +166,15 @@ const EditClass = () => {
             value={classData.Classname}
             onChange={handleChange}
             className={styles.input}
-            required
           />
-            <div className={styles.select}>
-                 <span>{majors.find((major) => major._id === classData.Major)?.Name || "N/A"}</span>
-            </div>
-            <select
+          <div className={styles.select}>
+            <span>{majors.find((major) => major._id === classData.Major)?.Name || "N/A"}</span>
+          </div>
+          <select
             name="Subject"
             value={classData.Subject}
             onChange={handleChange}
             className={styles.select}
-            required
           >
             <option value="">Select Subject</option>
             {subjects.map((subject) => (
@@ -174,7 +188,6 @@ const EditClass = () => {
             value={classData.Teacher}
             onChange={handleChange}
             className={styles.select}
-            required
           >
             <option value="">Select Teacher</option>
             {teachers.map((teacher) => (
@@ -190,22 +203,21 @@ const EditClass = () => {
             value={classData.Slot}
             onChange={handleChange}
             className={styles.input}
-            required
           />
-            <div className={styles.students}>
-  <h3>Students</h3>
-  {students.map((student) => (
-    <div key={student._id} className={styles.studentItem}>
-      <input
-        type="checkbox"
-        checked={classData.Students.some((classStudent) => classStudent._id === student._id)} // Sử dụng .some để kiểm tra sự tồn tại của học sinh trong lớp
-        onChange={() => handleStudentChange(student._id)}  // Xử lý sự kiện thay đổi khi click
-        // disabled={classData.Students.includes(student._id)} // Nếu học sinh đã có trong lớp, không thể thay đổi
-      />
-      <span>{student.Fullname}</span>
-    </div>
-  ))}
-</div>
+          <div className={styles.students}>
+            <h3>Students</h3>
+            {students.map((student) => (
+              <div key={student._id} className={styles.studentItem}>
+                <input
+                  type="checkbox"
+                  checked={classData.Students.some((classStudent) => classStudent._id === student._id)} // Sử dụng .some để kiểm tra sự tồn tại của học sinh trong lớp
+                  onChange={() => handleStudentChange(student._id)}  // Xử lý sự kiện thay đổi khi click
+                // disabled={classData.Students.includes(student._id)} // Nếu học sinh đã có trong lớp, không thể thay đổi
+                />
+                <span>{student.Fullname}</span>
+              </div>
+            ))}
+          </div>
 
 
           <button type="submit" className={styles.create}>

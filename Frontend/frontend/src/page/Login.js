@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import styles from "./Login.module.css";
 import studyImg from "../assets/study.jpg";
 import axios from "axios";
-import { jwtDecode } from "jwt-decode";
 
 function Login() {
     const [email, setEmail] = useState("");
@@ -14,19 +13,10 @@ function Login() {
         setError("");
     
         try {
-            const res = await axios.post("http://localhost:8000/auth/login", { Email: email, Password: password });
-    
+            const res = await axios.post("http://localhost:8000/auth/login", { Email: email, Password: password })
             // Lưu token & chuyển hướng
             localStorage.setItem("accessToken", res.data.accessToken);
-            const token = localStorage.getItem("accessToken");
-            const decoded = jwtDecode(token);
-            const userRole = decoded.Role;
-            if(userRole === "admin") {
-                window.location.href = "/dashboard";
-            } else {
                 window.location.href = "/home";
-            }
-    
         } catch (err) {
             if (err.response) {
                 if (err.response.data.errors) {
@@ -51,7 +41,7 @@ function Login() {
                     <button className={styles.btnSignIn} type="submit">Sign In</button>
                 </form>
                 <div className={styles.imageSection}>
-                    <img src={studyImg} className={styles.image} alt="" />
+                    <img src={studyImg} alt="" />
                 </div>
             </div>
         </div>

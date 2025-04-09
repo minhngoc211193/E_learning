@@ -1,8 +1,16 @@
+.body{
+  display: flex;
+  font-family: var(--font-family-sans-serif);
+  height: 100vh;
+  width: 100%;
+}
+.bodyUser{
+  height: 100vh;
+  width: 100%;
+}
 .container {
     padding: 2rem;
-    background-color: #f9f9f9;
-    max-width: 1200px;
-    margin: 0 auto;
+    width: 100%;
   }
   
   .title {
@@ -63,5 +71,19 @@
     text-align: center;
     font-size: 1.5rem;
     margin-top: 2rem;
+  }
+
+  .backBtn {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #1976d2;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  
+  .backBtn:hover {
+    background-color: #125cb3;
   }
   

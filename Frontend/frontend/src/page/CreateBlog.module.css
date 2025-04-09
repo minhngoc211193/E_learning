@@ -137,13 +137,60 @@
     height: 150px !important;
 }
 
-/* Responsive adjustments */
+@media (max-width: 1024px) {
+    .createNewBlogContainer {
+        width: 80%;
+    }
+
+    .createNewBlogForm {
+        width: 90%;
+    }
+}
+
 @media (max-width: 768px) {
     .createNewBlogContainer {
-        width: 90%;
+        width: 95%;
+        padding: 15px;
     }
 
     .createNewBlogForm {
         width: 100%;
+    }
+
+    .formGroup input[type="text"],
+    .content {
+        font-size: 14px;
+        padding: 10px;
+    }
+
+    .submitButton {
+        width: 100%;
+        text-align: center;
+    }
+
+    .heading {
+        font-size: 24px;
+    }
+}
+
+@media (max-width: 480px) {
+    .createNewBlogContainer {
+        width: 90%;
+        border-radius: 10px;
+        box-shadow: none;
+    }
+
+    .formGroup label {
+        font-size: 14px;
+    }
+
+    .formGroup input[type="text"],
+    .content {
+        font-size: 14px;
+    }
+
+    .avatar-uploader {
+        width: 120px;
+        height: 120px;
     }
 }
