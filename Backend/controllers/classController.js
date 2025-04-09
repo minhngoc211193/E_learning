@@ -42,7 +42,7 @@ const classController = {
             // Kiểm tra xem Subject có tồn tại không
             const subjectExists = await Subject.findById(subjectId).populate('Major');
             if (!subjectExists) {
-                return res.status(404).json({ message: "Không tìm thấy Subject" });
+                return res.status(404).json({ message: "Subject not found" });
             }
 
             // Kiểm tra nếu môn học thuộc ngành của Major, thì chỉ sinh viên và giáo viên thuộc ngành đó mới được tham gia
@@ -51,14 +51,14 @@ const classController = {
             // Kiểm tra giáo viên có thuộc ngành môn học này không
             const teacher = await User.findById(Teacher).populate('Major');
             if (!teacher || !teacher.Major || teacher.Major._id.toString() !== subjectMajorId.toString()) {
-                return res.status(400).json({ message: "Giáo viên phải thuộc ngành của môn học này" });
+                return res.status(400).json({ message: "Teachers must be experts in this subject." });
             }
 
             // Kiểm tra học sinh có thuộc ngành môn học này không
             for (const studentId of Student) {
                 const student = await User.findById(studentId).populate('Major');
                 if (!student || !student.Major || student.Major._id.toString() !== subjectMajorId.toString()) {
-                    return res.status(400).json({ message: `Học sinh ${student.Fullname} không thuộc ngành của môn học này` });
+                    return res.status(400).json({ message: `Student ${student.Fullname} not related to this subject` });
                 }
             }
 
@@ -70,7 +70,7 @@ const classController = {
                 });
 
                 if (existingClass) {
-                    return res.status(400).json({ message: `Học sinh với ID ${studentId} đã tham gia lớp học môn này` });
+                    return res.status(400).json({ message: `Student with ID ${studentId} have taken this course` });
                 }
             }
 
@@ -95,11 +95,11 @@ const classController = {
                 const mailOptions = {
                     from: process.env.EMAIL_USER,
                     to: teacherInfo.Email, // Email của teacher
-                    subject: "Thông báo: Bạn vừa được phân công giảng dạy lớp mới",
-                    text: `Xin chào ${teacherInfo.Fullname},\n\n` +
-                        `Bạn vừa được phân công giảng dạy lớp: ${Classname}.\n` +
-                        `Vui lòng kiểm tra hệ thống để biết thêm chi tiết.\n\n` +
-                        `Trân trọng,`
+                    subject: "Notice: You have just been assigned to teach a new class.",
+                    text: `Hi, ${teacherInfo.Fullname},\n\n` +
+                        `You have just been assigned to teach the class: ${Classname}.\n` +
+                        `Please check the system for more details.\n\n` +
+                        `Best regards,`
                 };
                 await transporter.sendMail(mailOptions);
             }
@@ -111,11 +111,11 @@ const classController = {
                     const mailOptions = {
                         from: process.env.EMAIL_USER,
                         to: studentInfo.Email,
-                        subject: "Thông báo: Bạn vừa được thêm vào lớp mới",
-                        text: `Xin chào ${studentInfo.Fullname},\n\n` +
-                            `Bạn vừa được thêm vào lớp: ${Classname}.\n` +
-                            `Vui lòng kiểm tra hệ thống để biết thêm chi tiết.\n\n` +
-                            `Trân trọng,`
+                        subject: "Notice: You have just been added to a new class.",
+                        text: `Hi ${studentInfo.Fullname},\n\n` +
+                            `You have just been added to the class: ${Classname}.\n` +
+                            `Please check the system for more details.\n\n` +
+                            `Best regards,`
                     };
                     await transporter.sendMail(mailOptions);
                 }
@@ -137,7 +137,7 @@ const classController = {
 
             res.status(201).json(savedClass);
         } catch (err) {
-            res.status(500).json({ message: "Tạo lớp thất bại", error: err.message });
+            res.status(500).json({ message: "Create failed class", error: err.message });
         }
     },
 
@@ -149,7 +149,7 @@ const classController = {
                 .populate({ path: "Student", select: "Fullname" });
             res.status(200).json(classes);
         } catch (err) {
-            res.status(500).json({ message: "Không tải được lớp học", error: err.message });
+            res.status(500).json({ message: "Unable to load class", error: err.message });
         }
     },
 
@@ -163,11 +163,11 @@ const classController = {
             // .populate("Schedules")
 
 
-            if (!classData) return res.status(404).json({ message: "Không tìm thấy lớp" });
+            if (!classData) return res.status(404).json({ message: "Class not found" });
 
             res.status(200).json(classData);
         } catch (err) {
-            res.status(500).json({ message: "Không thể tải lớp học", error: err.message });
+            res.status(500).json({ message: "Unable to load class", error: err.message });
         }
     },
 
@@ -183,12 +183,12 @@ const classController = {
 
             // .populate("Documents");
             if (classes.length === 0) {
-                return res.status(404).json({ message: "Không có lớp nào trong môn này" });
+                return res.status(404).json({ message: "There are no classes in this subject." });
             }
 
             res.status(200).json(classes);
         } catch (err) {
-            res.status(500).json({ message: "Không thể tải lớp học", error: err.message });
+            res.status(500).json({ message: "Unable to load class", error: err.message });
         }
     },
 
@@ -202,11 +202,11 @@ const classController = {
                 .populate({ path: "Student", select: "Fullname" });
 
             if (classes.length === 0) {
-                return res.status(404).json({ message: "Bạn hiện không có trong lớp nào" });
+                return res.status(404).json({ message: "You are not in any classes at the moment." });
             }
             res.status(200).json(classes);
         } catch (err) {
-            res.status(500).json({ message: "Không thể tải lớp học", error: err.message });
+            res.status(500).json({ message: "Unable to load class", error: err.message });
         }
     },
 
@@ -224,18 +224,12 @@ const classController = {
             if (!classNamePattern.test(Classname)) {
                 return res.status(400).json({ message: "Classname format is invalid" });
             }
-    
-            // Check if Classname already exists (unique constraint check)
-            // const existingClass = await Class.findOne({ Classname });
-            // if (existingClass) {
-            //     return res.status(400).json({ message: `Classname '${Classname}' already exists` });
-            // }
 
 
             // Tìm lớp học cần cập nhật
             const updatedClass = await Class.findById(classId).populate("Teacher").populate("Student");
             if (!updatedClass) {
-                return res.status(404).json({ message: "Không tìm thấy lớp học" });
+                return res.status(404).json({ message: "No class found" });
             }
             if (Classname && Classname.toLowerCase() !== updatedClass.Classname.toLowerCase()) {
                 // Kiểm tra Classname có hợp lệ không
@@ -256,8 +250,6 @@ const classController = {
                 }
             }
 
-
-
             // Lưu lại thông tin trước khi cập nhật
             const oldTeacherId = updatedClass.Teacher?._id.toString() || null;
             const oldStudentIds = updatedClass.Student.map(s => s._id.toString());
@@ -265,20 +257,20 @@ const classController = {
             // Kiểm tra Subject
             const subjectExists = await Subject.findById(subjectId).populate('Major');
             if (!subjectExists) {
-                return res.status(404).json({ message: "Không tìm thấy Subject" });
+                return res.status(404).json({ message: "Subject not found" });
             }
 
             // Kiểm tra giáo viên hợp lệ
             const teacher = await User.findById(Teacher).populate('Major');
             if (!teacher || !teacher.Major || teacher.Major._id.toString() !== subjectExists.Major._id.toString()) {
-                return res.status(400).json({ message: "Giáo viên phải thuộc ngành của môn học này" });
+                return res.status(400).json({ message: "Teachers must be experts in this subject." });
             }
 
             // Kiểm tra học sinh hợp lệ
             for (const studentId of Student) {
                 const student = await User.findById(studentId).populate('Major');
                 if (!student || !student.Major || student.Major._id.toString() !== subjectExists.Major._id.toString()) {
-                    return res.status(400).json({ message: `Học sinh ${student.Fullname} không thuộc ngành của môn học này` });
+                    return res.status(400).json({ message: `Students ${student.Fullname} not in the major of this subject` });
                 }
             }
 
@@ -287,7 +279,7 @@ const classController = {
             for (const studentId of newStudents) {
                 const existingClass = await Class.findOne({ Subject: subjectExists._id, Student: studentId });
                 if (existingClass) {
-                    return res.status(400).json({ message: `Học sinh với ID ${studentId} đã tham gia lớp học môn này` });
+                    return res.status(400).json({ message: `Students with ID ${studentId} have taken this course` });
                 }
             }
 
@@ -307,8 +299,10 @@ const classController = {
                     await transporter.sendMail({
                         from: process.env.EMAIL_USER,
                         to: newTeacher.Email,
-                        subject: "Thông báo: Bạn vừa được phân công vào lớp mới",
-                        text: `Xin chào ${newTeacher.Fullname},\n\nBạn vừa được phân công giảng dạy lớp: ${savedClass.Classname}.\nVui lòng kiểm tra hệ thống.`
+                        subject: "Notice: You have just been assigned to a new class.",
+                        text: `Hi ${newTeacher.Fullname},\n\n
+                        You have just been assigned to teach the class: ${savedClass.Classname}.\n
+                        Please check the system.`
                     });
                 }
                 if (oldTeacherId) {
@@ -317,8 +311,9 @@ const classController = {
                         await transporter.sendMail({
                             from: process.env.EMAIL_USER,
                             to: oldTeacher.Email,
-                            subject: "Thông báo: Bạn vừa bị gỡ khỏi lớp",
-                            text: `Xin chào ${oldTeacher.Fullname},\n\nBạn vừa bị gỡ khỏi lớp: ${savedClass.Classname}.`
+                            subject: "Note: You have just been removed from the class.",
+                            text: `Hi ${oldTeacher.Fullname},\n\n
+                            You have just been removed from the class: ${savedClass.Classname}.`
                         });
                     }
                 }
@@ -364,8 +359,9 @@ const classController = {
                     await transporter.sendMail({
                         from: process.env.EMAIL_USER,
                         to: addedStudent.Email,
-                        subject: "Thông báo: Bạn vừa được thêm vào lớp",
-                        text: `Xin chào ${addedStudent.Fullname},\n\nBạn vừa được thêm vào lớp: ${savedClass.Classname}.`
+                        subject: "Notice: You have just been added to the class.",
+                        text: `Hi ${addedStudent.Fullname},\n\n
+                        You have just been added to the class: ${savedClass.Classname}.`
                     });
                 }
             }
@@ -376,8 +372,9 @@ const classController = {
                     await transporter.sendMail({
                         from: process.env.EMAIL_USER,
                         to: removedStudent.Email,
-                        subject: "Thông báo: Bạn vừa bị gỡ khỏi lớp",
-                        text: `Xin chào ${removedStudent.Fullname},\n\nBạn vừa bị gỡ khỏi lớp: ${savedClass.Classname}.`
+                        subject: "Notice: You have just been removed from the class.",
+                        text: `Hi ${removedStudent.Fullname},\n\n
+                        You have just been removed from the class: ${savedClass.Classname}.`
                     });
                 }
             }
@@ -389,7 +386,7 @@ const classController = {
             res.status(200).json(savedClass);
 
         } catch (err) {
-            res.status(500).json({ message: "Cập nhật lớp thất bại", error: err.message });
+            res.status(500).json({ message: "Class update failed", error: err.message });
         }
     },
     // Xóa lớp học theo ID
@@ -418,9 +415,9 @@ const classController = {
             io.emit('deleteClass', req.params.id);
 
 
-            res.status(200).json({ message: "Xóa lớp và các đối tượng liên quan thành công" });
+            res.status(200).json({ message: "Delete layer and related objects successfully" });
         } catch (err) {
-            res.status(500).json({ message: "Xóa thất bại", error: err.message });
+            res.status(500).json({ message: "Delete failure", error: err.message });
         }
     },
 
@@ -428,15 +425,15 @@ const classController = {
         try {
             const { search } = req.query;
             if (!search) {
-                return res.status(400).json({ message: "Vui lòng nhập từ khóa tìm kiếm" });
+                return res.status(400).json({ message: "Please enter search keyword" });
             }
             const classes = await Class.find({ Classname: { $regex: search, $options: "i" } });
             if (classes.length === 0) {
-                return res.status(404).json({ message: "Không tìm thấy lớp học" });
+                return res.status(404).json({ message: "No class found" });
             }
             res.status(200).json(classes);
         } catch (err) {
-            res.status(500).json({ message: "Tìm kiếm lớp học thất bại", error: err.message });
+            res.status(500).json({ message: "Search for failed classes", error: err.message });
         }
     }
 };

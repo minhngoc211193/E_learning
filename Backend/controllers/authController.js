@@ -31,14 +31,14 @@ const authController = {
 
             const existingUser = await User.findOne({ Email });
             if (existingUser) {
-                return res.status(400).json({ message: "Username or email already exists" });
+                return res.status(400).json({ message: "Email already exists" });
             }
 
             if ((Role === 'student' || Role === 'teacher') && !MajorId) {
                 return res.status(400).json({ message: "Major is required for student or teacher roles" });
             }
 
-            // ✅ 1. Tạo mật khẩu ngẫu nhiên
+            // Tạo mật khẩu ngẫu nhiên
             const randomPassword = generateRandomPassword();
             const hashedPassword = await bcrypt.hash(randomPassword, 10);
 
@@ -131,27 +131,27 @@ const authController = {
             const io = req.app.get('io');
             io.emit('newUser', savedUser);
 
-            // ✅ 3. Gửi email thông tin đăng nhập cho user
+            // Gửi email thông tin đăng nhập cho user
             const mailOptions = {
                 from: process.env.EMAIL_USER,
                 to: Email,
-                subject: "Tài khoản mới của bạn tại Greenwich 🎓",
+                subject: "Your new account at Greenwich 🎓",
                 text: `📢 Xin chào ${Fullname},
             
-            Chúng tôi là admin của Greenwich.
+            We are the admins of Greenwich.
             
-            🎉 Chúc mừng! Tài khoản của bạn đã được tạo thành công.
+            🎉 Congratulations! Your account has been successfully created.
             
-            🔹 Thông tin đăng nhập:
+            🔹 Login information:
             📧 Email: ${Email}
-            🔑 Mật khẩu: ${randomPassword}
+            🔑 Password: ${randomPassword}
             
-            ⚠️ Lưu ý: Vui lòng đăng nhập ngay và thay đổi mật khẩu để bảo mật tài khoản.
+            ⚠️ Note: Please log in now and change your password to secure your account.
             
-            💡 Nếu có bất kỳ vấn đề gì, hãy liên hệ với đội ngũ hỗ trợ thông qua số điện thoại: 0969925773.
+            💡 If there is any problem, please contact the support team via phone number: 0969925773.
             
-            Trân trọng,
-            🚀 Đội ngũ quản trị hệ thống Greenwich`
+            Best regards,
+            🚀 Greenwich System Administration Team`
             };
 
             await transporter.sendMail(mailOptions);
@@ -185,18 +185,10 @@ const authController = {
             // Loại bỏ thông tin mật khẩu trước khi gửi response
             const { Password, ...others } = user.toObject();
 
-            // Đặt cookie chứa token
-            // res.cookie("token", accessToken, {
-            //     httpOnly: true,
-            //     secure: process.env.NODE_ENV === "production",
-            //     sameSite: "strict"
-
-            // });
-
             // Nếu đây là lần đăng nhập đầu tiên, trả về flag firstLogin kèm accessToken
             if (user.firstLogin) {
                 return res.status(200).json({
-                    message: "Bạn cần đổi mật khẩu trước khi tiếp tục",
+                    message: "You need to change your password before continuing.",
                     user: others,
                     accessToken,
                     firstLogin: true
@@ -270,7 +262,7 @@ const authController = {
     
             if (!isStrongPassword(newPassword)) {
                 return res.status(400).json({
-                    message: "Mật khẩu mới phải có nhiều hơn 8 ký tự, bao gồm chữ hoa, chữ thường, số, ký tự đặc biệt và không chứa khoảng trắng",
+                    message: "New password must be more than 8 characters, include uppercase, lowercase, numbers, special characters and no spaces",
                 });
             }
 
@@ -293,7 +285,7 @@ const authController = {
             // 1. Kiểm tra user có tồn tại không
             const user = await User.findOne({ Email });
             if (!user) {
-                return res.status(400).json({ message: "Email không tồn tại" });
+                return res.status(400).json({ message: "Email does not exist" });
             }
 
             // 2. Tạo mã OTP (6 số ngẫu nhiên)
@@ -304,13 +296,13 @@ const authController = {
             const mailOptions = {
                 from: process.env.EMAIL_USER,
                 to: Email,
-                subject: "🔐 Yêu cầu đặt lại mật khẩu",
-                text: `Mã OTP của bạn là: ${otpCode}. Mã này có hiệu lực trong 5 phút.`
+                subject: "🔐 Password reset request",
+                text: `Your OTP code is: ${otpCode}. This code is valid for 5 minutes.`
             };
 
             await transporter.sendMail(mailOptions);
 
-            res.status(200).json({ message: "OTP đã được gửi đến email của bạn" });
+            res.status(200).json({ message: "OTP has been sent to your email" });
         } catch (err) {
             console.error("❌ Send OTP Error:", err);
             res.status(500).json({ message: "Error sending OTP" });
@@ -323,17 +315,17 @@ const authController = {
 
             // 1. Kiểm tra OTP có hợp lệ không
             if (!otpStorage[Email] || otpStorage[Email].expiresAt < Date.now()) {
-                return res.status(400).json({ message: "OTP không hợp lệ hoặc đã hết hạn" });
+                return res.status(400).json({ message: "OTP is invalid or expired" });
             }
 
             if (otpStorage[Email].otp !== parseInt(otp)) {
-                return res.status(400).json({ message: "OTP không đúng" });
+                return res.status(400).json({ message: "OTP is incorrect" });
             }
 
             // Xóa OTP khỏi bộ nhớ tạm
             delete otpStorage[Email];
 
-            res.status(200).json({ message: "OTP hợp lệ, bạn có thể đặt lại mật khẩu" });
+            res.status(200).json({ message: "OTP is valid, you can reset password" });
         } catch (err) {
             console.error("❌ Verify OTP Error:", err);
             res.status(500).json({ message: "Error verifying OTP" });
@@ -358,7 +350,7 @@ const authController = {
     
             if (!isStrongPassword(newPassword)) {
                 return res.status(400).json({
-                    message: "Mật khẩu mới phải có nhiều hơn 8 ký tự, bao gồm chữ hoa, chữ thường, số, ký tự đặc biệt và không chứa khoảng trắng",
+                    message: "New password must be more than 8 characters, include uppercase, lowercase, numbers, special characters and no spaces",
                 });
             }
 
@@ -367,7 +359,7 @@ const authController = {
             user.Password = hashedNewPassword;
             await user.save();
 
-            res.status(200).json({ message: "Mật khẩu đã được cập nhật thành công" });
+            res.status(200).json({ message: "Password updated successfully" });
         } catch (err) {
             console.error("❌ Reset Password Error:", err);
             res.status(500).json({ message: "Error resetting password" });

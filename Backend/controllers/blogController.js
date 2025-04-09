@@ -14,17 +14,17 @@ const blogController = {
                 // Kiểm tra loại file ảnh
                 const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
                 if (!allowedTypes.includes(file.mimetype)) {
-                    return res.status(400).json({ message: 'Bạn chỉ có thể tải lên file (jpg, jpeg, png)' });
+                    return res.status(400).json({ message: 'You can only upload files (jpg, jpeg, png)' });
                 }
     
                 // Kiểm tra kích thước file (3MB) trong controller
                 const maxSize = 3 * 1024 * 1024; // 3MB
                 if (file.size > maxSize) {
-                    return res.status(400).json({ message: 'Kích thước file vượt quá giới hạn (3MB)' });
+                    return res.status(400).json({ message: 'File size exceeded limit (3MB)' });
                 }
             }
 
-            if (!User) return res.status(400).json({ message: "Không có UserId" });
+            if (!User) return res.status(400).json({ message: "User not pound" });
             const newBlog = new Blog({ Title, Content, User, Image: file.buffer });
             const savedBlog = await newBlog.save();
 
@@ -45,7 +45,7 @@ const blogController = {
             const blogsWithImage = blogs.map(blog => {
                 let imageBase64 = null;
                 if (blog.Image) {
-                    const mimeType = mime.lookup(blog.Image) || 'image/png'; // Bạn có thể thay 'image/png' bằng kiểu MIME đúng nếu cần
+                    const mimeType = mime.lookup(blog.Image) || 'image/png'; 
                     imageBase64 = `data:${mimeType};base64,${blog.Image.toString('base64')}`;
                 }
 
@@ -131,12 +131,12 @@ const blogController = {
             const blog = await Blog.findById(req.params.id);
 
             if (!blog) {
-                return res.status(404).json({ message: "Không thấy Blog" });
+                return res.status(404).json({ message: "Blog not found" });
             }
 
             // Kiểm tra xem user có phải là người tạo blog không
             if (blog.User.toString() !== req.body.User.toString()) {
-                return res.status(403).json({ message: "Bạn không có quyền sửa bài blog này vì đây không phải blog của bạn" });
+                return res.status(403).json({ message: "You do not have permission to edit this blog post because this is not your blog." });
             }
 
             const { Title, Content, User } = req.body;
@@ -148,13 +148,13 @@ const blogController = {
                 // Kiểm tra loại file ảnh
                 const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
                 if (!allowedTypes.includes(file.mimetype)) {
-                    return res.status(400).json({ message: 'Bạn chỉ có thể tải lên file (jpg, jpeg, png)' });
+                    return res.status(400).json({ message: 'You can only upload files (jpg, jpeg, png)' });
                 }
     
                 // Kiểm tra kích thước file (3MB) trong controller
                 const maxSize = 3 * 1024 * 1024; // 3MB
                 if (file.size > maxSize) {
-                    return res.status(400).json({ message: 'Kích thước file vượt quá giới hạn (3MB)' });
+                    return res.status(400).json({ message: 'File size exceeded limit (3MB)' });
                 }
                 updateData.Image = file.buffer;
             }
@@ -173,12 +173,12 @@ const blogController = {
             const blog = await Blog.findById(req.params.id);
 
             if (!blog) {
-                return res.status(404).json({ message: "Blog không tồn tại" });
+                return res.status(404).json({ message: "Blog does not exist" });
             }
 
             // Kiểm tra xem người dùng hiện tại có phải là người tạo blog không
             if (blog.User.toString() !== req.user.id && req.user.Role !== 'admin') {
-                return res.status(403).json({ message: "Bạn không có quyền xóa bài blog này" });
+                return res.status(403).json({ message: "You do not have permission to delete this blog post." });
             }
 
             // Xóa tất cả các comment liên quan đến blog này
@@ -190,9 +190,9 @@ const blogController = {
             const io = req.app.get('io');
             io.emit('deleteBlog', req.params.id);
 
-            res.status(200).json({ message: "Xóa blog và các bình luận liên quan thành công" });
+            res.status(200).json({ message: "Deleted blog and related comments successfully" });
         } catch (err) {
-            res.status(500).json({ message: "Không thể xóa blog", error: err.message });
+            res.status(500).json({ message: "Unable to delete blog", error: err.message });
         }
     },
 
@@ -216,7 +216,7 @@ const blogController = {
 
             return res.status(200).json(blogsWithImage);
         } catch (err) {
-            res.status(500).json({ message: "Không thể lấy các blog của người dùng", error: err.message });
+            res.status(500).json({ message: "Unable to get user blogs", error: err.message });
         }
     },
 
@@ -224,12 +224,12 @@ const blogController = {
         try {
             const {search} = req.query;
             if (!search) {
-                return res.status(400).json({ message: "Vui lòng cung cấp từ khóa tìm kiếm" });
+                return res.status(400).json({ message: "Please provide search keywords" });
             }
             const blogs = await Blog.find({ Title: { $regex: search, $options: "i" } })
                 .populate("User", "Fullname Role Email");
             if (blogs.length === 0) {
-                return res.status(404).json({ message: "KHông tìm thấy Blog nào" });
+                return res.status(404).json({ message: "No Blogs Found" });
             }
 
             const blogWithImage = blogs.map(blog => {
@@ -246,7 +246,7 @@ const blogController = {
             });
             return res.status(200).json(blogWithImage);
         } catch (err) {
-            res.status(500).json({ message: "Lỗi tìm kiếm", error: err.message });
+            res.status(500).json({ message: "Search error", error: err.message });
         }
     }
 };
