@@ -10,6 +10,8 @@ function ManageMeeting (){
     const [isEditing, setIsEditing] = useState(false);
     const [currentMeeting, setCurruntMeeting] = useState(null);
     const [editedMeeting, setEditedMeeting] = useState({});
+    const [rejectedMeetingId, setRejectedMeetingId] = useState(null);
+    const [rejectionReason, setRejectionReason] = useState("");
     const navigate = useNavigate();
     const token = localStorage.getItem("accessToken");
     const decoded = jwtDecode(token);
@@ -68,22 +70,34 @@ function ManageMeeting (){
 
         }
     };
-    const handleReject = async (meetingId) =>{
-        const decoded = jwtDecode(token);
-        const role = decoded.Role;
-        if(role!=="teacher"){
-            alert("Just teacher can reject meeting!");
-            return;
+    const handleStartReject = (meetingId) => {
+      setRejectedMeetingId(meetingId);
+      setRejectionReason("");  // reset lý do cũ
+    };
+    const handleReject = async (meetingId, rejectionReason) =>{
+
+        if(!rejectionReason || rejectionReason.trim() ===""){
+          alert("Vui lòng nhập lý do từ chối.");
+          return;
         }
         try{
+          const decoded = jwtDecode(token);
+          const role = decoded.Role;
+          if(role!=="teacher"){
+              alert("Just teacher can reject meeting!");
+              return;
+          }
             const response = await axios.post("http://localhost:8000/meet/respond-meeting", 
                 {
-                meetingId, action: "reject"
+                meetingId, action: "reject", rejectionReason
                 },
                 {headers: {Authorization: `Bearer ${token}`}}
         );
         console.log("Meeting rejected response: ", response);
             alert ("Meeting was rejected!");
+            setRejectedMeetingId(null);
+            setRejectionReason("");
+            // reload data
             fetchMeetings();
         } catch(e){
             console.error("Error rejectng meeting", e);
@@ -159,8 +173,9 @@ function ManageMeeting (){
       <table>
         <thead>
           <tr>
-            <th>Giáo viên</th>
-            <th>Lý do</th>
+          {role === "teacher" && <th>From</th>}
+          {role === "student" && <th>Teacher</th>}
+            <th>Content of Meeting</th>
             <th>Loại cuộc họp</th>
             <th>Thời gian</th>
             <th>Địa chỉ</th>
@@ -176,21 +191,46 @@ function ManageMeeting (){
           ) : (
             meetings.map((meeting) => (
               <tr key={meeting._id}>
-                <td>{meeting.teacher}</td>
+                {role === "student"&&<td>{meeting.teacherId.Fullname}</td>}
+                {role === "teacher"&&<td>{meeting.studentId.Fullname}</td>}
                 <td>{meeting.reason}</td>
                 <td>{meeting.meetingType}</td>
                 <td>{new Date(meeting.time).toLocaleString()}</td>
-                <td>{meeting.address || "N/A"}</td>
+                <td>  {meeting.meetingType === "online"? meeting.meetingUrl : meeting.address || "N/A"}</td>
                 {role === "teacher" && (
                   <td>
-                    {meeting.status === "Pending" && (
+                    {meeting.status === "Pending" ? (
                       <>
-                        <button onClick={() => handleConfirm(meeting._id)}>Chấp nhận</button>
-                        <button onClick={() => handleReject(meeting._id)}>Từ chối</button>
+                        <button onClick={() => handleConfirm(meeting._id)}>
+                          Chấp nhận
+                        </button>
+                        {rejectedMeetingId === meeting._id ? (
+                          <div>
+                            <input
+                              type="text"
+                              placeholder="Nhập lý do từ chối"
+                              value={rejectionReason}
+                              onChange={(e) => setRejectionReason(e.target.value)}
+                            />
+                            <button onClick={() => handleReject(meeting._id,rejectionReason)}>
+                              Xác nhận từ chối
+                            </button>
+                            <button onClick={() => setRejectedMeetingId(null)}>
+                              Hủy
+                            </button>
+                          </div>
+                        ) : (
+                          <button onClick={() => handleStartReject(meeting._id)}>
+                            Từ chối
+                          </button>
+                        )}
+                      </>
+                    ) : (
+                      <>
+                        {meeting.status === "Accepted" && <span>Đã xác nhận</span>}
+                        {meeting.status === "Rejected" && <span>Đã từ chối</span>}
                       </>
                     )}
-                    {meeting.status === "Accepted" && <span>Đã xác nhận</span>}
-                    {meeting.status === "Rejected" && <span>Đã từ chối</span>}
                   </td>
                 )}
                 {role === "student" && (
