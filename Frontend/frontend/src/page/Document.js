@@ -173,14 +173,14 @@ function Document({ classId: externalClassId }) {
     const handleDelete = async (documentId) => {
 
         if (userRole !== "teacher" && userRole !== "admin")
-            openNotification("error", "Bạn không có quyền xóa tài liệu!");
+            openNotification("error", "You are not allow delete document!");
         try {
             await axios.delete(`http://localhost:8000/document/delete-document/${documentId}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             openNotification("success", "Delete success!");
         } catch (e) {
-            console.error("Lỗi xóa tài liệu", e);
+            console.error("Error delete document", e);
             const errorMessage = e.response?.data?.message || "Have problem, plase try again!";
             openNotification("error", errorMessage);
         }
@@ -221,7 +221,6 @@ function Document({ classId: externalClassId }) {
             {contextHolder}
             {!externalClassId && (
                 <div className={styles.sidebar}>
-                    <h2 className={styles.logo}>LOGO</h2>
                     {classes.map(cls => (
                         <button
                             key={cls._id}
@@ -263,15 +262,15 @@ function Document({ classId: externalClassId }) {
                             onChange={(e) => setDocumentData({ ...documentData, file: e.target.files[0] })}
                         />
                         {editingDocument ? (
-                            <button className={styles["edit-button"]} onClick={updateDocument}>Cập nhật</button>
+                            <button className={styles["edit-button"]} onClick={updateDocument}>Update</button>
                         ) : (
-                            <button className={styles["upload-button"]} onClick={uploadDocument}>Tải lên</button>
+                            <button className={styles["upload-button"]} onClick={uploadDocument}>Upload</button>
                         )}
                     </div>
                 )}
 
                 {/* Danh sách tài liệu */}
-                <h3 className={styles["document-title"]}>Tài liệu</h3>
+                <h3 className={styles["document-title"]}>Document</h3>
                 <ul className={styles["document-list"]}>
                     {documents.length > 0 ? (
                         documents.map(document => {

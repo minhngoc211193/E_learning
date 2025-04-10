@@ -28,9 +28,9 @@ const DetailUser = () => {
         fetchUserDetail();
     }, [id]);
 
-    if (loading) return <p>Đang tải...</p>;
+    if (loading) return <p>Loading...</p>;
     if (error) return <p>{error}</p>;
-    if (!user) return <p>Không tìm thấy người dùng</p>;
+    if (!user) return <p>No user is available</p>;
 
     return (
         <div className={styles.layout}>
@@ -50,14 +50,14 @@ const DetailUser = () => {
                             className={styles.avatar}
                         />
                     )}
-                    <p><strong>Họ và tên:</strong> {user.Fullname}</p>
-                    <p><strong>Tên đăng nhập:</strong> {user.Username}</p>
-                    <p><strong>Số điện thoại:</strong> {user.PhoneNumber}</p>
-                    <p><strong>Giới tính:</strong> {user.Gender}</p>
-                    <p><strong>Ngày sinh:</strong> {new Date(user.DateOfBirth).toLocaleDateString()}</p>
+                    <p><strong>Fullname:</strong> {user.Fullname}</p>
+                    <p><strong>Username:</strong> {user.Username}</p>
+                    <p><strong>Phone number:</strong> {user.PhoneNumber}</p>
+                    <p><strong>Gender:</strong> {user.Gender}</p>
+                    <p><strong>Birthday:</strong> {new Date(user.DateOfBirth).toLocaleDateString()}</p>
                     <p><strong>Role:</strong> {user.Role}</p>
-                    <p><strong>Chuyên ngành:</strong> {user.Major?.Name || "Chưa có dữ liệu"}</p>
-                    {user.Role === "student" && <p><strong>Năm học:</strong> {user.SchoolYear}</p>}
+                    <p><strong>Major:</strong> {user.Major?.Name || "Chưa có dữ liệu"}</p>
+                    {user.Role === "student" && <p><strong>SchoolYear:</strong> {user.SchoolYear}</p>}
 
                     <div className={styles.buttonWrapper}>
                         <button 

@@ -70,7 +70,7 @@ import styles from './Notification.module.css';
   return (
     <div className={styles["notification-container"]}>
       <h2 className={styles["notification-header"]}>
-        <Bell className={styles["notification-icon"]} /> Thông báo
+        <Bell className={styles["notification-icon"]} /> Notifications
       </h2>
       <div className={styles["notification-list"]}>
         {notifications.length > 0 ? (
@@ -83,7 +83,7 @@ import styles from './Notification.module.css';
             </div>
           ))
         ) : (
-            <p className={styles["no-notifications"]}>Không có thông báo nào</p>
+            <p className={styles["no-notifications"]}>No Notification</p>
         )}
       </div>
     </div>
