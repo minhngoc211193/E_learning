@@ -116,7 +116,7 @@ function App() {
           <Route path="/blogdetail/:id" element={renderProtected(BlogDetail)} />
           <Route path="/manageblog" element={renderProtectedAdmin(ManageBlog)} />
           <Route path="/subject" element={renderProtectedAdmin(Subject)} />
-          <Route path="/manageclass" element={renderProtectedAdmin(ManageClass)} />
+          <Route path="/manageclass" element={renderProtected(ManageClass)} />
           <Route path="/document" element={renderProtected(Document)} />
           <Route path="/update-class/:classId" element={renderProtectedAdmin(EditClass)} />
           <Route path="/detail-class/:id" element={renderProtected(DetailClass)} />
