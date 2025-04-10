@@ -81,8 +81,8 @@ const userController = {
                 if (file.size > maxSize) {
                     return res.status(400).json({ message: 'File size exceeded limit (3MB)' });
                 }
+                updateData.Image = file.buffer;
             }
-            updateData.Image = file.buffer;
 
             // Cập nhật người dùng trong cơ sở dữ liệu
             const updatedUser = await User.findByIdAndUpdate(userId, updateData, { new: true }).select('-Password');

@@ -112,17 +112,17 @@ useEffect(() => {
     formData.append('Gender', userData.Gender);
     formData.append('DateOfBirth', userData.DateOfBirth);
     formData.append('Major', userData.Major);
-    if (userData.Image) {
+    if (userData.Image instanceof File) {
       formData.append('file', userData.Image);
     }
 
     try {
       const response = await axios.put(`http://localhost:8000/user/update-user/${id}`, formData, {
         headers: { Authorization: `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data' },
+       },
 
       });
-
+      console.log(response.data);
       // Xử lý khi update thành công
       openNotification("success");
       setTimeout(() =>navigate(`/manageuser`), 2000); // Chuyển hướng đến trang chi tiết người dùng sau khi cập nhật

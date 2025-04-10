@@ -11,7 +11,7 @@ const createNotification = async (senderId, receiverId, type, message) => {
     });
     
     const savedNotification = await newNotification.save();
-    // const io = req.app.get('io');
+    const io = req.app.get('io');
     io.to(receiverId.toString()).emit('receive notification', savedNotification);
 
     return savedNotification;

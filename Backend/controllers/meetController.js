@@ -134,9 +134,7 @@ const respondToMeetingRequest = async (req, res) => {
       );
 
       if (io && notification) {
-
         io.to(studentId.toString()).emit('receive notification', notification);
-
       }
 
       return res.status(200).json({
@@ -169,9 +167,7 @@ const respondToMeetingRequest = async (req, res) => {
       );
 
       if (io && notification) {
-
         io.to(studentId.toString()).emit('receive notification', notification);
-
       }
 
       return res.status(200).json({
