@@ -44,7 +44,7 @@ const getAllNotifications = async (req, res) => {
   } catch (error) {
     console.error('Error getting notifications:', error);
     return res.status(500).json({ 
-      message: 'Lỗi server khi lấy thông báo', 
+      message: 'Server error while retrieving notification', 
       error: error.message 
     });
   }
@@ -62,14 +62,14 @@ const markNotificationAsRead = async (req, res) => {
     );
 
     if (!notification) {
-      return res.status(404).json({ message: 'Thông báo không tồn tại' });
+      return res.status(404).json({ message: 'Notice does not exist' });
     }
 
     return res.status(200).json(notification);
   } catch (error) {
     console.error('Error marking notification as read:', error);
     return res.status(500).json({ 
-      message: 'Lỗi server khi đánh dấu thông báo', 
+      message: 'Server error when marking notification', 
       error: error.message 
     });
   }

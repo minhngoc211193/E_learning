@@ -5,13 +5,13 @@ const moment = require('moment');
 // Validate đăng ký người dùng
 const validateRegister = [
     body('Fullname')
-        .notEmpty().withMessage('Fullname không được để trống')
-        .isLength({ min: 3, max: 20 }).withMessage('Fullname phải có ít nhất 3 ký tự và tối đa 20 ký tự')
+        .notEmpty().withMessage('Fullname cannot be empty')
+        .isLength({ min: 3, max: 20 }).withMessage('Fullname must be at least 3 characters and maximum 20 characters')
         .matches(/^[a-zA-Z\u00C0-\u00FF\s]+$/).withMessage('Fullname chỉ được chứa chữ cái và khoảng trắng, không có ký tự đặc biệt')
-        .not().matches(/\d/).withMessage('Fullname không được chứa số'),
+        .not().matches(/\d/).withMessage('Fullname cannot contain numbers'),
 
     body('DateOfBirth')
-        .notEmpty().withMessage('Ngày sinh không được để trống')
+        .notEmpty().withMessage('Date of birth cannot be left blank')
         .custom((value) => {
             const dob = moment(value, 'YYYY-MM-DD'); // Chuyển đổi giá trị DateOfBirth sang dạng moment
             const today = moment.utc(); // Lấy ngày hiện tại theo múi giờ UTC của MongoDB
@@ -19,43 +19,43 @@ const validateRegister = [
 
             // Kiểm tra ngày sinh không được trong tương lai
             if (dob.isAfter(today)) {
-                throw new Error('Ngày sinh không được trong tương lai');
+                throw new Error('Date of birth cannot be in the future');
             }
 
             // Kiểm tra tuổi trong khoảng 18 đến 50
             if (age < 18) {
-                throw new Error('Tuổi phải từ 18 trở lên');
+                throw new Error('Age must be 18 or older');
             }
             if (age > 50) {
-                throw new Error('Tuổi không được quá 50');
+                throw new Error('Age not over 50');
             }
 
             return true; // Nếu không có lỗi, trả về true
         }),
 
     body('Email')
-        .notEmpty().withMessage('Email không được để trống')
-        .isEmail().withMessage('Email không hợp lệ')
-        .matches(/^[a-zA-Z0-9._%+-]+@gmail\.com$/).withMessage('Email phải kết thúc bằng "@gmail.com"')
+        .notEmpty().withMessage('Email cannot be blank')
+        .isEmail().withMessage('Invalid email')
+        .matches(/^[a-zA-Z0-9._%+-]+@gmail\.com$/).withMessage('Email must end with "@gmail.com"')
         .custom(async (value) => {
             const existingUser = await User.findOne({ Email: value });
             if (existingUser) {
-                throw new Error('Email đã tồn tại');
+                throw new Error('Email already exists');
             }
         }),
 
     body('Role')
-        .notEmpty().withMessage('Role không được để trống')
-        .isIn(['admin', 'teacher', 'student']).withMessage('Role phải là admin, teacher hoặc student'),
+        .notEmpty().withMessage('Role cannot be left blank')
+        .isIn(['admin', 'teacher', 'student']).withMessage('Role must be admin, teacher or student'),
 
     body('PhoneNumber')
-        .notEmpty().withMessage('Số điện thoại không được để trống')
-        .isLength({ min: 10, max: 10 }).withMessage('Số điện thoại phải có độ dài 10 ký tự')
-        .matches(/^0\d{9}$/).withMessage('Số điện thoại phải bắt đầu bằng "0" và chỉ chứa số'),
+        .notEmpty().withMessage('Phone number cannot be blank')
+        .isLength({ min: 10, max: 10 }).withMessage('Phone number must be 10 characters long')
+        .matches(/^0\d{9}$/).withMessage('Phone number must start with "0" and contain only numbers'),
 
     body('Gender')
-        .notEmpty().withMessage('Giới tính không được để trống')
-        .isIn(['Male', 'Female']).withMessage('Giới tính phải là Male hoặc Female'),
+        .notEmpty().withMessage('Gender cannot be left blank')
+        .isIn(['Male', 'Female']).withMessage('Gender must be Male or Female'),
 
     (req, res, next) => {
         const errors = validationResult(req);
@@ -69,11 +69,11 @@ const validateRegister = [
 // Validate đăng nhập
 const validateLogin = [
     body('Email')
-        .notEmpty().withMessage('Email không được để trống')
-        .isEmail().withMessage('Email không hợp lệ'),
+        .notEmpty().withMessage('Email cannot be blank')
+        .isEmail().withMessage('Invalid email'),
 
     body('Password')
-        .notEmpty().withMessage('Mật khẩu không được để trống'),
+        .notEmpty().withMessage('Password cannot be blank'),
 
     (req, res, next) => {
         const errors = validationResult(req);

@@ -130,7 +130,7 @@ const majorController = {
             const io = req.app.get('io');
             io.emit('deleteMajor', majorId);
 
-            res.status(200).json({ message: 'Major đã bị xóa cùng với các đối tượng liên quan' });
+            res.status(200).json({ message: 'Major has been deleted along with related objects' });
         } catch (err) {
             res.status(500).json({ message: "Failed to delete major", error: err.message });
         }
@@ -140,7 +140,7 @@ const majorController = {
         try {
             const { search } = req.query;
             if (!search) {
-                return res.status(400).json({ message: "Vui lòng nhập từ khóa" });
+                return res.status(400).json({ message: "Please enter keyword" });
             }
             const majors = await Major.find({
                 $or: [
@@ -149,12 +149,12 @@ const majorController = {
                 ]
             });
             if (majors.length === 0) {
-                return res.status(404).json({ message: "Không tìm thấy Major" });
+                return res.status(404).json({ message: "Major not found" });
             }
 
             res.status(200).json(majors);
         } catch (err) {
-            res.status(500).json({ message: "Lỗi tìm Major", error: err.message });
+            res.status(500).json({ message: "Error finding Major", error: err.message });
         }
     }
 };
