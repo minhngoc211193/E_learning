@@ -53,24 +53,24 @@ function CreateMeet({ selectedConversationId, setIsMeetingFormVisible }) {
       reason,
       meetingType,
       time,
-      address: meetingType === "offline" ? address : "không có",
+      address: meetingType === "offline" ? address : "null ",
     };
 
     if (!reason || !time) {
-      openNotification("error", "Vui lòng điền đầy đủ lý do và thời gian cuộc họp.");
+      openNotification("error", "Please fullfill time and reason");
       return;
     }
 
     const currentTime = new Date();
     const selectedTime = new Date(time);
     if (selectedTime <= currentTime) {
-      openNotification("error", "Thời gian cuộc họp phải sau thời gian hiện tại.");
+      openNotification("error", "Time of meet have to after now");
       return;
     }
 
     try {
       if (role !== 'student') {
-        openNotification("error", "Bạn không có quyền tạo cuộc họp. Chỉ học sinh mới có thể thực hiện.");
+        openNotification("error", "You are not allow create meeting. Just student can create");
         return;
       }
 
@@ -92,7 +92,7 @@ function CreateMeet({ selectedConversationId, setIsMeetingFormVisible }) {
     <div className={styles["create-meet-container"]}>
       {contextHolder}
       <h3 className={styles["create-meet-title-bold"]}>
-        Tạo cuộc họp với {selectedConversationId?.teacherId?.Fullname || "Giáo viên chưa xác định"}
+        Create meeting with {selectedConversationId?.teacherId?.Fullname || "Teacher is not available"}
       </h3>
       <input
         type="text"

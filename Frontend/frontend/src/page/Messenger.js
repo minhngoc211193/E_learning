@@ -258,7 +258,7 @@ function Messenger() {
         <h2 className={styles["sidebar-title"]}>Messenger</h2>
         <input
           type="text"
-          placeholder="Tìm kiếm..."
+          placeholder="Search..."
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
           onKeyDown={(e) => {

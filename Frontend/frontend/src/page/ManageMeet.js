@@ -177,12 +177,12 @@ function ManageMeeting (){
     <div className={styles["meeting-list"]}>
       <Header/>
       {contextHolder}
-      <h2>Danh sách cuộc họp</h2>
+      <h2>List of meeting</h2>
       {role === "student" && isEditing && currentMeeting && (
     <div className={styles["edit-meeting-form"]}>
-      <h3>Chỉnh sửa cuộc họp</h3>
+      <h3>Edit meeting</h3>
       <label>
-        Lý do:
+        Reason:
         <input
           type="text"
           name="reason"
@@ -191,7 +191,7 @@ function ManageMeeting (){
         />
       </label>
       <label>
-      Loại cuộc họp:
+      Type of Meeting:
       <select
         name="meetingType"
         value={editedMeeting.meetingType || ""}
@@ -203,7 +203,7 @@ function ManageMeeting (){
     </label>
     {editedMeeting.meetingType === "offline" && (
       <label>
-        Địa chỉ:
+        Address:
         <input
           type="text"
           name="address"
@@ -214,7 +214,7 @@ function ManageMeeting (){
     )}
 
       <label>
-      Thời gian:
+      Time:
       <input
         type="datetime-local"
         name="time"
@@ -223,8 +223,8 @@ function ManageMeeting (){
       />
     </label>
       {/* các trường khác tương tự */}
-      <button onClick={handleSaveChanges}>Lưu thay đổi</button>
-      <button onClick={() => setIsEditing(false)}>Hủy</button>
+      <button onClick={handleSaveChanges}>Save Change</button>
+      <button onClick={() => setIsEditing(false)}>Cancel</button>
     </div>
   )}
       <table className={styles["meeting-table"]}>
@@ -233,17 +233,17 @@ function ManageMeeting (){
           {role === "teacher" && <th>From</th>}
           {role === "student" && <th>Teacher</th>}
             <th>Content of Meeting</th>
-            <th>Loại cuộc họp</th>
-            <th>Thời gian</th>
-            <th>Địa chỉ</th>
-            {role === "teacher" && <th>Hành động</th>}
-            {role === "student" && <th>Chỉnh sửa</th>}
+            <th>Type of Meeting</th>
+            <th>Time</th>
+            <th>Address</th>
+            {role === "teacher" && <th>Action</th>}
+            {role === "student" && <th>Edit</th>}
           </tr>
         </thead>
         <tbody>
           {meetings.length === 0 ? (
             <tr>
-              <td colSpan="6">Không có cuộc họp nào.</td>
+              <td colSpan="6">No meeting is available.</td>
             </tr>
           ) : (
             meetings.map((meeting) => (
@@ -259,7 +259,7 @@ function ManageMeeting (){
                     {meeting.status === "Pending" ? (
                       <>
                         <button className={styles["btn accept"]} onClick={() => handleConfirm(meeting._id)}>
-                          Chấp nhận
+                          Accept
                         </button>
                         {rejectedMeetingId === meeting._id ? (
                           <div>
@@ -270,22 +270,22 @@ function ManageMeeting (){
                               onChange={(e) => setRejectionReason(e.target.value)}
                             />
                             <button onClick={() => handleReject(meeting._id,rejectionReason)}>
-                              Xác nhận từ chối
+                              Reject
                             </button>
                             <button onClick={() => setRejectedMeetingId(null)}>
-                              Hủy
+                              Cancel
                             </button>
                           </div>
                         ) : (
                           <button className={styles["btn reject"]} onClick={() => handleStartReject(meeting._id)}>
-                            Từ chối
+                            Reject
                           </button>
                         )}
                       </>
                     ) : (
                       <>
-                        {meeting.status === "Accepted" && <span>Đã xác nhận</span>}
-                        {meeting.status === "Rejected" && <span>Đã từ chối</span>}
+                        {meeting.status === "Accepted" && <span>Accepted</span>}
+                        {meeting.status === "Rejected" && <span>Rejected</span>}
                       </>
                     )}
                   </td>
@@ -293,9 +293,9 @@ function ManageMeeting (){
                 {role === "student" && (
                   <td>
                     {meeting.status === "Pending" && (
-                      <button className={styles["btn edit"]} onClick={() => handleEdit(meeting)}>Chỉnh sửa</button>
+                      <button className={styles["btn edit"]} onClick={() => handleEdit(meeting)}>Edit</button>
                     )}
-                    {meeting.status !== "Pending" && <span>Đã xử lý</span>}
+                    {meeting.status !== "Pending" && <span>Done</span>}
                   </td>
                 )}
               </tr>

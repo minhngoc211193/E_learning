@@ -77,7 +77,7 @@ function DetailClass() {
         <br />
         {(role === "teacher" || role === "student") && (
           <div className={styles.document}>
-            <h2>Tài liệu lớp học:</h2>
+            <h2>Document in class:</h2>
             <Document classId={id} />
           </div>
         )}
