@@ -1,51 +1,194 @@
+/* Màu nền nhẹ nhàng và layout thoáng */
 .meeting-list {
-    width: 80%;
-    margin: auto;
+    background-color: #f8f4fc;
     padding: 20px;
-    background: #f9f9f9;
-    border-radius: 8px;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.meeting-list h2 {
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(139, 92, 246, 0.1);
+    font-family: 'Segoe UI', sans-serif;
+  }
+  
+  /* Tiêu đề */
+  .meeting-list h2 {
+    color: #6b21a8;
+    margin-bottom: 16px;
     text-align: center;
-    margin-bottom: 20px;
-}
-
-table {
+  }
+  
+  /* Bảng cuộc họp */
+  .meeting-table {
     width: 100%;
-    border-collapse: collapse;
-}
-
-th, td {
-    border: 1px solid #ddd;
-    padding: 10px;
-    text-align: left;
-}
-
-th {
-    background: #007bff;
-    color: white;
-}
-
-button {
-    padding: 8px 12px;
-    margin: 5px;
+    border-collapse: separate;
+    border-spacing: 0 10px;
+    background-color: white;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  
+  .meeting-table th, .meeting-table td {
+    text-align: center;
+    padding: 12px 16px;
+  }
+  
+  .meeting-table thead {
+    background-color: #ede9fe;
+    color: #5b21b6;
+    font-weight: 600;
+    border-bottom: 2px solid #c4b5fd;
+  }
+  
+  .meeting-table tbody tr {
+    background-color: #fff;
+    transition: background-color 0.3s ease;
+  }
+  
+  .meeting-table tbody tr:hover {
+    background-color: #f3e8ff;
+  }
+  
+  .meeting-table td {
+    border-bottom: 1px solid #eee;
+  }
+  
+  /* Nút hành động */
+  .btn {
+    padding: 6px 12px;
     border: none;
-    border-radius: 5px;
+    border-radius: 6px;
     cursor: pointer;
-}
-
-button:hover {
-    opacity: 0.8;
-}
-
-button:first-child {
-    background: #28a745;
+    font-size: 14px;
+    margin: 2px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .btn.accept {
+    background-color: #4ade80;
     color: white;
-}
-
-button:last-child {
-    background: #dc3545;
+  }
+  
+  .btn.accept:hover {
+    background-color: #22c55e;
+  }
+  
+  .btn.reject {
+    background-color: #f87171;
     color: white;
-}
+  }
+  
+  .btn.reject:hover {
+    background-color: #ef4444;
+  }
+  
+  .btn.edit {
+    background-color: #6366f1;
+    color: white;
+  }
+  
+  .btn.edit:hover {
+    background-color: #4f46e5;
+  }
+  
+  .btn.cancel {
+    background-color: #a3a3a3;
+    color: white;
+  }
+  
+  .btn.cancel:hover {
+    background-color: #737373;
+  }
+  
+  /* Ô input trong form chỉnh sửa */
+  .edit-meeting-form {
+    background-color: white;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    border: 1px solid #e9d5ff;
+    box-shadow: 0 2px 8px rgba(139, 92, 246, 0.05);
+  }
+  
+  .edit-meeting-form label {
+    display: block;
+    margin-bottom: 12px;
+    color: #4b5563;
+  }
+  
+  .edit-meeting-form input,
+  .edit-meeting-form select {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    margin-top: 6px;
+    font-size: 14px;
+    background-color: #fafafa;
+  }
+  
+  .edit-meeting-form button {
+    margin-top: 10px;
+  }
+  /* Responsive cho máy tính bảng và điện thoại */
+@media (max-width: 768px) {
+    .meeting-list {
+      padding: 12px;
+    }
+  
+    .meeting-list h2 {
+      font-size: 20px;
+    }
+  
+    .meeting-table {
+      display: block;
+      overflow-x: auto;
+      white-space: nowrap;
+      border-radius: 8px;
+    }
+  
+    .meeting-table th,
+    .meeting-table td {
+      padding: 10px;
+      font-size: 13px;
+    }
+  
+    .btn {
+      padding: 4px 10px;
+      font-size: 13px;
+      margin: 2px 1px;
+    }
+  
+    .edit-meeting-form {
+      padding: 16px;
+    }
+  
+    .edit-meeting-form label {
+      font-size: 14px;
+    }
+  
+    .edit-meeting-form input,
+    .edit-meeting-form select {
+      font-size: 13px;
+      padding: 6px 8px;
+    }
+  
+    .edit-meeting-form button {
+      font-size: 13px;
+      padding: 6px 10px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .meeting-list h2 {
+      font-size: 18px;
+    }
+  
+    .btn {
+      font-size: 12px;
+      padding: 4px 8px;
+    }
+  
+    .meeting-table th,
+    .meeting-table td {
+      padding: 8px;
+      font-size: 12px;
+    }
+  }
+  
