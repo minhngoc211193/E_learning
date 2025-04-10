@@ -14,7 +14,7 @@ const documentController = {
             if (file) {
                 const maxSize = 5 * 1024 * 1024; // 3MB
                 if (file.size > maxSize) {
-                    return res.status(400).json({ message: 'File size exceeded limit (3MB)' });
+                    return res.status(400).json({ message: 'File size exceeded limit (5MB)' });
                 }
             }
         
@@ -143,7 +143,7 @@ const documentController = {
             if (req.file) {
                 const maxSize = 5 * 1024 * 1024; // 3MB
                 if (req.file.size > maxSize) {
-                    return res.status(400).json({ message: 'File size exceeded limit (3MB)' });
+                    return res.status(400).json({ message: 'File size exceeded limit (5MB)' });
                 }
     
                 const mimeType = mime.lookup(req.file.originalname);

@@ -18,13 +18,13 @@ const scheduleController = {
         try {
             const { Address, Slot, ClassId, Day } = req.body;
             const day = new Date(Day);
-            const startOfDay = new Date(day.setHours(0, 0, 0, 0));
-            const endOfDay = new Date(day.setHours(23, 59, 59, 999));
             const today = new Date();
             today.setHours(0, 0, 0, 0);
-            if (day < today) {
+            if (day < today ||day.getDate() === today.getDate() && day.getMonth() === today.getMonth() && day.getFullYear() === today.getFullYear()) {
                 return res.status(400).json({ message: "Cannot create a schedule for a past date" });
             }
+            const startOfDay = new Date(day.setHours(0, 0, 0, 0));
+            const endOfDay = new Date(day.setHours(23, 59, 59, 999));
             const classData = await Class.findById(ClassId);
             if (!classData) {
                 return res.status(404).json({ message: "Class not found" });
@@ -142,13 +142,13 @@ Administration`
         try {
             const { Address, Slot, Day, ClassId } = req.body;
             const day = new Date(Day);
-            const startOfDay = new Date(day.setHours(0, 0, 0, 0));
-            const endOfDay = new Date(day.setHours(23, 59, 59, 999));
             const today = new Date();
             today.setHours(0, 0, 0, 0);
-            if (day < today) {
+            if (day < today  ||day.getDate() === today.getDate() && day.getMonth() === today.getMonth() && day.getFullYear() === today.getFullYear()) {
                 return res.status(400).json({ message: "Cannot update a schedule to a past date" });
             }
+            const startOfDay = new Date(day.setHours(0, 0, 0, 0));
+            const endOfDay = new Date(day.setHours(23, 59, 59, 999));
             const classData = await Class.findById(ClassId);
             if (!classData) {
                 return res.status(404).json({ message: "Class not found" });
