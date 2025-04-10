@@ -109,7 +109,7 @@ function Subject() {
         const requestData = {
             Name: subjectData.Name,
             Description: subjectData.Description,
-            Major: subjectData.MajorId,
+            MajorId: subjectData.MajorId,
             CodeSubject: subjectData.CodeSubject
         };
 
