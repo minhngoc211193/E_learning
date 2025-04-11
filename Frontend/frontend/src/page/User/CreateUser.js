@@ -86,6 +86,7 @@ function CreateUser({ setActiveTab }) {
                 MajorId: "",
             });
             setActiveTab("all");
+            
         } catch (e) {
             if (e.response && e.response.data.errors) {
                 setMessage(e.response.data.errors[0].msg);
