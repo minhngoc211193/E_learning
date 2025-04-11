@@ -21,7 +21,7 @@ const scheduleController = {
             const today = new Date();
             today.setHours(0, 0, 0, 0);
             if (day < today ||day.getDate() === today.getDate() && day.getMonth() === today.getMonth() && day.getFullYear() === today.getFullYear()) {
-                return res.status(400).json({ message: "Cannot create a schedule for a past date" });
+                return res.status(400).json({ message: "You cannot create a schedule for past and present!" });
             }
             const startOfDay = new Date(day.setHours(0, 0, 0, 0));
             const endOfDay = new Date(day.setHours(23, 59, 59, 999));
@@ -145,7 +145,7 @@ Administration`
             const today = new Date();
             today.setHours(0, 0, 0, 0);
             if (day < today  ||day.getDate() === today.getDate() && day.getMonth() === today.getMonth() && day.getFullYear() === today.getFullYear()) {
-                return res.status(400).json({ message: "Cannot update a schedule to a past date" });
+                return res.status(400).json({ message: "You cannot update a schedule for past and present!" });
             }
             const startOfDay = new Date(day.setHours(0, 0, 0, 0));
             const endOfDay = new Date(day.setHours(23, 59, 59, 999));
