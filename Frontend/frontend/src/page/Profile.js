@@ -26,7 +26,7 @@ function Profile() {
     const fetchUserInfo = useCallback(async () => {
         try {
             if (!token) {
-                console.error("Bạn chưa đăng nhập!");
+                console.error("You are not logged in!");
                 return;
             }
             const decoded = jwtDecode(token);
@@ -49,7 +49,7 @@ function Profile() {
             });
             setBlogs(resBlogs.data);
         } catch (err) {
-            console.error("Không thể lấy thông tin người dùng hoặc blog.", err);
+            console.error("Cannot get information user or blog data.", err);
         }
     }, [token]);
 
@@ -82,11 +82,11 @@ function Profile() {
             await axios.delete(`http://localhost:8000/blog/delete-blog/${blogId}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
-            Swal.fire("Đã xóa!", "Blog đã được xóa thành công.", "success");
+            Swal.fire("Delete!", "Blog has been delete.", "success");
             fetchUserInfo();
         } catch (error) {
-            console.error("Lỗi khi xóa blog", error);
-            Swal.fire("Lỗi!", "Không thể xóa blog.", "error");
+            console.error("Error when delete blog", error);
+            Swal.fire("Error!", "Cannot delete blog.", "error");
         }
     };
 

@@ -147,7 +147,7 @@ function ManageMeeting (){
     try {
       const decoded = jwtDecode(token);
       if (decoded.Role !== "student") {
-        alert("Chỉ student mới có quyền chỉnh sửa!");
+        alert("Only student allow edit!");
         return;
       }
 
@@ -167,8 +167,8 @@ function ManageMeeting (){
       setCurrentMeeting(null);
       fetchMeetings();
     } catch (err) {
-      console.error("Lỗi khi lưu thay đổi:", err);
-      alert("Lưu thất bại, vui lòng thử lại.");
+      console.error("Failed when save update:", err);
+      alert("Save failed, Please try again.");
     }
   };
 

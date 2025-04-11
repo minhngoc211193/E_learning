@@ -25,7 +25,7 @@ function Login() {
                     setError(err.response.data.message);
                 }
             } else {
-                setError("Đăng nhập thất bại. Vui lòng thử lại!");
+                setError("Loggin failed!");
             }
         }
     };
