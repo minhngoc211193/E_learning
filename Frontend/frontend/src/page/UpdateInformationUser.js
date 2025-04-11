@@ -28,7 +28,7 @@ function UpdateInformation() {
 
     const fetchUserInfo = useCallback(async () => { /* Wrapped in useCallback */
         if (!token) {
-            console.error("Bạn chưa đăng nhập!");
+            console.error("You are not logged in!");
             return;
         }
         try {
@@ -52,7 +52,7 @@ function UpdateInformation() {
                 });
             }
         } catch (err) {
-            console.error("Không thể lấy thông tin người dùng.", err);
+            console.error("Cannot get user information.", err);
         }
     }, [token, decoded.id]); // Added dependencies
 

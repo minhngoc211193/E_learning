@@ -10,14 +10,13 @@
   .container {
     height: 100vh;
     width: 100%;
-    margin: 0;
+    margin: 0 10px;
     padding: 24px;
     background-color: #f9f9f9;
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
     border-radius: 12px;
     text-align: center;
     box-sizing: border-box;
-    margin: 10px;
   }
   
   /* Heading chính */
@@ -113,7 +112,8 @@
   
   /* Bảng hiển thị dữ liệu */
   .tableWrap {
-    overflow-x: auto;
+    max-height: 260px;
+    overflow-y: auto;
     margin-top: 20px;
   }
   

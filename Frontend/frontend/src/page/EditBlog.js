@@ -19,14 +19,14 @@ function EditBlog() {
   const openNotification = useCallback((type, detailMessage = "") => {
     if (type === "success") {
       api.open({
-        message: "Cập nhật blog thành công!",
-        description: "Bài viết của bạn đã được cập nhật thành công.",
+        message: "Update blog successfully!",
+        description: "Your blog has been updated successfully.",
         showProgress: true,
         pauseOnHover: true,
       });
     } else {
       api.open({
-        message: "Cập nhật blog thất bại!",
+        message: "Update blog failed!",
         description: detailMessage,
         showProgress: true,
         pauseOnHover: true,
@@ -47,13 +47,13 @@ function EditBlog() {
       file.type === "image/png" ||
       file.type === "image/jpg";
     if (!isValidType) {
-      openNotification("error", "Bạn chỉ có thể tải lên file (jpg, jpeg, png)!");
+      openNotification("error", "You only upload file image (jpg, jpeg, png)!");
       return Upload.LIST_IGNORE;
     }
     // Nếu muốn giới hạn kích thước file là 1MB:
     const isLt3M = file.size / 1024 / 1024 < 3;
     if (!isLt3M) {
-      openNotification("error", "Kích thước file phải nhỏ hơn 3MB!");
+      openNotification("error", "File size have smaller than 3MB!");
       return Upload.LIST_IGNORE;
     }
     setFile(file);
@@ -76,7 +76,7 @@ function EditBlog() {
       try {
         const token = localStorage.getItem("accessToken");
         if (!token) {
-          openNotification("error", "Bạn chưa đăng nhập!");
+          openNotification("error", "You are not logged in!");
           return;
         }
         const res = await axios.get(`http://localhost:8000/blog/detail-blog/${id}`, {
@@ -88,7 +88,7 @@ function EditBlog() {
           setPreviewImage(res.data.Image);
         }
       } catch (err) {
-        openNotification("error", "Không thể tải blog. Vui lòng thử lại!");
+        openNotification("error", "Cannot load blog. Please try again!");
       }
     };
     fetchBlog();
@@ -98,14 +98,14 @@ function EditBlog() {
     e.preventDefault();
 
     if (!title.trim() || !content.trim()) {
-      openNotification("error", "Vui lòng điền đầy đủ thông tin");
+      openNotification("error", "Plase fill in all fields!");
       return;
     }
 
     try {
       const token = localStorage.getItem("accessToken");
       if (!token) {
-        openNotification("error", "Bạn chưa đăng nhập!");
+        openNotification("error", "You are not logged in!");
         return;
       }
       const decoded = jwtDecode(token);
@@ -135,7 +135,7 @@ function EditBlog() {
       setTimeout(() => navigate(`/profile`), 2000);
     } catch (err) {
       const errorMessage =
-        err.response?.data?.message || "Có lỗi xảy ra. Vui lòng thử lại!";
+        err.response?.data?.message || "Have problem when update blog. Please try again!";
       openNotification("error", errorMessage);
     }
   };

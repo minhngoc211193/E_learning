@@ -16,14 +16,14 @@ function ManageBlog() {
   const openNotification = useCallback((type, detailMessage = "", pauseOnHover = true) => {
     if (type === "success") {
       api.open({
-        message: 'Thành công!',
+        message: 'Success!',
         description: detailMessage,
         showProgress: true,
         pauseOnHover,
       });
     } else {
       api.open({
-        message: 'Thất bại!',
+        message: 'Failed!',
         description: detailMessage,
         showProgress: true,
         pauseOnHover,

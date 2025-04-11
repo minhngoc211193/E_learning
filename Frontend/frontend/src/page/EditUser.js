@@ -48,8 +48,7 @@ const EditUser = () => {
     try {
         const decoded = jwtDecode(token);
         if(decoded.Role!== "admin"){
-          console.error("Bạn không có quyền chỉnh sửa ngừoi dùng!");
-          openNotification("error", "Bạn không có quyền chỉnh sửa!");
+          openNotification("error", "You are not allowed to access this page!");
           setTimeout(() =>navigate("/"), 2000); 
         }
         const res = await axios.get(`http://localhost:8000/user/detail-user/${id}`, {
@@ -71,7 +70,6 @@ const EditUser = () => {
             });
         }
     } catch (e) {
-        console.error("Không thể lấy thông tin người dùng.", e);
         const errorMessage = e.response?.data?.message || "Have problem, plase try again!";
             openNotification("error", errorMessage);
     }
@@ -127,7 +125,6 @@ useEffect(() => {
       openNotification("success");
       setTimeout(() =>navigate(`/manageuser`), 2000); // Chuyển hướng đến trang chi tiết người dùng sau khi cập nhật
     } catch (error) {
-      console.error('Lỗi cập nhật người dùng:', error);
       const errorMessage = error.response?.data?.message || "Have problem, plase try again!";
             openNotification("error", errorMessage);
     }

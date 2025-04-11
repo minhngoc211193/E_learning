@@ -23,14 +23,14 @@ function ManageSchedule() {
   const openNotification = (type, detailMessage = "", pauseOnHover = true) => {
     if (type === "success") {
       api.open({
-        message: 'Thành công!',
+        message: 'Success!',
         description: detailMessage,
         showProgress: true,
         pauseOnHover,
       });
     } else {
       api.open({
-        message: 'Thất bại!',
+        message: 'Failed!',
         description: detailMessage,
         showProgress: true,
         pauseOnHover,
@@ -77,7 +77,13 @@ function ManageSchedule() {
 
   // Các phòng và slot cố định cho bảng quản lí
   const rooms = ["G401", "G402", "G403", "G404"];
-  const timeSlots = ["Slot 1", "Slot 2", "Slot 3", "Slot 4", "Slot 5"];
+  const timeSlots = [
+    { slot: "Slot 1", Time: "08:00 - 9:30" },
+    { slot: "Slot 2", Time: "9:40 - 11:10" },
+    { slot: "Slot 3", Time: "13:00 - 14:30" },
+    { slot: "Slot 4", Time: "14:40 - 16:10" },
+    { slot: "Slot 5", Time: "16:20 - 17:50" },
+  ];
 
   // Hàm lọc lịch học theo phòng và slot
   const getScheduleForCell = (room, slot) => {
@@ -105,7 +111,7 @@ function ManageSchedule() {
   const handleSubmitSchedule = async (e) => {
     e.preventDefault();
     if (!selectedClass || !selectedRoom || !selectedSlot || !selectedDay) {
-      openNotification("error", "Vui lòng điền đầy đủ thông tin");
+      openNotification("error", "Plase fill in all fields!");
       return;
     }
     setLoading(true);
@@ -122,7 +128,7 @@ function ManageSchedule() {
           },
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        openNotification("success", "Cập nhật lịch học thành công!", true);
+        openNotification("success", "Update schedule successful!", true);
       } else {
         // Tạo lịch học mới
         await axios.post(
@@ -135,7 +141,7 @@ function ManageSchedule() {
           },
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        openNotification("success", "Tạo lịch học thành công!", true);
+        openNotification("success", "Create schedule successful!", true);
       }
 
       // Reset form sau khi submit
@@ -147,8 +153,8 @@ function ManageSchedule() {
       // Reload lịch học cho ngày hiện tại
       fetchSchedules(displayDay);
     } catch (err) {
-      console.error("Lỗi khi xử lý lịch học:", err.response?.data || err);
-      const errorMessage = err.response?.data?.message || "Có lỗi xảy ra!";
+      console.error("Error when process schedule:", err.response?.data || err);
+      const errorMessage = err.response?.data?.message || "Have problem!";
       openNotification("error", errorMessage, true);
     }
     setLoading(false);
@@ -157,8 +163,8 @@ function ManageSchedule() {
   // Xử lý xóa lịch học với xác nhận SweetAlert2
   const handleDeleteSchedule = async () => {
     const result = await Swal.fire({
-      title: "Bạn có muốn xóa lịch học này không?",
-      text: "Hành động này không thể hoàn tác!",
+      title: "Do you want to delete this schedule?",
+      text: "Action cannot be undone!",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#d33",
@@ -173,7 +179,7 @@ function ManageSchedule() {
       await axios.delete(`http://localhost:8000/schedule/delete-schedule/${editingSchedule._id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      Swal.fire("Đã xóa!", "Lịch học đã được xóa.", "success");
+      Swal.fire("Delete!", "Schedule has been delete.", "success");
       setEditingSchedule(null);
       setSelectedClass("");
       setSelectedSlot("");
@@ -181,8 +187,8 @@ function ManageSchedule() {
       setSelectedDay(null);
       fetchSchedules(displayDay);
     } catch (error) {
-      console.error("Lỗi khi xóa lịch học", error);
-      Swal.fire("Lỗi!", "Không thể xóa lịch học.", "error");
+      console.error("Error when delete schedule", error);
+      Swal.fire("Error!", "Cannot delete schedule.", "error");
     }
     setLoading(false);
   };
@@ -218,17 +224,25 @@ function ManageSchedule() {
             </thead>
             <tbody>
               {timeSlots.map((slot) => (
-                <tr key={slot}>
-                  <td>{slot}</td>
+                <tr key={slot.slot}>
+                  <td>
+                    <div>
+                      <strong>{slot.slot}</strong>
+                    </div>
+                    <div>
+                      {slot.Time}
+                    </div>
+                  </td>
                   {rooms.map((room) => {
-                    const cellSchedules = getScheduleForCell(room, slot);
+                    const cellSchedules = getScheduleForCell(room, slot.slot);
                     return (
                       <td key={room} className={styles.scheduleCell}>
                         {cellSchedules.length > 0 ? (
                           cellSchedules.map((sch) => (
                             <div
                               key={sch._id}
-                              className={`${styles.scheduleItem} ${editingSchedule && editingSchedule._id === sch._id ? styles.activeSchedule : ""}`}
+                              className={`${styles.scheduleItem} ${editingSchedule && editingSchedule._id === sch._id ? styles.activeSchedule : ""
+                                }`}
                               onClick={() => handleSelectSchedule(sch)}
                             >
                               <h2 className={styles.subjectName}>Subject: {sch.Class?.Subject?.Name}</h2>

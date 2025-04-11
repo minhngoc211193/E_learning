@@ -33,7 +33,7 @@ function BlogDetail() {
   const fetchUserInfo = async () => {
     const token = localStorage.getItem("accessToken");
     if (!token) {
-      console.error("Bạn chưa đăng nhập!");
+      console.error("You are not logged!");
       return;
     }
     try {
@@ -44,7 +44,7 @@ function BlogDetail() {
       });
       setImageUser(res.data.Image);
     } catch (err) {
-      console.error("Không thể lấy thông tin người dùng.");
+      console.error("Cannot get user data.");
     }
   };
 

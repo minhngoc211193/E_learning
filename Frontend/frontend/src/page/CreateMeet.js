@@ -80,8 +80,7 @@ function CreateMeet({ selectedConversationId, setIsMeetingFormVisible }) {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       openNotification("success");
-      setIsMeetingFormVisible(false); // Đóng form khi tạo thành công
-      setTimeout(() => navigate("/messenger"),2000);
+      setTimeout(() =>setIsMeetingFormVisible(false),2000); // Đóng form khi tạo thành công
     } catch (error) {
       const errorMessage = error.response?.data?.message || "Have problem, plase try again!";
       openNotification("error", errorMessage);
