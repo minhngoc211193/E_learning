@@ -47,11 +47,11 @@ function Subject() {
                     return;
                 }
             } catch (err) {
-                console.error("Token không hợp lệ", err);
+                console.error("Token not suitable", err);
                 navigate("/");
             }
         } else {
-            alert("Bạn cần đăng nhập trước!");
+            alert("You have to login!");
             navigate("/");
         }
     }, [navigate]);
@@ -109,7 +109,7 @@ function Subject() {
         const requestData = {
             Name: subjectData.Name,
             Description: subjectData.Description,
-            Major: subjectData.MajorId,
+            MajorId: subjectData.MajorId,
             CodeSubject: subjectData.CodeSubject
         };
 

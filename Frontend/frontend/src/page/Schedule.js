@@ -9,11 +9,11 @@ import {jwtDecode} from "jwt-decode";
 
 function Schedule() {
   const timeSlots = [
-    { slot: "Slot 1" },
-    { slot: "Slot 2" },
-    { slot: "Slot 3" },
-    { slot: "Slot 4" },
-    { slot: "Slot 5" },
+    { slot: "Slot 1", Time: "08:00 - 9:30" },
+    { slot: "Slot 2", Time: "9:40 - 11:10" },
+    { slot: "Slot 3", Time: "13:00 - 14:30" },
+    { slot: "Slot 4", Time: "14:40 - 16:10" },
+    { slot: "Slot 5", Time: "16:20 - 17:50" },
   ];
 
   const [schedules, setSchedules] = useState([]);
@@ -29,11 +29,11 @@ function Schedule() {
   useEffect(() => {
     if (notifData) {
       api.open({
-        message: notifData.type === "success" ? "Tải lịch thành công!" : "Tải lịch thất bại!",
+        message: notifData.type === "success" ? "Loading schedule successful!" : "Loading schedule failed!",
         description:
           notifData.detailMessage ||
           (notifData.type === "success"
-            ? "Lịch của bạn đã được tải thành công."
+            ? "Your schedule has been successfully loaded."
             : ""),
         showProgress: true,
         pauseOnHover: true,
@@ -52,7 +52,7 @@ function Schedule() {
         setSchedules(res.data.schedules);
         setLoading(false);
       } catch (err) {
-        const errorMessage = err.response?.data?.message || "Có lỗi xảy ra!";
+        const errorMessage = err.response?.data?.message || "Have problem!";
         setNotifData({ type: "error", detailMessage: errorMessage });
         setLoading(false);
       }
@@ -94,20 +94,20 @@ function Schedule() {
       );
       window.location.href = `/attendance/${scheduleId}`;
     } catch (err) {
-      const errorMessage = err.response?.data?.message || "Có lỗi xảy ra!";
+      const errorMessage = err.response?.data?.message || "Have problem!";
       setNotifData({ type: "error", detailMessage: errorMessage });
     }
   };
 
 
-  if (loading) return <div>Đang tải lịch học...</div>;
+  if (loading) return <div>Loading...</div>;
 
   return (
     <div>
       {contextHolder}
       <Header />
       <div className={styles.scheduleContainer}>
-        <h1 className={styles.title}>Lịch học của tuần</h1>
+        <h1 className={styles.title}>Schedule for a week</h1>
         <div className={styles.datePicker}></div>
         <div className={styles.tableContainer}>
           <table className={styles.scheduleTable}>
@@ -135,6 +135,7 @@ function Schedule() {
                 <tr key={idx}>
                   <td className={styles.timeSlot}>
                     <div className={styles.slotLabel}>{slotItem.slot}</div>
+                    <div className={styles.slotTime}>{slotItem.Time}</div>
                   </td>
                   {weekDays.map((day, index) => {
                     const cellSchedules = getScheduleForCell(day, slotItem);
@@ -154,7 +155,9 @@ function Schedule() {
                                 <br />
                                 Room: {sch.Address}
                                 <br />
-                                {isStudent ? <span>Status: {sch.Attendances[0]}.IsPresent</span> : <span></span>}
+
+                                {isStudent ? <span>Status: {sch.Attendances[0].IsPresent}</span> : <span></span>}
+
                                 
                               </div>
                             </div>

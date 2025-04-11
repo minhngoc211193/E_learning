@@ -56,7 +56,7 @@ const Dashboard = () => {
       setAllBlog(resBlogs.data);
       setAllUser(resUsers.data);
     } catch (err) {
-      console.error("Không thể lấy thông tin người dùng hoặc blog.", err);
+      console.error("Cannot get information user and blog.", err);
     }
   }, [token]);
 

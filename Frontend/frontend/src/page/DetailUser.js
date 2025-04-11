@@ -20,7 +20,7 @@ const DetailUser = () => {
                 });
                 setUser(response.data);
             } catch (err) {
-                setError("Lỗi khi tải thông tin người dùng");
+                setError("Cannot get user data.");
             } finally {
                 setLoading(false);
             }

@@ -102,7 +102,7 @@ function Document({ classId: externalClassId }) {
         e.preventDefault();
 
         if (userRole !== "teacher" && userRole !== "admin") {
-            openNotification("error", "Bạn không có quyền tải lên tài liệu!");
+            openNotification("error", "You are not allow!");
         }
         const formData = new FormData();
         formData.append("file", documentData.file);
@@ -114,7 +114,7 @@ function Document({ classId: externalClassId }) {
             await axios.post("http://localhost:8000/document/upload-document", formData, {
                 headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" }
             });
-            openNotification("success", "Upload thành công!");
+            openNotification("success", "Upload successfully!");
             setDocumentData({
                 Tittle: "",
                 Description: "",
@@ -135,7 +135,7 @@ function Document({ classId: externalClassId }) {
     const updateDocument = async (e) => {
         e.preventDefault();
         if (userRole !== "teacher" && userRole !== "admin") {
-            openNotification("error", "Bạn không có quyền sửa tài liệu!");
+            openNotification("error", "You are not allow!");
         }
         try {
 
@@ -187,7 +187,7 @@ function Document({ classId: externalClassId }) {
     };
     const handleDownload = async (documentId) => {
         if (userRole !== "student") {
-            openNotification("error", "Bạn không có quyền tải tài liệu");
+            openNotification("error", "You are not allow download document!");
         }
 
         try {

@@ -3,17 +3,17 @@ const jwt = require('jsonwebtoken');
 const verifyToken = (req, res, next) => {
     const authHeader = req.header("Authorization");
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-        return res.status(401).json({ message: "Bạn không có quyền truy cập" });
+        return res.status(401).json({ message: "You do not have access" });
     }
     const token = authHeader.split(" ")[1];
 
     if (!token) {
-        return res.status(401).json({ message: "Bạn không có quyền truy cập" });
+        return res.status(401).json({ message: "You do not have access" });
     }
 
     jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
         if (err) {
-            return res.status(403).json({ message: "Token không hợp lệ" });
+            return res.status(403).json({ message: "Invalid Token" });
         }
         req.user = decoded;
         next(); // Quan trọng! Phải gọi next() khi xác thực thành công
@@ -25,7 +25,7 @@ const verifyAdmin = (req, res, next) => { // Nhận userrole từ req :))
         if (req.user && req.user.Role === 'admin') {
             next();
         } else {
-            res.status(403).json({ message: "Bạn không có quyền truy cập" });
+            res.status(403).json({ message: "You do not have access" });
         }
     });
 };
@@ -37,14 +37,14 @@ const verifyRole = (allowedRoles) => {
         
         // Kiểm tra xem nếu không có allowedRoles thì trả về lỗi
         if (!allowedRoles || allowedRoles.length === 0) {
-            return res.status(500).json({ message: "Không có role" });
+            return res.status(500).json({ message: "No role" });
         }
 
         // Kiểm tra nếu vai trò của người dùng nằm trong mảng allowedRoles
         if (allowedRoles.includes(Role)) {
             return next(); // Cho phép truy cập nếu vai trò hợp lệ
         } else {
-            return res.status(403).json({ message: "Bạn không có quyền truy cập" });
+            return res.status(403).json({ message: "You do not have access" });
         }
     };
 };

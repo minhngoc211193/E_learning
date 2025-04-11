@@ -21,14 +21,14 @@ function CreateBlog() {
     const openNotification = (type, detailMessage = "") => {
         if (type === "success") {
             api.open({
-                message: "Tạo blog thành công!",
-                description: "Bài viết của bạn đã được tạo thành công.",
+                message: "Create blog successful!",
+                description: "Your blog has been created successfully.",
                 showProgress: true,
                 pauseOnHover: true,
             });
         } else {
             api.open({
-                message: "Tạo blog thất bại!",
+                message: "Create blog failed!",
                 description: detailMessage,
                 showProgress: true,
                 pauseOnHover: true,
@@ -49,12 +49,12 @@ function CreateBlog() {
             file.type === "image/png" ||
             file.type === "image/jpg";
         if (!isValidType) {
-            openNotification("error", "Bạn chỉ có thể tải lên file (jpg, jpeg, png)!");
+            openNotification("error", "You only upload file image (jpg, jpeg, png)!");
             return Upload.LIST_IGNORE;
         }
         const isLt3M = file.size / 1024 / 1024 < 3;
         if (!isLt3M) {
-            openNotification("error", "Kích thước file phải nhỏ hơn 3MB!");
+            openNotification("error", "FIle size smaller 3MB!");
             return Upload.LIST_IGNORE;
         }
         setFile(file);
@@ -77,13 +77,13 @@ function CreateBlog() {
         e.preventDefault();
 
         if (!title.trim() || !content.trim() || !file) {
-            openNotification("error", "Vui lòng điền đầy đủ thông tin và chọn ảnh");
+            openNotification("error", "Please fill in all fields!");
             return;
         }
         try {
             const token = localStorage.getItem("accessToken");
             if (!token) {
-                openNotification("error", "Bạn chưa đăng nhập!");
+                openNotification("error", "You are not logged in!");
                 return;
             }
             const decoded = jwtDecode(token);
@@ -114,7 +114,7 @@ function CreateBlog() {
             setTimeout(() => navigate("/profile"), 2000);
         } catch (err) {
             const errorMessage =
-                err.response?.data?.message || "Có lỗi xảy ra. Vui lòng thử lại!";
+                err.response?.data?.message || "Have problem when create blog!";
             openNotification("error", errorMessage);
         }
     };

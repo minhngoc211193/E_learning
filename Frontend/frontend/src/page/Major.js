@@ -44,11 +44,11 @@ function Major () {
                   setTimeout(() =>navigate("/"), 1000); // Chuyển hướng về trang chủ
               }
           } catch (err) {
-              openNotification("error", "Token không hợp lệ");
+              openNotification("error", "Token is invalid!");
               setTimeout(() =>navigate("/home"), 1000); // Chuyển hướng về trang chủ
           }
       } else {
-          openNotification("error", "Bạn cần đăng nhập trước!");
+          openNotification("error", "You have to login!");
           setTimeout(() =>navigate("/"), 1000); // Chuyển hướng đến trang login nếu chưa có token
       }
   }, [navigate]);

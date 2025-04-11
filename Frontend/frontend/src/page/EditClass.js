@@ -48,7 +48,7 @@ const EditClass = () => {
     try {
       const decoded = jwtDecode(token);
       if (decoded.Role !== "admin") {
-        openNotification("error", "Bạn không có quyền chỉnh sửa lớp!");
+        openNotification("error", "You do not have permission to access this page!");
         navigate("/");
         return;
       }

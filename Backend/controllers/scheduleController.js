@@ -18,13 +18,13 @@ const scheduleController = {
         try {
             const { Address, Slot, ClassId, Day } = req.body;
             const day = new Date(Day);
-            const startOfDay = new Date(day.setHours(0, 0, 0, 0));
-            const endOfDay = new Date(day.setHours(23, 59, 59, 999));
             const today = new Date();
             today.setHours(0, 0, 0, 0);
-            if (day < today) {
-                return res.status(400).json({ message: "Cannot create a schedule for a past date" });
+            if (day < today ||day.getDate() === today.getDate() && day.getMonth() === today.getMonth() && day.getFullYear() === today.getFullYear()) {
+                return res.status(400).json({ message: "You cannot create a schedule for past and present!" });
             }
+            const startOfDay = new Date(day.setHours(0, 0, 0, 0));
+            const endOfDay = new Date(day.setHours(23, 59, 59, 999));
             const classData = await Class.findById(ClassId);
             if (!classData) {
                 return res.status(404).json({ message: "Class not found" });
@@ -96,18 +96,18 @@ const scheduleController = {
                 const mailOptionsTeacher = {
                     from: process.env.EMAIL_USER,
                     to: teacher.Email,
-                    subject: "Lịch học mới được tạo",
-                    text: `Xin chào thầy/cô ${teacher.Fullname},
+                    subject: "New class schedule created",
+                    text: `Hello teacher ${teacher.Fullname},
 
-Lịch học mới đã được tạo cho lớp: ${classData.Classname}.
-- Phòng học: ${Address}
+A new schedule has been created for the class: ${classData.Classname}.
+- Classroom: ${Address}
 - Slot: ${Slot}
-- Ngày: ${formattedDate}
+- Day: ${formattedDate}
 
-Vui lòng kiểm tra lại hệ thống để theo dõi chi tiết.
+Please check back to the system for details.
 
-Trân trọng,
-Ban Quản trị`
+Sincerely,
+Administration`
                 };
                 await transporter.sendMail(mailOptionsTeacher);
             }
@@ -117,16 +117,17 @@ Ban Quản trị`
                 const mailOptionsStudent = {
                     from: process.env.EMAIL_USER,
                     to: stu.Email,
-                    subject: "Lịch học mới được tạo",
-                    text: `Xin chào ${stu.Fullname}, Bạn có lịch học mới cho lớp: ${classData.Classname}.
-- Phòng học: ${Address}
+                    subject: "New class schedule created",
+                    text: `Hi ${stu.Fullname}, 
+                    You have a new schedule for class: ${classData.Classname}.
+- Classroom: ${Address}
 - Slot: ${Slot}
-- Ngày: ${formattedDate}
+- Day: ${formattedDate}
 
-Vui lòng kiểm tra lại hệ thống để theo dõi chi tiết.
+Please check back to the system for details.
 
-Trân trọng,
-Ban Quản trị`
+Sincerely,
+Administration`
                 };
                 await transporter.sendMail(mailOptionsStudent);
             }
@@ -141,13 +142,13 @@ Ban Quản trị`
         try {
             const { Address, Slot, Day, ClassId } = req.body;
             const day = new Date(Day);
-            const startOfDay = new Date(day.setHours(0, 0, 0, 0));
-            const endOfDay = new Date(day.setHours(23, 59, 59, 999));
             const today = new Date();
             today.setHours(0, 0, 0, 0);
-            if (day < today) {
-                return res.status(400).json({ message: "Cannot update a schedule to a past date" });
+            if (day < today  ||day.getDate() === today.getDate() && day.getMonth() === today.getMonth() && day.getFullYear() === today.getFullYear()) {
+                return res.status(400).json({ message: "You cannot update a schedule for past and present!" });
             }
+            const startOfDay = new Date(day.setHours(0, 0, 0, 0));
+            const endOfDay = new Date(day.setHours(23, 59, 59, 999));
             const classData = await Class.findById(ClassId);
             if (!classData) {
                 return res.status(404).json({ message: "Class not found" });
@@ -204,18 +205,18 @@ Ban Quản trị`
                 const mailOptionsTeacher = {
                     from: process.env.EMAIL_USER,
                     to: teacher.Email,
-                    subject: "Lịch học đã được cập nhật",
-                    text: `Xin chào thầy/cô ${teacher.Fullname},
+                    subject: "The schedule has been updated.",
+                    text: `Hello teacher ${teacher.Fullname},
 
-Lịch học của lớp: ${classData.Classname} đã được cập nhật.
-- Phòng học: ${Address}
+Class schedule: ${classData.Classname} has been updated.
+- Classroom: ${Address}
 - Slot: ${Slot}
-- Ngày: ${formattedDate}
+- Day: ${formattedDate}
 
-Vui lòng kiểm tra lại hệ thống để theo dõi chi tiết.
+Please check back to the system for details.
 
-Trân trọng,
-Ban Quản trị`
+Sincerely,
+Administration`
                 };
                 await transporter.sendMail(mailOptionsTeacher);
             }
@@ -225,18 +226,18 @@ Ban Quản trị`
                 const mailOptionsStudent = {
                     from: process.env.EMAIL_USER,
                     to: stu.Email,
-                    subject: "Lịch học đã được cập nhật",
-                    text: `Xin chào ${stu.Fullname},
+                    subject: "The schedule has been updated.",
+                    text: `Hi ${stu.Fullname},
 
-Lịch học của lớp: ${classData.Classname} đã được cập nhật.
-- Phòng học: ${Address}
+Class schedule: ${classData.Classname} has been updated.
+- Classroom: ${Address}
 - Slot: ${Slot}
-- Ngày: ${formattedDate}
+- Day: ${formattedDate}
 
-Vui lòng kiểm tra lại hệ thống để theo dõi chi tiết.
+Please check back to the system for details.
 
-Trân trọng,
-Ban Quản trị`
+Sincerely,
+Administration`
                 };
                 await transporter.sendMail(mailOptionsStudent);
             }
@@ -309,15 +310,15 @@ Ban Quản trị`
                 const mailOptionsTeacher = {
                     from: process.env.EMAIL_USER,
                     to: teacher.Email,
-                    subject: "Lịch học đã bị xóa",
-                    text: `Xin chào thầy/cô ${teacher.Fullname},
+                    subject: "The class schedule has been deleted.",
+                    text: `Hi teacher ${teacher.Fullname},
 
-Lịch học của lớp: ${classData.Classname} vào ngày ${formattedDate} (Slot ${schedule.Slot}, Phòng ${schedule.Address}) đã bị xóa.
+Class schedule: ${classData.Classname} on the day ${formattedDate} (Slot ${schedule.Slot}, in Classroom ${schedule.Address}) has been deleted.
 
-Vui lòng kiểm tra lại hệ thống để theo dõi chi tiết.
+Please check back to the system for details.
 
-Trân trọng,
-Ban Quản trị`
+Sincerely,
+Administration`
                 };
                 await transporter.sendMail(mailOptionsTeacher);
 
@@ -327,15 +328,15 @@ Ban Quản trị`
                     const mailOptionsStudent = {
                         from: process.env.EMAIL_USER,
                         to: stu.Email,
-                        subject: "Lịch học đã bị xóa",
-                        text: `Xin chào ${stu.Fullname},
+                        subject: "The class schedule has been deleted.",
+                        text: `Hi ${stu.Fullname},
 
-Lịch học của lớp: ${classData.Classname} vào ngày ${formattedDate} (Slot ${schedule.Slot}, Phòng ${schedule.Address}) đã bị xóa.
+Class schedule: ${classData.Classname} on the day ${formattedDate} (Slot ${schedule.Slot}, in Classroom ${schedule.Address}) has been deleted.
 
-Vui lòng kiểm tra lại hệ thống nếu có thắc mắc.
+Please check back to the system for details.
 
-Trân trọng,
-Ban Quản trị`
+Sincerely,
+Administration`
                     };
                     await transporter.sendMail(mailOptionsStudent);
                 }

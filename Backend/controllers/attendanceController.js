@@ -8,7 +8,7 @@ const addAttendanceForNewStudent = async (classId, studentId) => {
   try {
     const classInfo = await Class.findById(classId);
     if (!classInfo) {
-      console.error("Không tìm thấy lớp học.");
+      console.error("No class found.");
       return;
     }
 
@@ -46,7 +46,7 @@ const addAttendanceForNewStudent = async (classId, studentId) => {
       }
     }
   } catch (err) {
-    console.error("Lỗi khi tạo điểm danh cho học sinh:", err.message);
+    console.error("Error when creating attendance for students:", err.message);
   }
 };
 
@@ -58,19 +58,19 @@ const attendanceController = {
       const schedule = await Schedule.findById(scheduleId).populate('Class', select = 'Teacher');
 
       if (!schedule) {
-        return res.status(404).json({ message: "Không tìm thấy lịch học" });
+        return res.status(404).json({ message: "No class schedule found" });
       }
       const currentDate = new Date();
       const scheduleDate = new Date(schedule.Day);
       const previousDayUTC = new Date(Date.UTC(currentDate.getUTCFullYear(), currentDate.getUTCMonth(), currentDate.getUTCDate()));
 
       if (schedule.Class.Teacher.toString() !== req.user.id && req.user.Role !== 'admin') {
-        return res.status(403).json({ message: "Bạn không phải giáo viên của lớp này" });
+        return res.status(403).json({ message: "You are not the teacher of this class." });
       }
 
       if (req.user.Role === 'admin') {
         if (scheduleDate > previousDayUTC) {
-          return res.status(400).json({ message: "Bạn không thể sửa điểm danh cho lịch học chưa đến." });
+          return res.status(400).json({ message: "You cannot edit attendance for classes that have not yet arrived." });
         }
       }
 
@@ -80,7 +80,7 @@ const attendanceController = {
 
         if (previousDayUTC < scheduleDate || previousDayUTC > nextDay) {
           return res.status(400).json({
-            message: "Bạn chỉ có thể sửa điểm danh trong ngày của lịch học và ngày hôm sau."
+            message: "You can only edit attendance for the day of the class schedule and the following day."
           });
         }
       }
@@ -93,7 +93,7 @@ const attendanceController = {
         });
 
         if (!attendance) {
-          errorMessages.push({ studentId: student.studentId, error: `Không tìm thấy bản ghi điểm danh của sinh viên ${student.studentId}` });
+          errorMessages.push({ studentId: student.studentId, error: `Student attendance record not found ${student.studentId}` });
           return;
         }
         attendance.IsPresent = student.isPresent;
@@ -105,13 +105,13 @@ const attendanceController = {
 
       if (errorMessages.length > 0) {
         return res.status(400).json({
-          message: "Cập nhật điểm danh không thành công",
+          message: "Update attendance failed",
           errors: errorMessages
         });
       }
-      res.status(200).json({ message: "Cập nhật điểm danh thành công" });
+      res.status(200).json({ message: "Attendance updated successfully" });
     } catch (error) {
-      res.status(500).json({ message: "Lỗi khi cập nhật điểm danh", error: error.message });
+      res.status(500).json({ message: "Error updating attendance", error: error.message });
     }
   },
 
@@ -124,11 +124,11 @@ const attendanceController = {
       const previousDayUTC = new Date(Date.UTC(currentDate.getUTCFullYear(), currentDate.getUTCMonth(), currentDate.getUTCDate()));
       if (previousDayUTC < schedule.Day) {
         return res.status(400).json({
-          message: "Lịch học chưa diễn ra."
+          message: "The class schedule has not yet taken place."
         });
       }
       if (schedule.Class.Teacher.toString() !== req.user.id && req.user.Role !== 'admin') {
-        return res.status(403).json({ message: "Bạn không phải giáo viên của lớp này" });
+        return res.status(403).json({ message: "You are not the teacher of this class." });
       }
 
       const attendanceRecords = await Attendance.find({ Schedule: scheduleId })
@@ -138,7 +138,7 @@ const attendanceController = {
         });
 
       if (!attendanceRecords || attendanceRecords.length === 0) {
-        return res.status(404).json({ message: "Không có bản ghi điểm danh cho lịch học này." });
+        return res.status(404).json({ message: "There is no attendance record for this schedule." });
       }
 
       const usersWithImage = attendanceRecords.map(image => {
@@ -158,7 +158,7 @@ const attendanceController = {
 
       res.status(200).json({ usersWithImage });
     } catch (error) {
-      res.status(500).json({ message: "Lỗi khi lấy bản ghi điểm danh", error: error.message });
+      res.status(500).json({ message: "Error while retrieving attendance record", error: error.message });
     }
   },
 };

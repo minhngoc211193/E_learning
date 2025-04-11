@@ -3,6 +3,7 @@ const Subject = require('../models/Subject');
 const Schedule = require('../models/Schedule');
 const Document = require('../models/Document');
 const Attendance = require('../models/Attendance');
+const Major = require('../models/Major');
 const subjectController = {
     getSubject: async (req, res) => {
         try {
@@ -17,8 +18,15 @@ const subjectController = {
         try {
             const { Name, Description, MajorId, ClassId, CodeSubject } = req.body;
 
-            if (!Name || !Description || Name.trim().length === 0 || Description.trim().length === 0) {
-                return res.status(400).json({ message: "Name and Description cannot be empty" });
+            if (Name.trim().length === 0 || Description.trim().length === 0 || CodeSubject.trim().length === 0) {
+                return res.status(400).json({ message: "Name, Description and CodeSubject cannot be empty" });
+            }
+            if (MajorId.trim().length === 0) {
+                return res.status(400).json({ message: "MajorId cannot be empty" });
+            }
+            const major = await Major.findById(MajorId);
+            if (!major) {
+                return res.status(404).json({ message: "Major not found" });
             }
 
             const namePattern = /^[A-Za-z0-9\u00C0-\u024F\u1E00-\u1EFF\u2C00-\u2C5F\u0370-\u03FF\s.]+$/;
@@ -84,12 +92,19 @@ const subjectController = {
 
     updateSubject: async (req, res) => {
         try {
-            const { Name, Description, MajorId, CodeSubject } = req.body;
+            const { Name, Description, CodeSubject, MajorId} = req.body;
             
-            if (!Name || !Description || Name.trim().length === 0 || Description.trim().length === 0) {
-                return res.status(400).json({ message: "Name and Description cannot be empty" });
+            if (Name.trim().length === 0 || Description.trim().length === 0 || CodeSubject.trim().length === 0) {
+                return res.status(400).json({ message: "Name, Description and CodeSubject cannot be empty" });
             }
-    
+            if (MajorId.trim().length === 0) {
+                return res.status(400).json({ message: "MajorId cannot be empty" });
+            }
+            const major = await Major.findById(MajorId);
+            if (!major) {
+                return res.status(404).json({ message: "Major not found" });
+            }
+
             const namePattern = /^[A-Za-z0-9\u00C0-\u024F\u1E00-\u1EFF\u2C00-\u2C5F\u0370-\u03FF\s.]+$/;
             if (!namePattern.test(Name)) {
                 return res.status(400).json({ message: "Name can only contain letters, numbers, and spaces and accented characters" });

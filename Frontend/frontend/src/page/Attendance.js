@@ -18,14 +18,14 @@ function Attendance() {
   const openNotification = (type, detailMessage = "", pauseOnHover = true) => {
     if (type === "success") {
       api.open({
-        message: 'Thành công!',
+        message: 'Success!',
         description: detailMessage,
         showProgress: true,
         pauseOnHover,
       });
     } else {
       api.open({
-        message: 'Thất bại!',
+        message: 'Failed!',
         description: detailMessage,
         showProgress: true,
         pauseOnHover,
@@ -43,7 +43,7 @@ function Attendance() {
         setAttendanceData(response.data.usersWithImage);
         console.log(response.data.usersWithImage);
       } catch (err) {
-        setError("Không thể lấy dữ liệu điểm danh.");
+        setError("Cannot got attendance data.");
       } finally {
         setLoading(false);
       }
@@ -75,14 +75,14 @@ function Attendance() {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      openNotification("success", "Cập nhật điểm danh thành công!");
+      openNotification("success", "Update attendance successfully!");
     } catch (err) {
-      const errorMessage = err.response?.data?.message || "Có lỗi xảy ra!";
+      const errorMessage = err.response?.data?.message || "Have problem!";
       openNotification("error", errorMessage, true);
     }
   };
 
-  if (loading) return <p>Đang tải dữ liệu...</p>;
+  if (loading) return <p>Loading...</p>;
   if (error) return <p>{error}</p>;
 
   return (
@@ -97,10 +97,10 @@ function Attendance() {
           <table className={styles.table}>
             <thead>
               <tr>
-                <th>Hình ảnh</th>
-                <th>Họ và Tên</th>
+                <th>Image</th>
+                <th>Fullname</th>
                 <th>User name</th>
-                <th>Trạng thái</th>
+                <th>Status</th>
                 <th>Note</th>
               </tr>
             </thead>

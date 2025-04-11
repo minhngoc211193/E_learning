@@ -3,11 +3,31 @@ import styles from '../User/CreateUser.module.css';
 import { useNavigate } from "react-router-dom";
 import axios from 'axios';
 import {jwtDecode} from 'jwt-decode';
+import { notification } from 'antd';
 
 function CreateUser({ setActiveTab }) {
     const [majors, setMajors] = useState([]);
     const navigate = useNavigate();
     const token = localStorage.getItem("accessToken");
+    const [api, contextHolder] = notification.useNotification();
+    
+        const openNotification = (type, detailMessage = "") => {
+            if (type === "success") {
+                api.open({
+                    message: "Action successful!",
+                    description: "Create new user successful.",
+                    showProgress: true,
+                    pauseOnHover: true,
+                });
+            } else {
+                api.open({
+                    message: "Action failed!",
+                    description: detailMessage,
+                    showProgress: true,
+                    pauseOnHover: true,
+                });
+            }
+        };
 
     useEffect(() => {
         if (token) {
@@ -22,7 +42,7 @@ function CreateUser({ setActiveTab }) {
                 navigate("/"); 
             }
         } else {
-            alert("Bạn cần đăng nhập trước!");
+            alert("You should login!");
             navigate("/home");
         }
     }, [navigate]);
@@ -44,7 +64,6 @@ function CreateUser({ setActiveTab }) {
         fetchMajors();
     }, []);
 
-    const [message, setMessage] = useState("");
     const [userData, setUserData] = useState({
         Fullname: "",  
         Username: "",  
@@ -73,7 +92,6 @@ function CreateUser({ setActiveTab }) {
                     "Authorization": `Bearer ${token}`
                 },
             });
-            console.log("Create new user", response.data);
             setUserData({
                 Fullname: "",  
                 Username: "",  
@@ -85,18 +103,19 @@ function CreateUser({ setActiveTab }) {
                 DateOfBirth: "",
                 MajorId: "",
             });
-            setActiveTab("all");
-            
+
+            openNotification("success");
+            setTimeout(() => setActiveTab("all"),2000);
         } catch (e) {
-            if (e.response && e.response.data.errors) {
-                setMessage(e.response.data.errors[0].msg);
-            }
-            console.error("Error registering user:", e);
+            const errorMessage =
+                e.response?.data?.message || "Have problem, please try again!";
+            openNotification("error", errorMessage);
         }
     };
 
     return (
         <div className={styles.modalOverlay}>
+            {contextHolder}
             <div className={styles.modalContent}>
                 <button className={styles.closeButton} onClick={() => setActiveTab("all")}>
                     ✖
@@ -141,8 +160,6 @@ function CreateUser({ setActiveTab }) {
 
                         <button type="submit" onClick={handleSubmit} className={styles.Create}>Create New User</button>
                     </form>
-
-                    {message && <p>{message}</p>}
                 </div>
             </div>
         </div>

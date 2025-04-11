@@ -14,20 +14,20 @@ const documentController = {
             if (file) {
                 const maxSize = 5 * 1024 * 1024; // 3MB
                 if (file.size > maxSize) {
-                    return res.status(400).json({ message: 'Kích thước file vượt quá giới hạn (3MB)' });
+                    return res.status(400).json({ message: 'File size exceeded limit (5MB)' });
                 }
             }
         
             const mimeType = mime.lookup(file.originalname);  // Lấy loại MIME của tệp từ tên tệp
             if (!mimeType) {
-                return res.status(400).json({ message: 'Không thể xác định loại tệp' });
+                return res.status(400).json({ message: 'File type could not be determined.' });
             }
         
             const user = await User.findById(userId);
             const classData = await Class.findById(ClassId);
         
             if (!user || user.Role !== 'teacher' || !classData || classData.Teacher.toString() !== userId) {
-                return res.status(403).json({ message: 'Chỉ giáo viên của lớp này mới có thể tạo tài liệu' });
+                return res.status(403).json({ message: 'Only the teacher of this class can create documents.' });
             }
         
             const createDocument = new Document({
@@ -42,7 +42,7 @@ const documentController = {
             });
         
             await createDocument.save();
-            return res.status(200).json({ message: 'Tải tệp lên thành công' });
+            return res.status(200).json({ message: 'File upload successful' });
         } catch (error) {
             console.error(error);
             res.status(500).json({ message: 'Error uploading file', error });
@@ -72,7 +72,7 @@ const documentController = {
             res.status(200).json({ documents });
         } catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'Lỗi khi lấy tài liệu', error });
+            res.status(500).json({ message: 'Error while retrieving document', error });
         }
     },
 
@@ -86,18 +86,18 @@ const documentController = {
             const classData = await Class.findById(document.Class);
         
             if (!document) {
-                return res.status(404).json({ message: 'Tài liệu không tồn tại' });
+                return res.status(404).json({ message: 'Document does not exist' });
             }
         
             const user = await User.findById(userId);
             if (!user || !classData || !classData.Student.includes(userId)) {
-                return res.status(403).json({ message: 'Chỉ học sinh của lớp này mới có thể tải tài liệu' });
+                return res.status(403).json({ message: 'Only students in this class can download documents.' });
             }
         
             // Lấy phần mở rộng từ MIME type
             const extension = mime.extension(document.File.mimeType);
             if (!extension) {
-                return res.status(400).json({ message: 'Không thể xác định phần mở rộng của tệp' });
+                return res.status(400).json({ message: 'File extension could not be determined.' });
             }
         
             // Giải mã dữ liệu base64 và chuyển nó thành một Buffer
@@ -126,15 +126,15 @@ const documentController = {
             const document = await Document.findById(documentId);
             const classData = await Class.findById(document.Class);
             if (!classData) {
-                return res.status(404).json({ message: 'Lớp học không tồn tại' });
+                return res.status(404).json({ message: 'Class does not exist' });
             }
             if (!document) {
-                return res.status(404).json({ message: 'Tài liệu không tồn tại' });
+                return res.status(404).json({ message: 'Document does not exist' });
             }
 
             const user = await User.findById(userId);
             if (!user || classData.Teacher.toString() !== userId) {
-                return res.status(403).json({ message: 'Chỉ giáo viên của lớp này mới có thể sửa tài liệu' });
+                return res.status(403).json({ message: 'Only the teacher of this class can edit the document.' });
             }
 
             document.Tittle = Tittle || document.Tittle;
@@ -143,12 +143,12 @@ const documentController = {
             if (req.file) {
                 const maxSize = 5 * 1024 * 1024; // 3MB
                 if (req.file.size > maxSize) {
-                    return res.status(400).json({ message: 'Kích thước file vượt quá giới hạn (3MB)' });
+                    return res.status(400).json({ message: 'File size exceeded limit (5MB)' });
                 }
     
                 const mimeType = mime.lookup(req.file.originalname);
                 if (!mimeType) {
-                    return res.status(400).json({ message: 'Không thể xác định loại tệp' });
+                    return res.status(400).json({ message: 'File type could not be determined.' });
                 }
     
                 // Cập nhật lại file mới cho tài liệu
@@ -161,10 +161,10 @@ const documentController = {
 
 
             await document.save();
-            return res.status(200).json({ message: 'Cập nhật tài liệu thành công' });
+            return res.status(200).json({ message: 'Document updated successfully' });
         } catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'Lỗi khi sửa tài liệu', error });
+            res.status(500).json({ message: 'Error while editing document', error });
         }
     },
 
@@ -176,14 +176,14 @@ const documentController = {
             // Tìm tài liệu trong cơ sở dữ liệu
             const document = await Document.findById(documentId);
             if (!document) {
-                return res.status(404).json({ message: 'Tài liệu không tồn tại' });
+                return res.status(404).json({ message: 'Document does not exist' });
             }
     
             // Tìm lớp tương ứng với tài liệu
             const classData = await Class.findById(document.Class);
     
             if (!classData) {
-                return res.status(404).json({ message: 'Lớp học không tồn tại' });
+                return res.status(404).json({ message: 'Class does not exist' });
             }
     
             
@@ -191,11 +191,11 @@ const documentController = {
             // Xóa tài liệu khỏi cơ sở dữ liệu
             await Document.findByIdAndDelete(documentId);
     
-            return res.status(200).json({ message: 'Xóa tài liệu thành công' });
+            return res.status(200).json({ message: 'Document deleted successfully' });
     
         } catch (error) {
             console.error(error);
-            res.status(500).json({ message: 'Lỗi khi xóa tài liệu', error });
+            res.status(500).json({ message: 'Error while deleting document', error });
         }
     },
 
@@ -203,17 +203,17 @@ const documentController = {
         try{
             const { search } = req.query;
             if (!search) {
-                return res.status(400).json({ message: 'Vui lòng nhập từ khóa tìm kiếm' });
+                return res.status(400).json({ message: 'Please enter search keyword' });
             }
             
             const documents = await Document.find({ Tittle: { $regex: search, $options: 'i' } });
 
             if (!documents || documents.length === 0) {
-                return res.status(404).json({ message: 'Không tìm thấy tài liệu' });
+                return res.status(404).json({ message: 'Document not found' });
             }
             return res.status(200).json({ documents });
         } catch (error) {
-            return res.status(500).json({ message: 'Lỗi khi tìm kiếm Document', error });
+            return res.status(500).json({ message: 'Error while searching for Document', error });
         }
     }
 }

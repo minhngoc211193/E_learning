@@ -30,7 +30,7 @@ function DetailClass() {
       });
       setClassData(response.data); // Set the class data
     } catch (err) {
-      setError("Không thể tải thông tin lớp học."); // Set error message
+      setError("Cannot get class information."); // Set error message
     }
   };
 

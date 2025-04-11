@@ -15,7 +15,7 @@ const userController = {
             const users = await User.find().select('-Password');  // Loại bỏ trường Password
 
             if (!users) {
-                return res.status(404).json({ message: 'Không tìm thấy user' });
+                return res.status(404).json({ message: 'User not found' });
             }
 
             // Xử lý ảnh cho từng người dùng
@@ -48,7 +48,7 @@ const userController = {
             // Lấy dữ liệu người dùng từ cơ sở dữ liệu
             const user = await User.findById(userId);
             if (!user) {
-                return res.status(404).json({ message: 'Không tìm thấy người dùng' });
+                return res.status(404).json({ message: 'User not found' });
             }
 
             // Lấy dữ liệu từ body của yêu cầu
@@ -59,7 +59,7 @@ const userController = {
 
             if (user.Role === "student") {
                 if (SchoolYear === undefined) {
-                    return res.status(400).json({ message: 'Phải có trường SchoolYear cho học sinh' });
+                    return res.status(400).json({ message: 'There must be a school year for students.' });
                 }
                 updateData.SchoolYear = SchoolYear;
             } else {
@@ -73,13 +73,13 @@ const userController = {
                 // Kiểm tra loại file ảnh
                 const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
                 if (!allowedTypes.includes(file.mimetype)) {
-                    return res.status(400).json({ message: 'Bạn chỉ có thể tải lên file (jpg, jpeg, png)' });
+                    return res.status(400).json({ message: 'You can only upload files (jpg, jpeg, png)' });
                 }
     
                 // Kiểm tra kích thước file (3MB) trong controller
                 const maxSize = 3 * 1024 * 1024; // 3MB
                 if (file.size > maxSize) {
-                    return res.status(400).json({ message: 'Kích thước file vượt quá giới hạn (3MB)' });
+                    return res.status(400).json({ message: 'File size exceeded limit (3MB)' });
                 }
                 updateData.Image = file.buffer;
             }
@@ -100,7 +100,7 @@ const userController = {
             const user = await User.findById(userId);
 
             if (!user) {
-                return res.status(404).json({ message: 'Không tìm thấy người dùng' });
+                return res.status(404).json({ message: 'User not found' });
             }
 
             // Xóa các Comments liên quan đến người dùng
@@ -147,7 +147,7 @@ const userController = {
             const io = req.app.get('io');
             io.emit('deleteUser', userId);
 
-            res.status(200).json({ message: 'Người dùng đã bị xóa cùng với các liên kết liên quan' });
+            res.status(200).json({ message: 'User has been deleted along with related links' });
         } catch (err) {
             return res.status(500).json({ message: 'Lỗi Server', error: err.message });
         }
@@ -186,13 +186,13 @@ const userController = {
 
             // Kiểm tra xem role có phải là "teacher" hoặc "student" không
             if (Role && !['teacher', 'student'].includes(Role)) {
-                return res.status(400).json({ message: 'Role không hợp lệ. Chỉ chấp nhận teacher hoặc student.' });
+                return res.status(400).json({ message: 'Invalid role. Only teacher or student accepted.' });
             }
 
             // Tìm Major để xác định các User trong Major này
             const major = await Major.findById(id);
             if (!major) {
-                return res.status(404).json({ message: 'Không tìm thấy Major này' });
+                return res.status(404).json({ message: 'This Major was not found.' });
             }
 
             // Tìm người dùng theo Major và Role
@@ -203,7 +203,7 @@ const userController = {
 
             // Nếu không có người dùng nào
             if (users.length === 0) {
-                return res.status(404).json({ message: 'Không có người dùng nào trong Major này với Role đã chọn' });
+                return res.status(404).json({ message: 'There are no users in this Major with the selected Role' });
             }
 
             // Xử lý ảnh cho từng người dùng nếu có
@@ -224,7 +224,7 @@ const userController = {
 
         } catch (err) {
             console.error(err);
-            res.status(500).json({ message: 'Lỗi khi truy vấn dữ liệu', error: err.message });
+            res.status(500).json({ message: 'Error while querying data', error: err.message });
         }
     },
 
@@ -235,13 +235,13 @@ const userController = {
             // Kiểm tra Major có tồn tại không
             const major = await Major.findById(majorId);
             if (!major) {
-                return res.status(404).json({ message: 'Major không tồn tại' });
+                return res.status(404).json({ message: 'Major not found' });
             }
     
             // Kiểm tra Subject có tồn tại không
             const subject = await Subject.findById(subjectId);
             if (!subject) {
-                return res.status(404).json({ message: 'Subject không tồn tại' });
+                return res.status(404).json({ message: 'Subject not found' });
             }
     
             // Lấy tất cả học sinh trong Major
@@ -273,7 +273,7 @@ const userController = {
             return res.status(200).json(studentsNotInSubject);
     
         } catch (err) {
-            res.status(500).json({ message: 'Lỗi khi truy vấn dữ liệu', error: err.message });
+            res.status(500).json({ message: 'Error while querying data', error: err.message });
         }
     },
 
@@ -282,7 +282,7 @@ const userController = {
             const { search } = req.query;  // Nhận từ khóa tìm kiếm từ query string
 
             if (!search) {
-                return res.status(400).json({ message: 'Vui lòng cung cấp từ khóa tìm kiếm' });
+                return res.status(400).json({ message: 'Please provide search keywords' });
             }
 
             // Tìm người dùng theo Fullname hoặc Username, sử dụng Regular Expression (i.e., case-insensitive search)
@@ -294,7 +294,7 @@ const userController = {
             }).select('-Password');  // Loại bỏ trường Password
 
             if (users.length === 0) {
-                return res.status(404).json({ message: 'Không tìm thấy người dùng nào' });
+                return res.status(404).json({ message: 'No users found' });
             }
 
             // Xử lý ảnh cho từng người dùng nếu có
@@ -314,7 +314,7 @@ const userController = {
             // Trả về danh sách người dùng phù hợp với từ khóa tìm kiếm
             return res.status(200).json(usersWithImage);
         } catch (err) {
-            return res.status(500).json({ message: 'Lỗi tìm kiếm', error: err.message });
+            return res.status(500).json({ message: 'Search error', error: err.message });
         }
     }
 };

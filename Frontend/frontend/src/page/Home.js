@@ -18,14 +18,14 @@ function Home() {
   const openNotification = useCallback((type, detailMessage = "", pauseOnHover = true) => {
     if (type === "success") {
       api.open({
-        message: 'Thành công!',
+        message: 'Success!',
         description: detailMessage,
         showProgress: true,
         pauseOnHover,
       });
     } else {
       api.open({
-        message: 'Thất bại!',
+        message: 'Failed!',
         description: detailMessage,
         showProgress: true,
         pauseOnHover,
@@ -45,7 +45,9 @@ function Home() {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      setBlogs(response.data);
+      setBlogs(
+        response.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+      );
     } catch (error) {
       console.error("Error fetching blogs:", error);
       const errorMessage =
