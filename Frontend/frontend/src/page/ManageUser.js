@@ -105,6 +105,7 @@ function ManageUser() {
                         Authorization: `Bearer ${localStorage.getItem('accessToken')}`
                     }
                 });
+                
                 openNotification("success");
                 setUsers(users.filter(user => user._id !== id));
             } catch (error) {

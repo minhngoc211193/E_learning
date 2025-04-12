@@ -1,8 +1,8 @@
 .create-meet-container {
-  padding: 1rem;
+  padding: 2rem 3rem 2rem 2rem;
   background-color: white;
   border-top: 1px solid #ccc;
-  max-width: 600px; /* Limit the width for better UI on larger screens */
+  max-width: 700px; /* Limit the width for better UI on larger screens */
   margin: 0 auto;
   box-sizing: border-box;
 }
@@ -50,7 +50,7 @@
   color: white;
   padding: 0.5rem;
   border-radius: 6px;
-  margin-left: 0.5rem;
+  margin-top: 1rem;
   cursor: pointer;
   width: 100%;
   font-size: 1rem;

@@ -8,7 +8,9 @@ import Header from '../components/Header';
 import { notification } from "antd";
 function ManageClass() {
     const [classes, setClasses] = useState([]);
+    const [subjects, setSubjects] = useState([]);
     const [search, setSearch] = useState("");
+    const [selectSubject, setSelectSubject] = useState("");
     const navigate = useNavigate();
     const token = localStorage.getItem("accessToken");
     const decoded = jwtDecode(token);
@@ -38,6 +40,8 @@ function ManageClass() {
             fetchClasses();
         } else {
             fetchClassesByUser();
+            fetchSubjects();
+            fetchClassesBySubject();
         }
     }, [role]);
 
@@ -53,6 +57,16 @@ function ManageClass() {
             console.error("Error fetching classes", e);
         }
     }
+    const fetchSubjects = async () => {
+        try {
+            const response = await axios.get("http://localhost:8000/subject/subjects", {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            setSubjects(response.data);
+        } catch (error) {
+            console.error("Error fetching subjects", error);
+        }
+    };
     const fetchClassesByUser = async () => {
         try {
             const response = await axios.get(`http://localhost:8000/class/class-by-userId/${userId}`, {
@@ -63,8 +77,19 @@ function ManageClass() {
             console.error("Error fetching user classes", e);
         }
     };
+
+    const fetchClassesBySubject = async(subjectId)=>{
+        try{
+            const response = await axios.get(`http://localhost:8000/class/classes-by-subject/${subjectId}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            setClasses(response.data);
+        }catch(e){
+            console.error("Error fetching user classes", e);
+        }
+    }
     const filteredClasses = classes.filter(classItem =>
-        classItem.Classname.toLowerCase().includes(search.toLowerCase())
+        classItem.Subject.Name.toLowerCase().includes(search.toLowerCase())
     );
     const handleSearch = (e) => {
         setSearch(e.target.value);
@@ -115,6 +140,26 @@ function ManageClass() {
                         className={styles["search-bar"]}
                     />
                 </div>
+                <select
+                    className={styles.filterDropdown}
+                    value={selectSubject}
+                    onChange={(e) => {
+                        const value = e.target.value;
+                        setSelectSubject(value);
+                        if (value === "") {
+                            fetchClassesByUser();
+                        } else {
+                            fetchClassesBySubject(value);
+                        }
+                    }}
+                >
+                    <option value="">All subjects</option>
+                    {subjects.map(subject => (
+                        <option key={subject._id} value={subject._id}>
+                            {subject.Name}
+                        </option>
+                    ))}
+                </select>
                 <div className={styles["class-grid"]}>
                     {filteredClasses.map((classItem) => (
                         <div key={classItem._id} className={styles["class-card"]} onClick={() => handleClass(classItem._id)}>

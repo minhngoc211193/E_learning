@@ -143,7 +143,7 @@ function CreateMeet({ selectedConversationId, setIsMeetingFormVisible }) {
       <button onClick={handleCreateMeeting} className={styles["create-meet-button"]}>
         Create Meet
       </button>
-      <button onClick={() => setIsMeetingFormVisible(false)} className={styles["closeButton"]}>
+      <button onClick={() => setIsMeetingFormVisible(false)} className={styles["create-meet-cancel"]}>
       Cancel
       </button>
     </div>

@@ -9,7 +9,7 @@ router.post('/create-class', verifyAdmin,  classController.createClass);        
 router.get('/detail-class/:id', verifyToken, classController.getClassById);           // Lấy lớp học theo ID
 router.put('/update-class/:id', verifyAdmin, classController.updateClass);            // Cập nhật lớp học theo ID
 router.delete('/delete-class/:id', verifyAdmin, classController.deleteClass);         // Xóa lớp học theo ID
-router.get('/classes-by-subject/:subjectId', verifyAdmin, classController.getClassesBySubject);  // Lấy tất cả lớp học theo Subject
+router.get('/classes-by-subject/:subjectId', classController.getClassesBySubject);  // Lấy tất cả lớp học theo Subject
 router.get('/class-by-userId/:userId',verifyToken, verifyRole(["teacher","student"]), classController.getClassByUser);
 router.get("/search-class", verifyToken, classController.searchClass);
 

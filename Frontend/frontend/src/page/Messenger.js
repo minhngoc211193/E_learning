@@ -95,10 +95,12 @@ function Messenger() {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      // Nếu có conversation trả về, set conversation đó
+      setConversations((prevConversations) => [response.data, ...prevConversations]);
+    
+      // Đặt conversation mới được chọn
       setSelectedConversationId(response.data._id);
-
-      // Nếu là conversation mới, fetch messages
+      
+      // Fetch tin nhắn cho cuộc trò chuyện đó
       fetchMessages(response.data._id);
     } catch (e) {
       console.error("Error creating conversation:", e)
@@ -258,6 +260,7 @@ function Messenger() {
         <h2 className={styles["sidebar-title"]}>Messenger</h2>
         <input
           type="text"
+          className={styles.search}
           placeholder="Search..."
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
@@ -268,7 +271,7 @@ function Messenger() {
         <div>
           {searchResults.map((user) => (
             <div key={user._id} onClick={() => handleUser(user)} className={styles["search-result-item"]}>
-              <FaUserCircle size={20} />
+              <img src={user.Image} className={styles.avatar}/>
               <span>{user.Fullname}</span>
             </div>
           ))}

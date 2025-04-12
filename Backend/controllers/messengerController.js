@@ -29,7 +29,20 @@ const searchUser = async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    return res.status(200).json(userToSearch);
+    const usersWithImage = userToSearch.map(user => {
+      let imageBase64 = null;
+      if (user.Image) {
+        const mimeType = mime.lookup(user.Image) || 'image/png';
+        imageBase64 = `data:${mimeType};base64,${user.Image.toString('base64')}`;
+      }
+
+      return {
+        ...user.toObject(),
+        Image: imageBase64
+      }
+    })
+
+    return res.status(200).json(usersWithImage);
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: 'Server error', error: err });
@@ -38,11 +51,10 @@ const searchUser = async (req, res) => {
 
 const createConversation = async (req, res) => {
   try {
-    const { searchUserId } = req.body; // Sửa lại tên trường để match với frontend
+    const { searchUserId } = req.body;
     const userId = req.user.id;
     const userRole = req.user.Role;
 
-    // Validate input
     if (!searchUserId) {
       return res.status(400).json({ message: 'User ID is required' });
     }
@@ -52,7 +64,6 @@ const createConversation = async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Kiểm tra xem vai trò của người dùng có phù hợp không
     if (userRole === 'student' && userToSearch.Role !== 'teacher') {
       return res.status(403).json({ message: 'Can only create conversation with a teacher' });
     }
@@ -61,7 +72,6 @@ const createConversation = async (req, res) => {
       return res.status(403).json({ message: 'Can only create conversation with a student' });
     }
 
-    // Tìm conversation đã tồn tại
     let existingConversation = await Conversation.findOne({
       $or: [
         { studentId: userId, teacherId: searchUserId },
@@ -71,12 +81,27 @@ const createConversation = async (req, res) => {
       .populate('studentId', 'Fullname Image')
       .populate('teacherId', 'Fullname Image');
 
-    // Nếu conversation đã tồn tại, trả về conversation đó
+    const formatUserWithImage = (user) => {
+      if (!user) return null;
+      const imageBase64 = user.Image
+        ? `data:image/jpeg;base64,${user.Image.toString('base64')}`
+        : null;
+
+      return {
+        _id: user._id,
+        Fullname: user.Fullname,
+        Image: imageBase64,
+      };
+    };
+
     if (existingConversation) {
-      return res.status(200).json(existingConversation);
+      return res.status(200).json({
+        ...existingConversation.toObject(),
+        studentId: formatUserWithImage(existingConversation.studentId),
+        teacherId: formatUserWithImage(existingConversation.teacherId),
+      });
     }
 
-    // Tạo conversation mới
     const newConversation = new Conversation({
       studentId: userRole === 'student' ? userId : searchUserId,
       teacherId: userRole === 'teacher' ? userId : searchUserId,
@@ -84,18 +109,22 @@ const createConversation = async (req, res) => {
 
     const savedConversation = await newConversation.save();
 
-    // Populate conversation với thông tin user
     const populatedConversation = await Conversation.findById(savedConversation._id)
       .populate('studentId', 'Fullname Image')
       .populate('teacherId', 'Fullname Image');
 
-    return res.status(201).json(populatedConversation);
+    return res.status(201).json({
+      ...populatedConversation.toObject(),
+      studentId: formatUserWithImage(populatedConversation.studentId),
+      teacherId: formatUserWithImage(populatedConversation.teacherId),
+    });
 
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: 'Server error', error: err.message });
   }
 };
+
 
 const sendMessage = async (req, res) => {
   try {
