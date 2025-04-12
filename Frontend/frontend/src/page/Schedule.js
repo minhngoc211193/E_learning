@@ -155,7 +155,9 @@ function Schedule() {
                                 <br />
                                 Room: {sch.Address}
                                 <br />
+
                                 {isStudent ? <span>Status: {sch.Attendances[0].IsPresent}</span> : <span></span>}
+
                                 
                               </div>
                             </div>

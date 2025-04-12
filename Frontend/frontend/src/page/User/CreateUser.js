@@ -103,6 +103,7 @@ function CreateUser({ setActiveTab }) {
                 DateOfBirth: "",
                 MajorId: "",
             });
+
             openNotification("success");
             setTimeout(() => setActiveTab("all"),2000);
         } catch (e) {
