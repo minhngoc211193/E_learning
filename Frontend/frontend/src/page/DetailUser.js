@@ -15,7 +15,7 @@ const DetailUser = () => {
         const fetchUserDetail = async () => {
             const token = localStorage.getItem("accessToken");
             try {
-                const response = await axios.get(`http://localhost:8000/user/detail-user/${id}`, { 
+                const response = await axios.get(`https://e-learning-backend-fsih.onrender.com/user/detail-user/${id}`, { 
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 setUser(response.data);

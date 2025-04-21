@@ -13,7 +13,7 @@ function Login() {
         setError("");
     
         try {
-            const res = await axios.post("http://localhost:8000/auth/login", { Email: email, Password: password })
+            const res = await axios.post("https://e-learning-backend-fsih.onrender.com/auth/login", { Email: email, Password: password })
             // Lưu token & chuyển hướng
             localStorage.setItem("accessToken", res.data.accessToken);
                 window.location.href = "/home";

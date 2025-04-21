@@ -52,11 +52,11 @@ function ManageMeeting (){
     try {
       let response;
       if (role === "student") {
-        response = await axios.get("http://localhost:8000/meet/meetings", {
+        response = await axios.get("https://e-learning-backend-fsih.onrender.com/meet/meetings", {
           headers: { Authorization: `Bearer ${token}` }
         });
       } else if (role === "teacher") {
-        response = await axios.get("http://localhost:8000/meet/meetings", {
+        response = await axios.get("https://e-learning-backend-fsih.onrender.com/meet/meetings", {
           headers: { Authorization: `Bearer ${token}` }
         });
       }
@@ -76,7 +76,7 @@ function ManageMeeting (){
       openNotification("error", "Just teacher can confirm meetings");
     }
     try {
-      const response = await axios.post("http://localhost:8000/meet/respond-meeting", {
+      const response = await axios.post("https://e-learning-backend-fsih.onrender.com/meet/respond-meeting", {
         meetingId, action: "accept"
       },
         {
@@ -108,7 +108,7 @@ function ManageMeeting (){
           openNotification("Just teacher can reject meeting!");
             return;
         }
-          const response = await axios.post("http://localhost:8000/meet/respond-meeting", 
+          const response = await axios.post("https://e-learning-backend-fsih.onrender.com/meet/respond-meeting", 
               {
               meetingId, action: "reject", rejectionReason
               },
@@ -152,7 +152,7 @@ function ManageMeeting (){
       }
 
       await axios.put(
-        `http://localhost:8000/meet/update/${currentMeeting._id}`,
+        `https://e-learning-backend-fsih.onrender.com/meet/update/${currentMeeting._id}`,
         {
           meetingId: currentMeeting._id,
           time: editedMeeting.time,

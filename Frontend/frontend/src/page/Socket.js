@@ -3,7 +3,7 @@ import { io } from "socket.io-client";
 // Tạo một hàm để khởi tạo kết nối Socket.IO
 function createSocket () {
   // Kết nối đến server, thay đổi URL nếu cần
-  const socket = io("http://localhost:8000", {
+  const socket = io("https://e-learning-backend-fsih.onrender.com", {
     transports: ["websocket"],
 
   }); // URL của server

@@ -70,7 +70,7 @@ function Subject() {
 
     const fetchMajors = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/major/majors', {
+            const response = await axios.get('https://e-learning-backend-fsih.onrender.com/major/majors', {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setMajors(response.data);
@@ -84,11 +84,11 @@ function Subject() {
         try {
             let response;
             if (userRole === "student" || userRole === "teacher") {
-                response = await axios.get(`http://localhost:8000/subject/get-subjects-by-major/${userMajor}`, {
+                response = await axios.get(`https://e-learning-backend-fsih.onrender.com/subject/get-subjects-by-major/${userMajor}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
             } else {
-                response = await axios.get("http://localhost:8000/subject/subjects", {
+                response = await axios.get("https://e-learning-backend-fsih.onrender.com/subject/subjects", {
                     headers: { Authorization: `Bearer ${token}` },
                 });
             }
@@ -116,11 +116,11 @@ function Subject() {
         try {
 
             if (editId) {
-                await axios.put(`http://localhost:8000/subject/update-subject/${editId}`, requestData, {
+                await axios.put(`https://e-learning-backend-fsih.onrender.com/subject/update-subject/${editId}`, requestData, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
             } else {
-                await axios.post("http://localhost:8000/subject/create-subject", requestData, {
+                await axios.post("https://e-learning-backend-fsih.onrender.com/subject/create-subject", requestData, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
             }
@@ -150,7 +150,7 @@ function Subject() {
     const handleDelete = async (_id) => {
         const token = localStorage.getItem("accessToken");
         try {
-            await axios.delete(`http://localhost:8000/subject/delete-subject/${_id}`, {
+            await axios.delete(`https://e-learning-backend-fsih.onrender.com/subject/delete-subject/${_id}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 

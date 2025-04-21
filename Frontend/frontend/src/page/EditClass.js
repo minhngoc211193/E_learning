@@ -52,7 +52,7 @@ const EditClass = () => {
         navigate("/");
         return;
       }
-      const res = await axios.get(`http://localhost:8000/class/detail-class/${classId}`, {
+      const res = await axios.get(`https://e-learning-backend-fsih.onrender.com/class/detail-class/${classId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -81,26 +81,26 @@ const EditClass = () => {
     const token = localStorage.getItem("accessToken");
     if (classData.Major) {
       axios
-        .get(`http://localhost:8000/subject/get-subjects-by-major/${classData.Major}`, {
+        .get(`https://e-learning-backend-fsih.onrender.com/subject/get-subjects-by-major/${classData.Major}`, {
           headers: { Authorization: `Bearer ${token}` },
         })
         .then((res) => setSubjects(res.data));
 
       axios
-        .get(`http://localhost:8000/user/users-by-major/${classData.Major}?Role=teacher`, {
+        .get(`https://e-learning-backend-fsih.onrender.com/user/users-by-major/${classData.Major}?Role=teacher`, {
           headers: { Authorization: `Bearer ${token}` },
         })
         .then((res) => setTeachers(res.data));
 
       axios
-        .get(`http://localhost:8000/user/users-by-major/${classData.Major}?Role=student`, {
+        .get(`https://e-learning-backend-fsih.onrender.com/user/users-by-major/${classData.Major}?Role=student`, {
           // search user
           headers: { Authorization: `Bearer ${token}` },
         })
         .then((res) => setStudents(res.data));
     }
 
-    axios.get("http://localhost:8000/major/majors", {
+    axios.get("https://e-learning-backend-fsih.onrender.com/major/majors", {
       headers: { Authorization: `Bearer ${token}` },
     }).then((res) => setMajors(res.data));
   }, [classData.Major]);
@@ -139,7 +139,7 @@ const EditClass = () => {
 
     try {
       const token = localStorage.getItem('accessToken');
-      const response = await axios.put(`http://localhost:8000/class/update-class/${classId}`, formData, {
+      const response = await axios.put(`https://e-learning-backend-fsih.onrender.com/class/update-class/${classId}`, formData, {
         headers: { Authorization: `Bearer ${token}` },
       });
       console.log(response.data);

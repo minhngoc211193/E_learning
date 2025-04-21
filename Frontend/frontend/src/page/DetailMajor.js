@@ -20,7 +20,7 @@ function DetailMajor() {
   }, [id, navigate, token]);
   const fetchMajor = async () => {
     try {
-      const res = await axios.get(`http://localhost:8000/major/detail-major/${id}`, {
+      const res = await axios.get(`https://e-learning-backend-fsih.onrender.com/major/detail-major/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setMajor(res.data);
@@ -31,7 +31,7 @@ function DetailMajor() {
   };
   const fetchUserByMajor = async () => {
     try{
-        const response = await axios.get(`http://localhost:8000/user/users-by-major/${id}`, {
+        const response = await axios.get(`https://e-learning-backend-fsih.onrender.com/user/users-by-major/${id}`, {
             headers: { Authorization: `Bearer ${token}` }
         })
         setUsers(response.data);
@@ -42,7 +42,7 @@ function DetailMajor() {
   }
   const fetchSubjectByMajor = async()=>{
     try{
-        const response = await axios.get(`http://localhost:8000/subject/get-subjects-by-major/${id}`,{
+        const response = await axios.get(`https://e-learning-backend-fsih.onrender.com/subject/get-subjects-by-major/${id}`,{
             headers: { Authorization: `Bearer ${token}` }
         })
         setSubjects(response.data);

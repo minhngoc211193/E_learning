@@ -41,7 +41,7 @@ function ManageSchedule() {
   // Hàm fetchSchedules được định nghĩa với useCallback
   const fetchSchedules = useCallback(async (date) => {
     try {
-      const res = await axios.get("http://localhost:8000/schedule/get-schedule-by-day", {
+      const res = await axios.get("https://e-learning-backend-fsih.onrender.com/schedule/get-schedule-by-day", {
         params: { day: date.format("YYYY-MM-DD") },
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -56,7 +56,7 @@ function ManageSchedule() {
   useEffect(() => {
     const fetchClasses = async () => {
       try {
-        const res = await axios.get("http://localhost:8000/class/classes", {
+        const res = await axios.get("https://e-learning-backend-fsih.onrender.com/class/classes", {
           headers: { Authorization: `Bearer ${token}` }
         });
         setClasses(res.data);
@@ -119,7 +119,7 @@ function ManageSchedule() {
       if (editingSchedule) {
         // Update lịch học
         await axios.put(
-          `http://localhost:8000/schedule/update-schedule/${editingSchedule._id}`,
+          `https://e-learning-backend-fsih.onrender.com/schedule/update-schedule/${editingSchedule._id}`,
           {
             ClassId: selectedClass,
             Address: selectedRoom,
@@ -132,7 +132,7 @@ function ManageSchedule() {
       } else {
         // Tạo lịch học mới
         await axios.post(
-          "http://localhost:8000/schedule/create-schedule",
+          "https://e-learning-backend-fsih.onrender.com/schedule/create-schedule",
           {
             ClassId: selectedClass,
             Address: selectedRoom,
@@ -176,7 +176,7 @@ function ManageSchedule() {
     if (!result.isConfirmed) return;
     setLoading(true);
     try {
-      await axios.delete(`http://localhost:8000/schedule/delete-schedule/${editingSchedule._id}`, {
+      await axios.delete(`https://e-learning-backend-fsih.onrender.com/schedule/delete-schedule/${editingSchedule._id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       Swal.fire("Delete!", "Schedule has been delete.", "success");

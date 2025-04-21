@@ -46,7 +46,7 @@ function Schedule() {
     const fetchSchedule = async () => {
       try {
         const res = await axios.get(
-          "http://localhost:8000/schedule/get-schedule-by-user",
+          "https://e-learning-backend-fsih.onrender.com/schedule/get-schedule-by-user",
           { headers: { Authorization: `Bearer ${token}` } }
         );
         setSchedules(res.data.schedules);
@@ -89,7 +89,7 @@ function Schedule() {
   const handleAttendance = async (scheduleId) => {
     try {
       await axios.get(
-        `http://localhost:8000/attendance/get-attendance-by-schedule/${scheduleId}`,
+        `https://e-learning-backend-fsih.onrender.com/attendance/get-attendance-by-schedule/${scheduleId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       window.location.href = `/attendance/${scheduleId}`;

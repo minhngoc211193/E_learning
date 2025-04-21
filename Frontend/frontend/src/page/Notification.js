@@ -20,7 +20,7 @@ import styles from './Notification.module.css';
 
   const fetchNotifications = async () => {
     try {
-      const response = await axios.get("http://localhost:8000/notification/noti", {
+      const response = await axios.get("https://e-learning-backend-fsih.onrender.com/notification/noti", {
         headers: { Authorization: `Bearer ${token}` },
       });
       console.log(response.data);

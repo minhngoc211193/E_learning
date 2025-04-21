@@ -58,7 +58,7 @@ function Major () {
 
     const fetchMajors = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/major/majors', {
+            const response = await axios.get('https://e-learning-backend-fsih.onrender.com/major/majors', {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setMajors(response.data);
@@ -75,11 +75,11 @@ function Major () {
         e.preventDefault();
         try {
             if (editingId) {
-                await axios.put(`http://localhost:8000/major/update-major/${editingId}`, majorData, {
+                await axios.put(`https://e-learning-backend-fsih.onrender.com/major/update-major/${editingId}`, majorData, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
             } else {
-                await axios.post('http://localhost:8000/major/create-major', majorData, {
+                await axios.post('https://e-learning-backend-fsih.onrender.com/major/create-major', majorData, {
                     headers: { Authorization: `Bearer ${token}` }, 
                 });
             }
@@ -102,7 +102,7 @@ function Major () {
 
     const handleDelete = async (_id) => {
         try {
-            await axios.delete(`http://localhost:8000/major/delete-major/${_id}`, {
+            await axios.delete(`https://e-learning-backend-fsih.onrender.com/major/delete-major/${_id}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             fetchMajors();

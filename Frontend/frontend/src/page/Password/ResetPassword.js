@@ -50,7 +50,7 @@ function ResetPassword() {
     }
     setLoading(true);
     try {
-      const res = await axios.post("http://localhost:8000/auth/forgot-password", { Email: email });
+      const res = await axios.post("https://e-learning-backend-fsih.onrender.com/auth/forgot-password", { Email: email });
       setSuccess(res.data.message);
       setStep(2); // chuyển sang bước 2
       setTimeLeft(300); // reset bộ đếm thời gian
@@ -70,7 +70,7 @@ function ResetPassword() {
       return;
     }
     try {
-      const res = await axios.post("http://localhost:8000/auth/verify-otp", { Email: email, otp });
+      const res = await axios.post("https://e-learning-backend-fsih.onrender.com/auth/verify-otp", { Email: email, otp });
       setSuccess(res.data.message);
       setStep(3); // chuyển sang bước 3
     } catch (err) {
@@ -91,7 +91,7 @@ function ResetPassword() {
       return;
     }
     try {
-      const res = await axios.post("http://localhost:8000/auth/reset-password-otp", { Email: email, newPassword });
+      const res = await axios.post("https://e-learning-backend-fsih.onrender.com/auth/reset-password-otp", { Email: email, newPassword });
       setSuccess(res.data.message);
       setTimeout(() => navigate("/"), 1000);
     } catch (err) {

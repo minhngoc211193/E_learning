@@ -48,7 +48,7 @@ function ManageClass() {
     //  Get class by user: fetch class theo user. 
     const fetchClasses = async () => {
         try {
-            const response = await axios.get("http://localhost:8000/class/classes", {
+            const response = await axios.get("https://e-learning-backend-fsih.onrender.com/class/classes", {
                 headers: { Authorization: `Bearer ${token}` }
             });
             console.log(response.data);
@@ -59,7 +59,7 @@ function ManageClass() {
     }
     const fetchSubjects = async () => {
         try {
-            const response = await axios.get("http://localhost:8000/subject/subjects", {
+            const response = await axios.get("https://e-learning-backend-fsih.onrender.com/subject/subjects", {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setSubjects(response.data);
@@ -69,7 +69,7 @@ function ManageClass() {
     };
     const fetchClassesByUser = async () => {
         try {
-            const response = await axios.get(`http://localhost:8000/class/class-by-userId/${userId}`, {
+            const response = await axios.get(`https://e-learning-backend-fsih.onrender.com/class/class-by-userId/${userId}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setClasses(response.data);
@@ -80,7 +80,7 @@ function ManageClass() {
 
     const fetchClassesBySubject = async(subjectId)=>{
         try{
-            const response = await axios.get(`http://localhost:8000/class/classes-by-subject/${subjectId}`, {
+            const response = await axios.get(`https://e-learning-backend-fsih.onrender.com/class/classes-by-subject/${subjectId}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setClasses(response.data);
@@ -105,7 +105,7 @@ function ManageClass() {
         if (!window.confirm("Are you sure you want to delete this class?"))
             return;
         try {
-            await axios.delete(`http://localhost:8000/class/delete-class/${id}`, {
+            await axios.delete(`https://e-learning-backend-fsih.onrender.com/class/delete-class/${id}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setClasses(classes.filter(classItem => classItem._id !== id));

@@ -77,7 +77,7 @@ function Document({ classId: externalClassId }) {
 
     const fetchClasses = async (userId) => {
         try {
-            const response = await axios.get(`http://localhost:8000/class/class-by-userId/${userId}`, {
+            const response = await axios.get(`https://e-learning-backend-fsih.onrender.com/class/class-by-userId/${userId}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             console.log("User ID:", userId);
@@ -89,7 +89,7 @@ function Document({ classId: externalClassId }) {
 
     const fetchDocuments = async (classId) => {
         try {
-            const response = await axios.get(`http://localhost:8000/document/documents/class/${classId}`, {
+            const response = await axios.get(`https://e-learning-backend-fsih.onrender.com/document/documents/class/${classId}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setDocuments(response.data.documents || []);
@@ -111,7 +111,7 @@ function Document({ classId: externalClassId }) {
         formData.append("ClassId", selectClass);
         console.log("File chọn:", documentData.file);
         try {
-            await axios.post("http://localhost:8000/document/upload-document", formData, {
+            await axios.post("https://e-learning-backend-fsih.onrender.com/document/upload-document", formData, {
                 headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" }
             });
             openNotification("success", "Upload successfully!");
@@ -139,7 +139,7 @@ function Document({ classId: externalClassId }) {
         }
         try {
 
-            await axios.put(`http://localhost:8000/document/update-document/${editingDocument._id}`, documentData, {
+            await axios.put(`https://e-learning-backend-fsih.onrender.com/document/update-document/${editingDocument._id}`, documentData, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             openNotification("success", "Update success!");
@@ -175,7 +175,7 @@ function Document({ classId: externalClassId }) {
         if (userRole !== "teacher" && userRole !== "admin")
             openNotification("error", "You are not allow delete document!");
         try {
-            await axios.delete(`http://localhost:8000/document/delete-document/${documentId}`, {
+            await axios.delete(`https://e-learning-backend-fsih.onrender.com/document/delete-document/${documentId}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             openNotification("success", "Delete success!");
@@ -191,7 +191,7 @@ function Document({ classId: externalClassId }) {
         }
 
         try {
-            const response = await axios.get(`http://localhost:8000/document/download-document/${documentId}`, {
+            const response = await axios.get(`https://e-learning-backend-fsih.onrender.com/document/download-document/${documentId}`, {
                 headers: { Authorization: `Bearer ${token}` },
                 responseType: 'blob', // Đảm bảo phản hồi là blob (tệp nhị phân)
             });

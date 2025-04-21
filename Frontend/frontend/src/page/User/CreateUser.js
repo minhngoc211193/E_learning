@@ -53,7 +53,7 @@ function CreateUser({ setActiveTab }) {
 
         const fetchMajors = async () => {
             try {
-                const response = await axios.get("http://localhost:8000/major/majors", {
+                const response = await axios.get("https://e-learning-backend-fsih.onrender.com/major/majors", {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 setMajors(response.data);
@@ -86,7 +86,7 @@ function CreateUser({ setActiveTab }) {
         const token = localStorage.getItem("accessToken");
         console.log("Form submitted!", userData); 
         try {
-            const response = await axios.post("http://localhost:8000/auth/register", userData, {
+            const response = await axios.post("https://e-learning-backend-fsih.onrender.com/auth/register", userData, {
                 headers: {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${token}`
