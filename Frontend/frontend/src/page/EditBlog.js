@@ -79,7 +79,7 @@ function EditBlog() {
           openNotification("error", "You are not logged in!");
           return;
         }
-        const res = await axios.get(`http://localhost:8000/blog/detail-blog/${id}`, {
+        const res = await axios.get(`https://e-learning-backend-fsih.onrender.com/blog/detail-blog/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setTitle(res.data.Title);
@@ -121,7 +121,7 @@ function EditBlog() {
       }
 
       await axios.put(
-        `http://localhost:8000/blog/update-blog/${id}`,
+        `https://e-learning-backend-fsih.onrender.com/blog/update-blog/${id}`,
         formData,
         {
           headers: {

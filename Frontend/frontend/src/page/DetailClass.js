@@ -23,7 +23,7 @@ function DetailClass() {
 
   const fetchClassData = async () => {
     try {
-      const response = await axios.get(`http://localhost:8000/class/detail-class/${id}`, {
+      const response = await axios.get(`https://e-learning-backend-fsih.onrender.com/class/detail-class/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

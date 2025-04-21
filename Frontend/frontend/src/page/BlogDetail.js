@@ -39,7 +39,7 @@ function BlogDetail() {
     try {
       const decoded = jwtDecode(token);
       const userId = decoded.id;
-      const res = await axios.get(`http://localhost:8000/user/detail-user/${userId}`, {
+      const res = await axios.get(`https://e-learning-backend-fsih.onrender.com/user/detail-user/${userId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setImageUser(res.data.Image);
@@ -54,7 +54,7 @@ useEffect(() => {
 
   const fetchBlog = useCallback(async () => {
     try {
-      const res = await axios.get(`http://localhost:8000/blog/detail-blog/${id}`, {
+      const res = await axios.get(`https://e-learning-backend-fsih.onrender.com/blog/detail-blog/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setBlog(res.data);
@@ -77,7 +77,7 @@ useEffect(() => {
       const userId = decodedToken.id;
 
       await axios.post(
-        "http://localhost:8000/comment/create-comment",
+        "https://e-learning-backend-fsih.onrender.com/comment/create-comment",
         {
           Content: comment,
           Blog: id,
@@ -112,7 +112,7 @@ useEffect(() => {
 
     if (!result.isConfirmed) return;
     try {
-      await axios.delete(`http://localhost:8000/comment/delete-comment/${commentId}`, {
+      await axios.delete(`https://e-learning-backend-fsih.onrender.com/comment/delete-comment/${commentId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchBlog();
@@ -127,7 +127,7 @@ useEffect(() => {
     if (!editedComment.trim()) return;
     try {
       await axios.put(
-        `http://localhost:8000/comment/update-comment/${commentId}`,
+        `https://e-learning-backend-fsih.onrender.com/comment/update-comment/${commentId}`,
         { Content: editedComment },
         { headers: { Authorization: `Bearer ${token}` } }
       );

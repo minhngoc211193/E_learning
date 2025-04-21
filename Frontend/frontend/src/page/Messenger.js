@@ -58,7 +58,7 @@ function Messenger() {
     const token = localStorage.getItem("accessToken");
 
     try {
-      const response = await axios.get("http://localhost:8000/messenger/search", {
+      const response = await axios.get("https://e-learning-backend-fsih.onrender.com/messenger/search", {
         params: { searchText: searchText.trim() }, // Sử dụng params để match với req.query ở backend
         headers: {
           Authorization: `Bearer ${token}`,
@@ -88,7 +88,7 @@ function Messenger() {
 
   const handleUser = async (user) => {
     try {
-      const response = await axios.post("http://localhost:8000/messenger/create",
+      const response = await axios.post("https://e-learning-backend-fsih.onrender.com/messenger/create",
         {
           searchUserId: user._id, // Sửa lại để match với backend
         }, {
@@ -132,7 +132,7 @@ function Messenger() {
         return;
       }
 
-      const res = await axios.get("http://localhost:8000/messenger/conversations", {
+      const res = await axios.get("https://e-learning-backend-fsih.onrender.com/messenger/conversations", {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -161,7 +161,7 @@ function Messenger() {
   // Lấy tin nhắn của hội thoại đã chọn
   const fetchMessages = async (conversationId) => {
     try {
-      const res = await axios.get(`http://localhost:8000/messenger/conversations/${conversationId}/messages`, {
+      const res = await axios.get(`https://e-learning-backend-fsih.onrender.com/messenger/conversations/${conversationId}/messages`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       console.log("Fetched messages:", res.data);
@@ -212,7 +212,7 @@ function Messenger() {
     if (!newMessage.trim() || !selectedConversationId) return;
     try {
       const response = await axios.post(
-        "http://localhost:8000/messenger/send-message",
+        "https://e-learning-backend-fsih.onrender.com/messenger/send-message",
         {
           conversationId: selectedConversationId,
           text: newMessage,

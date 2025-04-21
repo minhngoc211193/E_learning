@@ -26,7 +26,7 @@ function ChangePassword() {
       try {
         const decoded = jwtDecode(token);
         const userId = decoded.id;
-        const res = await axios.get(`http://localhost:8000/user/detail-user/${userId}`, {
+        const res = await axios.get(`https://e-learning-backend-fsih.onrender.com/user/detail-user/${userId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setFullname(res.data.Fullname);
@@ -69,7 +69,7 @@ function ChangePassword() {
       const decoded = jwtDecode(token);
       const userId = decoded.id;
       await axios.post(
-        "http://localhost:8000/auth/reset-password",
+        "https://e-learning-backend-fsih.onrender.com/auth/reset-password",
         { userId, oldPassword, newPassword },
         { headers: { Authorization: `Bearer ${token}` } }
       );

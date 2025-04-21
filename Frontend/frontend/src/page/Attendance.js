@@ -37,7 +37,7 @@ function Attendance() {
     const fetchAttendance = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:8000/attendance/get-attendance-by-schedule/${scheduleId}`,
+          `https://e-learning-backend-fsih.onrender.com/attendance/get-attendance-by-schedule/${scheduleId}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         setAttendanceData(response.data.usersWithImage);
@@ -70,7 +70,7 @@ function Attendance() {
         comment: record.Comment || "",
       }));
       await axios.put(
-        "http://localhost:8000/attendance/update-attendance",
+        "https://e-learning-backend-fsih.onrender.com/attendance/update-attendance",
         { scheduleId, students: updatedAttendance },
         { headers: { Authorization: `Bearer ${token}` } }
       );

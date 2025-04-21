@@ -51,7 +51,7 @@ const EditUser = () => {
           openNotification("error", "You are not allowed to access this page!");
           setTimeout(() =>navigate("/"), 2000); 
         }
-        const res = await axios.get(`http://localhost:8000/user/detail-user/${id}`, {
+        const res = await axios.get(`https://e-learning-backend-fsih.onrender.com/user/detail-user/${id}`, {
             headers: { Authorization: `Bearer ${token}` }
         });
 
@@ -78,7 +78,7 @@ useEffect(() => {
     fetchUserInfo();
 },[]);
 useEffect(() => {
-    axios.get("http://localhost:8000/major/majors", {
+    axios.get("https://e-learning-backend-fsih.onrender.com/major/majors", {
       headers: {Authorization: `Bearer ${token}`}
     }).then((res) => {
       setMajors(res.data);
@@ -115,7 +115,7 @@ useEffect(() => {
     }
 
     try {
-      const response = await axios.put(`http://localhost:8000/user/update-user/${id}`, formData, {
+      const response = await axios.put(`https://e-learning-backend-fsih.onrender.com/user/update-user/${id}`, formData, {
         headers: { Authorization: `Bearer ${token}`,
        },
 

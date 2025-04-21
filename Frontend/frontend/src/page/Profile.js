@@ -32,7 +32,7 @@ function Profile() {
             }
             const decoded = jwtDecode(token);
             const userId = decoded.id;
-            const res = await axios.get(`http://localhost:8000/user/detail-user/${userId}`, {
+            const res = await axios.get(`https://e-learning-backend-fsih.onrender.com/user/detail-user/${userId}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
@@ -45,7 +45,7 @@ function Profile() {
                 setGender(res.data.Gender || "N/A");
             }
 
-            const resBlogs = await axios.get(`http://localhost:8000/blog/get-blog-by-user/${userId}`, {
+            const resBlogs = await axios.get(`https://e-learning-backend-fsih.onrender.com/blog/get-blog-by-user/${userId}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setBlogs(resBlogs.data);
@@ -80,7 +80,7 @@ function Profile() {
 
         try {
             const token = localStorage.getItem("accessToken");
-            await axios.delete(`http://localhost:8000/blog/delete-blog/${blogId}`, {
+            await axios.delete(`https://e-learning-backend-fsih.onrender.com/blog/delete-blog/${blogId}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             Swal.fire("Deleted!", "Blog has been deleted.", "success");

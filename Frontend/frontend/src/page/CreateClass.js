@@ -64,7 +64,7 @@ function CreateClass() {
 
   const fetchMajors = async () => {
     try {
-      const response = await axios.get(`http://localhost:8000/major/majors`, {
+      const response = await axios.get(`https://e-learning-backend-fsih.onrender.com/major/majors`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setMajors(response.data);
@@ -78,7 +78,7 @@ function CreateClass() {
     if (!majorId) return;
     try {
 
-      const response = await axios.get(`http://localhost:8000/subject/get-subjects-by-major/${majorId}`, {
+      const response = await axios.get(`https://e-learning-backend-fsih.onrender.com/subject/get-subjects-by-major/${majorId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setSubjects(response.data);
@@ -91,7 +91,7 @@ function CreateClass() {
   const fetchStudentsBySubject = async (majorId, subjectId) => {
     if (!majorId || !subjectId) return;
     try {
-      const response = await axios.get(`http://localhost:8000/user/users-by-subject?majorId=${majorId}&subjectId=${subjectId}`, {
+      const response = await axios.get(`https://e-learning-backend-fsih.onrender.com/user/users-by-subject?majorId=${majorId}&subjectId=${subjectId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setStudents(response.data);
@@ -107,7 +107,7 @@ function CreateClass() {
       const decoded = jwtDecode(token);
       const userRole = "teacher"
       if (!classData.Major) return;
-      const response = await axios.get(`http://localhost:8000/user/users-by-major/${majorId}?Role=${userRole}`, {
+      const response = await axios.get(`https://e-learning-backend-fsih.onrender.com/user/users-by-major/${majorId}?Role=${userRole}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       console.log(response.data);
@@ -173,7 +173,7 @@ function CreateClass() {
         Slots: classData.Slot,
       };
 
-      await axios.post("http://localhost:8000/class/create-class", simplifiedClassData, {
+      await axios.post("https://e-learning-backend-fsih.onrender.com/class/create-class", simplifiedClassData, {
         headers: { Authorization: `Bearer ${token}` }
       });
       openNotification("success");

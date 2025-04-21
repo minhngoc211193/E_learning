@@ -52,7 +52,7 @@ function ManageUser() {
     const fetchMajors = async () => {
         const token = localStorage.getItem("accessToken");
         try {
-            const response = await axios.get('http://localhost:8000/major/majors', {
+            const response = await axios.get('https://e-learning-backend-fsih.onrender.com/major/majors', {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
@@ -73,7 +73,7 @@ function ManageUser() {
                 navigate("/home");
                 return;
             }
-            const response = await axios.get('http://localhost:8000/user/users', {
+            const response = await axios.get('https://e-learning-backend-fsih.onrender.com/user/users', {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
@@ -87,7 +87,7 @@ function ManageUser() {
     const fetchUserByMajor = async (id) => {
         const token = localStorage.getItem('accessToken');
         try {
-            const response = await axios.get(`http://localhost:8000/user/users-by-major/${id}`, {
+            const response = await axios.get(`https://e-learning-backend-fsih.onrender.com/user/users-by-major/${id}`, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
@@ -100,7 +100,7 @@ function ManageUser() {
     const handleDelete = async (id) => {
         if (window.confirm('Are you sure you want to delete this user?')) {
             try {
-                await axios.delete(`http://localhost:8000/user/delete-user/${id}`, {
+                await axios.delete(`https://e-learning-backend-fsih.onrender.com/user/delete-user/${id}`, {
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem('accessToken')}`
                     }

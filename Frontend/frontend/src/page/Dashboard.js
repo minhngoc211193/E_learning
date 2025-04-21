@@ -35,19 +35,19 @@ const Dashboard = () => {
         console.error("Bạn chưa đăng nhập!");
         return;
       }
-      const resClasses = await axios.get(`http://localhost:8000/class/classes`, {
+      const resClasses = await axios.get(`https://e-learning-backend-fsih.onrender.com/class/classes`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      const resMajors = await axios.get(`http://localhost:8000/major/majors`, {
+      const resMajors = await axios.get(`https://e-learning-backend-fsih.onrender.com/major/majors`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      const resSubject = await axios.get(`http://localhost:8000/subject/subjects`, {
+      const resSubject = await axios.get(`https://e-learning-backend-fsih.onrender.com/subject/subjects`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      const resBlogs = await axios.get(`http://localhost:8000/blog/blogs`, {
+      const resBlogs = await axios.get(`https://e-learning-backend-fsih.onrender.com/blog/blogs`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      const resUsers = await axios.get(`http://localhost:8000/user/users`, {
+      const resUsers = await axios.get(`https://e-learning-backend-fsih.onrender.com/user/users`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setAllClass(resClasses.data);
@@ -72,7 +72,7 @@ const Dashboard = () => {
 
   const updateChartStudentsByMajor = useCallback(async () => {
     axios
-      .get("http://localhost:8000/dashboard/students-by-major", {
+      .get("https://e-learning-backend-fsih.onrender.com/dashboard/students-by-major", {
         headers: { Authorization: `Bearer ${token}` }
       })
       .then((response) => {
@@ -129,7 +129,7 @@ const Dashboard = () => {
 
   const updateChartClassesBySubject = useCallback(async () => {
     axios
-      .get("http://localhost:8000/dashboard/classes-by-subject", {
+      .get("https://e-learning-backend-fsih.onrender.com/dashboard/classes-by-subject", {
         headers: { Authorization: `Bearer ${token}` }
       })
       .then((response) => {
@@ -203,7 +203,7 @@ const Dashboard = () => {
 
   const updateChartSubjectsByMajor = useCallback(async () => {
     axios
-      .get("http://localhost:8000/dashboard/subjects-by-major", {
+      .get("https://e-learning-backend-fsih.onrender.com/dashboard/subjects-by-major", {
         headers: { Authorization: `Bearer ${token}` }
       })
       .then((response) => {
@@ -277,7 +277,7 @@ const Dashboard = () => {
 
   const updateChartTeachersByMajor = useCallback(async () => {
     axios
-      .get("http://localhost:8000/dashboard/teachers-by-major", {
+      .get("https://e-learning-backend-fsih.onrender.com/dashboard/teachers-by-major", {
         headers: { Authorization: `Bearer ${token}` }
       })
       .then((response) => {
@@ -332,7 +332,7 @@ const Dashboard = () => {
 
   const updateChartBlogByDay = useCallback(async () => {
     axios
-      .get("http://localhost:8000/dashboard/blog-by-day", {
+      .get("https://e-learning-backend-fsih.onrender.com/dashboard/blog-by-day", {
         headers: { Authorization: `Bearer ${token}` }
       })
       .then((response) => {
@@ -393,7 +393,7 @@ const Dashboard = () => {
 
   const updateChartMessagesByDay = useCallback(async () => {
     axios
-      .get("http://localhost:8000/dashboard/messages-by-day", {
+      .get("https://e-learning-backend-fsih.onrender.com/dashboard/messages-by-day", {
         headers: { Authorization: `Bearer ${token}` }
       })
       .then((response) => {
@@ -453,7 +453,7 @@ const Dashboard = () => {
 
   const updateChartStudentStatus = useCallback(async () => {
     axios
-      .get("http://localhost:8000/dashboard/students-class-status", {
+      .get("https://e-learning-backend-fsih.onrender.com/dashboard/students-class-status", {
         headers: { Authorization: `Bearer ${token}` }
       })
       .then((response) => {

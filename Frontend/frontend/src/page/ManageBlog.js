@@ -36,8 +36,8 @@ function ManageBlog() {
       setLoading(true);
       const token = localStorage.getItem("accessToken");
       const url = search
-        ? `http://localhost:8000/blog/search-blog?search=${search}`
-        : "http://localhost:8000/blog/blogs";
+        ? `https://e-learning-backend-fsih.onrender.com/blog/search-blog?search=${search}`
+        : "https://e-learning-backend-fsih.onrender.com/blog/blogs";
 
       const response = await axios.get(url, {
         headers: { Authorization: `Bearer ${token}` },
@@ -75,7 +75,7 @@ function ManageBlog() {
     if (!result.isConfirmed) return;
 
     try {
-      await axios.delete(`http://localhost:8000/blog/delete-blog/${id}`, {
+      await axios.delete(`https://e-learning-backend-fsih.onrender.com/blog/delete-blog/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
