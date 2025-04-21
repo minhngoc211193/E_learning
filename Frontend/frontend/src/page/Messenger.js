@@ -95,10 +95,12 @@ function Messenger() {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      // Nếu có conversation trả về, set conversation đó
+      setConversations((prevConversations) => [response.data, ...prevConversations]);
+    
+      // Đặt conversation mới được chọn
       setSelectedConversationId(response.data._id);
-
-      // Nếu là conversation mới, fetch messages
+      
+      // Fetch tin nhắn cho cuộc trò chuyện đó
       fetchMessages(response.data._id);
     } catch (e) {
       console.error("Error creating conversation:", e)

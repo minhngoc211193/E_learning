@@ -17,6 +17,7 @@ function Profile() {
     const [dateOfBirth, setDateOfBirth] = useState("");
     const [gender, setGender] = useState("");
     const [blogs, setBlogs] = useState([]);
+    const [searchQuery, setSearchQuery] = useState(""); // state cho từ khóa tìm kiếm
     const navigate = useNavigate();
     const token = localStorage.getItem("accessToken");
 
@@ -82,17 +83,22 @@ function Profile() {
             await axios.delete(`http://localhost:8000/blog/delete-blog/${blogId}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
-            Swal.fire("Delete!", "Blog has been delete.", "success");
+            Swal.fire("Deleted!", "Blog has been deleted.", "success");
             fetchUserInfo();
         } catch (error) {
-            console.error("Error when delete blog", error);
+            console.error("Error when deleting blog", error);
             Swal.fire("Error!", "Cannot delete blog.", "error");
         }
     };
 
+    // Lọc blog dựa theo tiêu đề
+    const filteredBlogs = blogs.filter(blog => 
+        blog.Title.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
     return (
         <div className={isAdmin ? styles.main : styles.main2}>
-            {isAdmin ? (<> <Menu /></>) : (<Header />)}
+            {isAdmin ? (<><Menu /></>) : (<Header />)}
             <div className={styles.container}>
                 <img src={BackgroundProfile} alt="User Cover" className={styles.coverImage} />
                 <div className={styles.profileContainer}>
@@ -116,11 +122,22 @@ function Profile() {
                     <button onClick={() => navigate('/updateinformationuser')} className={styles.btnEdit}>
                         <i className="fa-solid fa-pen"></i> Detail profile
                     </button>
+                    <div className={styles.search}>
+                        <input
+                            type="text"
+                            placeholder="Search for blog"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                        />
+                        <button>
+                            <i className="fa-solid fa-magnifying-glass"></i>
+                        </button>
+                    </div>
                     <div className={styles.cardsContainer}>
-                        {blogs.length > 0 ? (
-                            blogs.map((blog) => (
+                        {filteredBlogs.length > 0 ? (
+                            filteredBlogs.map((blog) => (
                                 <div key={blog._id} className={styles.blogCard} onClick={() => handleEdit(blog._id)}>
-                                    <i class="fa-solid fa-trash" onClick={(e) => handleDelete(blog._id, e)}></i>
+                                    <i className="fa-solid fa-trash" onClick={(e) => handleDelete(blog._id, e)}></i>
                                     {blog.Image && (
                                         <img
                                             src={blog.Image}
@@ -138,7 +155,7 @@ function Profile() {
                             ))
                         ) : (
                             <div className={styles.blogCardNone}>
-                                <p>No blog yet</p> <br />
+                                <p>No blog found</p> <br />
                                 <button onClick={() => navigate('/createblog')}>
                                     <i className="fa-solid fa-pen"></i> Create blog
                                 </button>
