@@ -36,7 +36,7 @@ function Header() {
     try {
       const decoded = jwtDecode(token);
       const userId = decoded.id;
-      const res = await axios.get(`http://localhost:8000/user/detail-user/${userId}`, {
+      const res = await axios.get(`https://e-learning-backend-fsih.onrender.com/user/detail-user/${userId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setFullname(res.data.Fullname);
