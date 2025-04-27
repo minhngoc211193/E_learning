@@ -61,7 +61,6 @@ function Attendance() {
     );
   };
 
-  // Hàm xử lý gửi dữ liệu điểm danh lên server
   const handleSubmit = async () => {
     try {
       const updatedAttendance = attendanceData.map((record) => ({
@@ -92,7 +91,7 @@ function Attendance() {
         <div className={styles.backButton} onClick={() => navigate("/schedule")}>
           <span><i className="fa-solid fa-arrow-left"></i></span>
         </div>
-        <h1 className={styles.header}>Danh sách điểm danh</h1>
+        <h1 className={styles.header}>List Attendance</h1>
         <div className={styles.tableContainer}>
           <table className={styles.table}>
             <thead>
