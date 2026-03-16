@@ -1,5 +1,5 @@
-E-Learning Management System
-Overview
+**E-Learning Management System**
+**Overview**
 
 This project is a web-based E-Learning Management System designed to facilitate interaction and academic management between students, teachers, and educational staff.
 
@@ -7,12 +7,12 @@ The platform integrates learning resource management, scheduling, and communicat
 
 Additionally, the system provides real-time communication and notifications, improving collaboration and responsiveness between users.
 
-Key Features
-Role-Based User System
+**Key Features**
+**Role-Based User System**
 
 The platform supports three main user roles:
 
-Students
+- Students
 
 View learning schedules
 
@@ -22,7 +22,7 @@ Communicate with teachers via messaging
 
 Book meetings with teachers
 
-Teachers
+- Teachers
 
 Upload learning documents and teaching materials
 
@@ -32,7 +32,7 @@ Manage meeting requests from students
 
 Interact with students through real-time messaging
 
-Educational Staff (Administrators)
+- Educational Staff (Administrators)
 
 Manage academic schedules
 
@@ -42,106 +42,46 @@ Organize learning sessions
 
 Monitor academic operations
 
-Core Functionalities
-Authentication & Security
+**Core Functionalities**
+- Authentication & Security
 
-JWT-based authentication
+  + JWT-based authentication
 
-Google Email Authentication (OAuth)
+  + Google Email Authentication (OAuth)
 
-Role-based access control
+  + Role-based access control
 
-Academic Scheduling
+- Academic Scheduling
 
-Class scheduling and management
+  + Class scheduling and management
 
-Student class assignment
+  + Student class assignment
 
-Meeting booking between students and teachers
+  + Meeting booking between students and teachers
 
-Schedule viewing system
+  + Schedule viewing system
 
-Learning Resources
+- Learning Resources
 
-Teachers can upload study documents
+  + Teachers can upload study documents
 
-Blog system for sharing educational content
+  + Blog system for sharing educational content
 
-Real-Time Communication
+- Real-Time Communication
 
-Real-time messaging between students and teachers
+  + Real-time messaging between students and teachers
 
-Implemented using WebSocket / Socket.io
+  + Implemented using WebSocket / Socket.io
 
-Notification System
+- Notification System
 
-Real-time notifications for schedule updates
+  + Real-time notifications for schedule updates
 
-Alerts for meeting requests and academic events
+  + Alerts for meeting requests and academic events
+**Tech Stack:**
+ React | Node.js | MongoDB | Socket.io | JWT | Render
 
-System Architecture
-
-The system follows a full-stack web architecture.
-
-Frontend
-
-React.js
-
-REST API integration
-
-Real-time communication using Socket.io
-
-Backend
-
-Node.js
-
-Express.js
-
-JWT authentication
-
-WebSocket / Socket.io server
-
-Database
-
-MongoDB
-
-API Testing
-
-Postman
-
-Tech Stack
-
-Frontend
-
-React.js
-
-JavaScript
-
-Backend
-
-Node.js
-
-Express.js
-
-Socket.io
-
-Database
-
-MongoDB
-
-Authentication
-
-JWT
-
-Google OAuth
-
-Development Tools
-
-Postman
-
-Git / GitHub
-
-Main Modules
+**Main Modules**
 E_learning/
 │
 ├── frontend/        # React client application
@@ -151,12 +91,13 @@ E_learning/
 ├── middleware/      # Authentication & authorization
 ├── models/          # MongoDB schemas
 └── sockets/         # Real-time communication logic
-Future Improvements
+**Future Improvements**
 
-Video meeting integration for online classes
+- Video meeting integration for online classes
 
-Advanced learning analytics
+- Advanced learning analytics
 
-Mobile application support
+- Mobile application support
 
-AI-based course recommendation
+- AI-based course recommendation for admissions and school regulations
+  
