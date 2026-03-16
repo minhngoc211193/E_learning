@@ -14,33 +14,33 @@ The platform supports three main user roles:
 
 - Students
 
-View learning schedules
-
-Access learning materials and blog posts
-
-Communicate with teachers via messaging
-
-Book meetings with teachers
+  + View learning schedules
+  
+  + Access learning materials and blog posts
+  
+  + Communicate with teachers via messaging
+  
+  + Book meetings with teachers
 
 - Teachers
 
-Upload learning documents and teaching materials
-
-Publish educational blog posts
-
-Manage meeting requests from students
-
-Interact with students through real-time messaging
+  + Upload learning documents and teaching materials
+  
+  + Publish educational blog posts
+  
+  + Manage meeting requests from students
+  
+  + Interact with students through real-time messaging
 
 - Educational Staff (Administrators)
 
-Manage academic schedules
-
-Assign students to classes
-
-Organize learning sessions
-
-Monitor academic operations
+  + Manage academic schedules
+  
+  + Assign students to classes
+  
+  + Organize learning sessions
+  
+  + Monitor academic operations
 
 **Core Functionalities**
 - Authentication & Security
